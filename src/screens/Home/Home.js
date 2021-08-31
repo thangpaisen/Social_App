@@ -14,7 +14,7 @@ const Home = () => {
     const [refreshing, setRefreshing] = useState(false);
   const ref =firestore().collection('postsUser').orderBy('createdAt', 'desc') ;
   useEffect(() => {
-    const abc=  ref.onSnapshot(querySnapshot => {
+        const abc=  ref.onSnapshot(querySnapshot => {
         const listPostsUser = querySnapshot.docs.map(doc => {
           const data = {
               id:doc.id,
@@ -62,8 +62,6 @@ const Home = () => {
         {postsUser.map((item, index) => (
           <ItemPost item={item} key={index} />
         ))}
-        {/* <ItemPost item={item}/>
-        <ItemPost  item={item2}/> */}
       </ScrollView>
     </View>
   );

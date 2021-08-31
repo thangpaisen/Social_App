@@ -17,7 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-
+import * as Animatable from 'react-native-animatable';
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const [user, setUser] = useState({});
@@ -28,12 +28,10 @@ const ItemPost = ({item}) => {
     }
   }, []);
   const handleOnLove = () => {
-    //   console.log('love')
     const checkLove = item.love.indexOf(user.uid);
     if (checkLove > -1) {
-      console.log('-love')
-        var newArr = [...item.love]
-        newArr.splice(checkLove, 1);
+      var newArr = [...item.love];
+      newArr.splice(checkLove, 1);
       firestore()
         .collection('postsUser')
         .doc(item.id)
@@ -44,8 +42,6 @@ const ItemPost = ({item}) => {
           {merge: true},
         );
     } else {
-      console.log('+love')
-
       firestore()
         .collection('postsUser')
         .doc(item.id)
@@ -57,6 +53,9 @@ const ItemPost = ({item}) => {
         );
     }
   };
+  const handleOpenComments =()=>{
+      navigation.navigate('Comments',{dataPost:item})
+  }
   return (
     <View style={styles.itemPost}>
       <View style={styles.headerItemPost}>
@@ -77,10 +76,10 @@ const ItemPost = ({item}) => {
         </View>
       </View>
       <View style={styles.content}>
-        <Text
+        {item.message.text.length>0&&<Text
           style={[styles.textContent, !item.message.image && {fontSize: 20}]}>
           {item.message.text}
-        </Text>
+        </Text>}
         {item.message.image ? (
           <Lightbox
             navigator={navigation.navigator}
@@ -100,13 +99,15 @@ const ItemPost = ({item}) => {
         <TouchableOpacity
           style={[styles.feel, styles.itemIcon]}
           onPress={() => handleOnLove()}>
-          <Icon
-            name={item.love.indexOf(user.uid) > -1 ? 'heart' : 'heart-outline'}
-            size={26}
-            color={item.love.indexOf(user.uid) > -1 ? 'red' : 'black'}
-          />
+            <Icon
+              name={
+                item.love.indexOf(user.uid) > -1 ? 'heart' : 'heart-outline'
+              }
+              size={26}
+              color={item.love.indexOf(user.uid) > -1 ? 'red' : 'black'}
+            />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.comment, styles.itemIcon]}>
+        <TouchableOpacity style={[styles.comment, styles.itemIcon]} onPress={() => handleOpenComments()}>
           <Icon name="chatbox-outline" size={26} color={'black'} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.share, styles.itemIcon]}>
@@ -114,14 +115,18 @@ const ItemPost = ({item}) => {
         </TouchableOpacity>
       </View>
       <View style={styles.reactQuantity}>
-       { item.love.length>0&&<View style={[styles.quantityLove]}>
-          <Text style={styles.textQuantityLove}>
-            {item.love.length} lượt thích
-          </Text>
-        </View>}
-        {item.comment.length>0&&<View style={styles.quantityComment}>
-          <Text style={styles.textQuantityComment}>6 bình luận</Text>
-        </View>}
+        {item.love.length > 0 && (
+          <View style={[styles.quantityLove]}>
+            <Text style={styles.textQuantityLove}>
+              {item.love.length} lượt thích
+            </Text>
+          </View>
+        )}
+        {item?.numberComments > 0 && (
+          <View style={styles.quantityComment}>
+            <Text style={styles.textQuantityComment}>{item?.numberComments} bình luận</Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -152,9 +157,11 @@ const styles = StyleSheet.create({
   lastTime: {
     fontSize: 12,
   },
+  content:{
+      marginVertical:10,
+  },
   textContent: {
     padding: 10,
-    marginTop: 10,
     fontSize: 16,
   },
   image: {

@@ -90,7 +90,6 @@ const UploadPost = () => {
       if(text ||imageUpImp.uri )
       {
           setLockUpPosts(true)
-        // console.log(text,imageUpImp.uri);
         var url=''
         if(imageUpImp.uri)
         {
@@ -103,7 +102,7 @@ const UploadPost = () => {
         .collection('postsUser')
         .add({
             love:[],
-            comment:[],
+            numberComments:0,
             message:{
                 text:text,
                 image:url,
@@ -180,10 +179,6 @@ const UploadPost = () => {
         animationType="slide"
         transparent={true}
         visible={lockUpPosts}
-        // onRequestClose={() => {
-        //   Alert.alert("Modal has been closed.");
-        //   setModalVisible(!modalVisible);
-        // }}
       >
         <View style={styles.model}>
                 <ActivityIndicator size="large" color="#0000ff" />

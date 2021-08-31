@@ -4,9 +4,10 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {TransitionPresets} from '@react-navigation/stack';
 import Home from './../screens/Home';
 import Settings from './../screens/Settings';
-import UploadPost from "./../screens/Home/UploadPost/UploadPost";
+import UploadPost from "./../screens/Home/UploadPost";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Comments from "./../screens/Home/Comments";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -64,6 +65,14 @@ const AppStack = () => {
         // options={{
         //   ...TransitionPresets.SlideFromRightIOS,
         // }}
+      />
+      
+      <Stack.Screen
+        name="Comments"
+        component={Comments}
+        options={{
+          ...TransitionPresets.ModalPresentationIOS  ,
+        }}
       />
       
     </Stack.Navigator>
