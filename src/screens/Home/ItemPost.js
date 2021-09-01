@@ -6,7 +6,11 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  Pressable,
+  Modal,
+  Alert
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {Avatar} from 'react-native-elements';
 import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
@@ -21,6 +25,8 @@ import * as Animatable from 'react-native-animatable';
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const [user, setUser] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
+console.log(item.id);
   useEffect(() => {
     const a = auth().currentUser;
     if (a) {
@@ -56,7 +62,35 @@ const ItemPost = ({item}) => {
   const handleOpenComments =()=>{
       navigation.navigate('Comments',{dataPost:item})
   }
+  const handleClickButtonDeletePost =()=>{
+      Alert.alert(
+      "Thông báo",
+      "Bạn muốn xóa bài viết",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => deletePost() }
+      ]
+    );
+  }
+  const deletePost=()=>{
+      firestore()
+    .collection('postsUser')
+    .doc(item.id)
+    .delete()
+    .then(() => {
+        setModalVisible(false)
+        Toast.show({
+            text1: 'Đã xóa bài viết',
+            visibilityTime: 100,
+            });
+    });
+  }
   return (
+      <>
     <View style={styles.itemPost}>
       <View style={styles.headerItemPost}>
         <Avatar
@@ -74,6 +108,9 @@ const ItemPost = ({item}) => {
             {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') || '5 phút tr'}
           </Text>
         </View>
+        {user.uid===item.user.uid&&<Pressable style={styles.morePost} onPress={()=>setModalVisible(true)}>
+            <Icon name="ellipsis-horizontal" size={24} color="black" />
+        </Pressable>}
       </View>
       <View style={styles.content}>
         {item.message.text.length>0&&<Text
@@ -129,6 +166,27 @@ const ItemPost = ({item}) => {
         )}
       </View>
     </View>
+    <Modal
+        // animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+      >
+        <Pressable 
+            onPress={() =>setModalVisible(false)}
+            style={{flex: 1,backgroundColor:'black',opacity:0.2}}>
+        </Pressable>
+        <View style={styles.morePostContent}>
+                <TouchableOpacity style={styles.morePostItem}>
+                    <Icon name="trash-outline" size={24} color="black" />
+                    <Text style={{fontSize: 16,marginLeft:10}}>Chỉnh sửa bài viết</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.morePostItem} onPress={() =>handleClickButtonDeletePost()}> 
+                    <Icon name="trash-outline" size={24} color="black" />
+                    <Text style={{fontSize: 16,marginLeft:10}}>Xóa</Text>
+                </TouchableOpacity>
+            </View>
+      </Modal>
+    </>
   );
 };
 
@@ -149,6 +207,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginLeft: 10,
+    flex:1,
   },
   name: {
     fontSize: 14,
@@ -156,6 +215,27 @@ const styles = StyleSheet.create({
   },
   lastTime: {
     fontSize: 12,
+  },
+  morePost:{
+
+  },
+  morePostContent:{
+      position: 'absolute',
+      bottom:0,
+      left:0,
+      right:0,
+      backgroundColor: 'white',
+      elevation:5,
+      borderTopRightRadius:20,
+      borderTopLeftRadius:20,
+      padding:10,
+      paddingVertical:20,
+  },
+  morePostItem:{
+      padding:10,
+      flexDirection: 'row',
+      alignItems: 'center',
+
   },
   content:{
       marginVertical:10,

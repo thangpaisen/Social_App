@@ -47,6 +47,7 @@ const Comments = ({route}) => {
     };
   }, []);
   const handleSendComment = () => {
+      console.log('send comment')
     if (textComment.trim().length > 0) {
       ref.add({
         love: [],
@@ -58,7 +59,7 @@ const Comments = ({route}) => {
         },
         createdAt: new Date().getTime(),
       });
-      console.log(textComment);
+      setTextComment('')
     }
   };
   return (
@@ -103,7 +104,8 @@ const Comments = ({route}) => {
         <TouchableOpacity
           onPress={() => handleSendComment()}
           style={styles.send}
-          disabled={textComment.trim()>0?false:true}>
+          disabled={textComment.trim().length>0?false:true}
+          >
           <Text style={[styles.textSend,textComment.trim()==0&&{opacity:0.5}]}>Send</Text>
         </TouchableOpacity>
       </View>
