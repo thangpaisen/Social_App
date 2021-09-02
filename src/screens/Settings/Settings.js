@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react';
-import {StyleSheet, Text, View,TouchableOpacity,FlatList} from 'react-native';
+import {StyleSheet, Text, View,TouchableOpacity,FlatList,Pressable} from 'react-native';
 import {Avatar, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native';
@@ -8,24 +8,25 @@ import { useNavigation } from '@react-navigation/native';
 // import {useDispatch,useSelector} from 'react-redux'
 import auth from '@react-native-firebase/auth';
 
+
 const LisData=[
-    {icon:'receipt',title:'Hồ sơ'},
-    {icon:'heart',title:'App reviews'},
-    {icon:'star',title:'Share'},
-    {icon:'gift' ,title:'Support'},
-    {icon:'reader',title:'Version'},
+    {icon:'receipt',title:'Hồ sơ',nav:'ProfileUser'},
+    {icon:'heart',title:'App reviews',nav:'ProfileUser'},
+    {icon:'star',title:'Share',nav:'ProfileUser'},
+    {icon:'gift' ,title:'Support',nav:'ProfileUser'},
+    {icon:'reader',title:'Version',nav:'ProfileUser'},
   ]
-const ItemSettings = ({item})=>(
-    <View style={styles.settingItem}>
+const ItemSettings = ({item,navigation})=>(
+    <Pressable style={styles.settingItem} onPress={() =>navigation.navigate(item.nav)}>
       <Icon style={styles.iconSetting} name={item.icon} size={20} color='black'/>
       <Text style={styles.titleItemSetting} >{item.title}</Text>
       <View style={styles.iconMore}>
         <Icon  name={'chevron-forward-outline'} size={20} color='black'/>
       </View>
-    </View>
+    </Pressable>
   )
 export default function Settings() {
-
+    const navigation= useNavigation()
     const [user, setUser] = useState({})
     console.log(user)
     useEffect(() => {
@@ -41,6 +42,7 @@ export default function Settings() {
         console.error(e);
     }
     };
+    
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
@@ -68,7 +70,7 @@ export default function Settings() {
       <View style={styles.optionSettings}>
         <FlatList
           data={LisData}
-          renderItem={({item})=><ItemSettings item={item}/>}
+          renderItem={({item})=><ItemSettings item={item} navigation={navigation}/>}
           keyExtractor={(item,index)=>index}
         />
       </View>

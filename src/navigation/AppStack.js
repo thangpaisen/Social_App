@@ -8,6 +8,8 @@ import UploadPost from "./../screens/Home/UploadPost";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Comments from "./../screens/Home/Comments";
+import UpDatePost from "./../screens/Home/UpDatePost/UpdatePost";
+import ProfileUser from "./../screens/ProfileUser/ProfileUser";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -66,12 +68,25 @@ const AppStack = () => {
         //   ...TransitionPresets.SlideFromRightIOS,
         // }}
       />
-      
+      <Stack.Screen
+        name="UpDatePost"
+        component={UpDatePost}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
       <Stack.Screen
         name="Comments"
         component={Comments}
         options={{
           ...TransitionPresets.ModalPresentationIOS  ,
+        }}
+      />
+      <Stack.Screen
+        name="ProfileUser"
+        component={ProfileUser}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS  ,
         }}
       />
       

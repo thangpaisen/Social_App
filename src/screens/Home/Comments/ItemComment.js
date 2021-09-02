@@ -5,7 +5,9 @@ import {
   View,
   Pressable,
   TouchableOpacity,
+  Alert
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {Avatar} from 'react-native-elements';
 import dateFormat from 'dateformat';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -44,6 +46,29 @@ const ItemComment = ({item, idPost}) => {
       );
     }
   };
+  const HandleOnLongPressTextComment=()=>{
+      Alert.alert(
+      "Thông báo",
+      "Bạn muốn xóa bình luận",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => deletePostComment() }
+      ]
+    );
+  }
+  const deletePostComment=() => {
+      ref.delete()
+        .then(() => {
+            Toast.show({
+                text1: 'Đã xóa bình luận',
+                visibilityTime: 100,
+                });
+        });
+  }
   return (
     <View style={styles.itemCommentContainer}>
       <Avatar
@@ -57,7 +82,11 @@ const ItemComment = ({item, idPost}) => {
       />
       <View style={styles.title}>
         <Text style={styles.name}>{item?.userComment?.displayName}</Text>
-        <Text style={styles.textContent}>{item?.textComment}</Text>
+        <Pressable onLongPress={()=>{
+            HandleOnLongPressTextComment();
+        }}>
+            <Text style={styles.textContent}>{item?.textComment}</Text>
+        </Pressable>
         <View style={styles.react}>
           <Text style={styles.itemReact}>
             {dateFormat(item?.createdAt, 'HH:MM, mm/dd ') || '?h'}
@@ -117,6 +146,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'gray',
   },
+
   love: {
     marginTop: 10,
     marginRight: 5,

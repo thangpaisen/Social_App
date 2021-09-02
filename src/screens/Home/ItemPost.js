@@ -26,7 +26,6 @@ const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const [user, setUser] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-console.log(item.id);
   useEffect(() => {
     const a = auth().currentUser;
     if (a) {
@@ -76,18 +75,22 @@ console.log(item.id);
       ]
     );
   }
+  const handleClickButtonUpDatePost=()=> {
+      setModalVisible(false)
+      navigation.navigate('UpDatePost',{dataPost:item})
+  }
   const deletePost=()=>{
       firestore()
-    .collection('postsUser')
-    .doc(item.id)
-    .delete()
-    .then(() => {
-        setModalVisible(false)
-        Toast.show({
-            text1: 'Đã xóa bài viết',
-            visibilityTime: 100,
-            });
-    });
+        .collection('postsUser')
+        .doc(item.id)
+        .delete()
+        .then(() => {
+            setModalVisible(false)
+            Toast.show({
+                text1: 'Đã xóa bài viết',
+                visibilityTime: 100,
+                });
+        });
   }
   return (
       <>
@@ -176,7 +179,7 @@ console.log(item.id);
             style={{flex: 1,backgroundColor:'black',opacity:0.2}}>
         </Pressable>
         <View style={styles.morePostContent}>
-                <TouchableOpacity style={styles.morePostItem}>
+                <TouchableOpacity style={styles.morePostItem} onPress={() =>handleClickButtonUpDatePost()}>
                     <Icon name="trash-outline" size={24} color="black" />
                     <Text style={{fontSize: 16,marginLeft:10}}>Chỉnh sửa bài viết</Text>
                 </TouchableOpacity>
