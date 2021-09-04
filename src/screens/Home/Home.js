@@ -4,17 +4,20 @@ import {Avatar} from 'react-native-elements';
 
 import ItemPost from './ItemPost';
 import image from '../../assets/images/br.png';
-import luffy from '../../assets/images/luffy.jpg';
 import {useNavigation} from '@react-navigation/native';
 import Header from './Header';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 const Home = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
+  const [user, setUser] = useState({});
+// console.log('user ', user)
     const [refreshing, setRefreshing] = useState(false);
   const ref =firestore().collection('postsUser').orderBy('createdAt', 'desc') ;
   useEffect(() => {
         const abc=  ref.onSnapshot(querySnapshot => {
+            //  console.log('Total listPostsUser: ', querySnapshot.size);
         const listPostsUser = querySnapshot.docs.map(doc => {
           const data = {
               id:doc.id,
@@ -29,10 +32,22 @@ const Home = () => {
         abc();
     };
   }, [refreshing]);
-
+  useEffect(() => {
+        const uidUserNow =auth().currentUser.uid
+      firestore().collection('users').get()
+      .then(querySnapshot => {
+        // console.log('Total users: ', querySnapshot.size);
+      var user = {};
+      querySnapshot.forEach(doc => {
+          if(doc.data().uid === uidUserNow)
+                user= {...doc.data()}
+      });
+      setUser(user);
+    });
+  }, []);
   return (
     <View style={styles.container}>
-      <Header />
+      <Header imageAvatar={user.imageAvatar}/>
       <ScrollView 
         style={styles.content} 
         showsVerticalScrollIndicator={false}
@@ -51,7 +66,8 @@ const Home = () => {
               size={36}
               rounded
               source={{
-                uri: 'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg',
+                uri: user.imageAvatar ||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
               }}
             />
           </View>

@@ -16,13 +16,14 @@ import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
-import luffy from '../../../assets/images/luffy.jpg';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-const UploadPost = () => {
+const UpDatePost = ({route}) => {
+    const {dataPost} = route.params;
+    console.log(dataPost.id)
   const navigation = useNavigation();
   const [user, setUser] = useState({})
   useEffect(() => {
@@ -32,28 +33,30 @@ const UploadPost = () => {
         }
   }, [])
   const [lockUpPosts, setLockUpPosts] = useState(false)
-  const [text, onChangeText] = useState('');
+  const [text, onChangeText] = useState(dataPost.message.text);
   const [imageUpImp, setImageUpImp] = useState({
-    uri: '',
+    uri: dataPost.message.image,
     fileName: '',
     width: 360,
     height: 360,
   });
   const handleOnPressRemoveImageUpTmp=()=>{
-      if(imageUpImp.uri.length >0)
+      if(imageUpImp.uri.length >0 &&!imageUpImp.uri.includes("firebase"))
         RNFS.unlink(imageUpImp.uri);
         setImageUpImp({...imageUpImp, uri: ''})
   }
-  const openLibrary = () => {
+  const openLibrary =  () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
         includeBase64: false,
       },
-      response => {
+      async response =>{
         if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          //   upLoadedImageToFirebase(uri,fileName,height,width);
+            var {uri, fileName, height, width} = response.assets[0];
+            const reference = storage().ref(fileName);
+            await reference.putFile(uri);
+            url = await storage().ref(fileName).getDownloadURL();
           setImageUpImp({
             uri,
             fileName,
@@ -71,10 +74,12 @@ const UploadPost = () => {
         mediaType: 'photo',
         includeBase64: false,
       },
-      response => {
+      async response => {
         if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          //   upLoadedImageToFirebase(uri,fileName,height,width);
+          var {uri, fileName, height, width} = response.assets[0];
+            const reference = storage().ref(fileName);
+            await reference.putFile(uri);
+            url = await storage().ref(fileName).getDownloadURL();
           setImageUpImp({
             uri,
             fileName,
@@ -90,39 +95,28 @@ const UploadPost = () => {
       if(text ||imageUpImp.uri )
       {
           setLockUpPosts(true)
-        var url=''
-        if(imageUpImp.uri)
-        {
-            const reference = storage().ref(imageUpImp.fileName);
-            await reference.putFile(imageUpImp.uri);
-            url = await storage().ref(imageUpImp.fileName).getDownloadURL();
-            console.log(url);
-        }
         firestore()
         .collection('postsUser')
-        .add({
-            love:[],
-            numberComments:0,
+        .doc(dataPost.id)
+        .update({
             message:{
                 text:text,
-                image:url,
+                image:imageUpImp.uri,
             },
-            user: {
-            uid: user.uid,
-            displayName: user.displayName,
-            },
-            createdAt: new Date().getTime(),
             UpDateAt: new Date().getTime(),
-        });
+        })
+        .then(() => {
         console.log('done');
-        setLockUpPosts(false)
-        handleOnPressRemoveImageUpTmp()
-        onChangeText('')
-        Toast.show({
-            text1: 'Bài viết đã được gửi đi',
-            visibilityTime: 100,
-            });
-        navigation.navigate('Home')
+            setLockUpPosts(false)
+            handleOnPressRemoveImageUpTmp()
+            onChangeText('')
+            Toast.show({
+                text1: 'Bài viết đã được Cập nhật',
+                visibilityTime: 100,
+                });
+            navigation.navigate('Home')
+        });
+        
       }
 
   }
@@ -133,9 +127,9 @@ const UploadPost = () => {
         <Pressable onPress={() => navigation.navigate('Home')}>
           <Icon name="close" size={36} color={'black'} />
         </Pressable>
-        <Text style={{fontSize:16,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>Tạo bài viết </Text>
+        <Text style={{fontSize:16,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>Cập nhật bài viết </Text>
         <Pressable style={styles.upPost} onPress={() =>handleOnUploadPosts()}  disabled={lockUpPosts}>
-          <Text style={styles.textUpPost}>Đăng bài</Text>
+          <Text style={styles.textUpPost}>Lưu</Text>
         </Pressable>
       </View>
       <ScrollView>
@@ -144,6 +138,7 @@ const UploadPost = () => {
             <Avatar size={36} rounded source={{uri:user.uriImage||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
           </View>
           <TextInput
+          autoFocus
             style={styles.input}
             onChangeText={onChangeText}
             value={text}
@@ -190,7 +185,7 @@ const UploadPost = () => {
   );
 };
 
-export default UploadPost;
+export default UpDatePost;
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {

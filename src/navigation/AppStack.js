@@ -4,12 +4,13 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {TransitionPresets} from '@react-navigation/stack';
 import Home from './../screens/Home';
 import Settings from './../screens/Settings';
-import UploadPost from "./../screens/Home/UploadPost";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Comments from "./../screens/Home/Comments";
-import UpDatePost from "./../screens/Home/UpDatePost/UpdatePost";
+import Comments from "./../screens/Comments";
+import UpDatePost from "./../screens/UpDatePost/UpdatePost";
+import UploadPost from "./../screens/UploadPost";
 import ProfileUser from "./../screens/ProfileUser/ProfileUser";
+import UpdateProfileUser from "./../screens/UpdateProfileUser/UpdateProfileUser";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -85,6 +86,13 @@ const AppStack = () => {
       <Stack.Screen
         name="ProfileUser"
         component={ProfileUser}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS  ,
+        }}
+      />
+      <Stack.Screen
+        name="UpdateProfileUser"
+        component={UpdateProfileUser}
         options={{
           ...TransitionPresets.SlideFromRightIOS  ,
         }}

@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 // import {logout} from '../redux/actions/user'
 // import {useDispatch,useSelector} from 'react-redux'
 import auth from '@react-native-firebase/auth';
-
+import firestore from '@react-native-firebase/firestore';
 
 const LisData=[
     {icon:'receipt',title:'Hồ sơ',nav:'ProfileUser'},
@@ -30,11 +30,17 @@ export default function Settings() {
     const [user, setUser] = useState({})
     console.log(user)
     useEffect(() => {
-        const a= auth().currentUser
-        if(a) {
-            setUser(a)
-        }
-    }, [])
+        const uidUserNow =auth().currentUser.uid
+      firestore().collection('users').get()
+      .then(querySnapshot => {
+      var user = {};
+      querySnapshot.forEach(doc => {
+          if(doc.data().uid === uidUserNow)
+                user= {...doc.data()}
+      });
+      setUser(user);
+    });
+  }, []);
     const logoutUser = async ()=> {
     try {
         await auth().signOut();
@@ -42,7 +48,6 @@ export default function Settings() {
         console.error(e);
     }
     };
-    
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
@@ -50,13 +55,14 @@ export default function Settings() {
           size={65}
           rounded
           source={{
-            uri: 'https://images6.alphacoders.com/102/1029037.jpg',
-          }}
+                uri: user.imageAvatar||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
+              }}
           containerStyle={styles.imageAvatar}
         />
         <View style={styles.profileTitle}>
           {/* <Text style={styles.fullName}>❤ {user.email}</Text> */}
-          <Text style={styles.fullName} numberOfLines={1} ellipsizeMode="tail">❤ {user.displayName || 'Không tên'}</Text>
+          <Text style={styles.fullName} numberOfLines={1} ellipsizeMode="tail">❤ {user.displayName || ''}</Text>
           <View style={styles.follower}>
             <Text style={{fontSize: 14, marginRight:10}}>
                 <Text style={{fontWeight: 'bold'}}>31 </Text>

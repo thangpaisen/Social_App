@@ -24,16 +24,29 @@ import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
-  const [user, setUser] = useState({});
+  const [userNow, setUserNow] = useState({});
+  const [userItemPost, setUserItemPost] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   useEffect(() => {
     const a = auth().currentUser;
     if (a) {
-      setUser(a);
+      setUserNow(a);
     }
   }, []);
+  useEffect(() => {
+        const uidUserItemPost =item.user.uid
+      firestore().collection('users').get()
+      .then(querySnapshot => {
+      var userPost = {};
+      querySnapshot.forEach(doc => {
+          if(doc.data().uid === uidUserItemPost)
+                userPost= {...doc.data()}
+      });
+      setUserItemPost(userPost);
+    });
+  }, []);
   const handleOnLove = () => {
-    const checkLove = item.love.indexOf(user.uid);
+    const checkLove = item.love.indexOf(userNow.uid);
     if (checkLove > -1) {
       var newArr = [...item.love];
       newArr.splice(checkLove, 1);
@@ -52,7 +65,7 @@ const ItemPost = ({item}) => {
         .doc(item.id)
         .set(
           {
-            love: [user.uid, ...item.love],
+            love: [userNow.uid, ...item.love],
           },
           {merge: true},
         );
@@ -101,17 +114,17 @@ const ItemPost = ({item}) => {
           rounded
           source={{
             uri:
-              item.user.uriImage ||
+              userItemPost.imageAvatar ||
               'https://image.flaticon.com/icons/png/512/149/149071.png',
           }}
         />
         <View style={styles.title}>
-          <Text style={styles.name}>{item.user.displayName}</Text>
+          <Text style={styles.name}>{userItemPost.displayName}</Text>
           <Text style={styles.lastTime}>
             {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') || '5 phút tr'}
           </Text>
         </View>
-        {user.uid===item.user.uid&&<Pressable style={styles.morePost} onPress={()=>setModalVisible(true)}>
+        {userNow.uid===item.user.uid&&<Pressable style={styles.morePost} onPress={()=>setModalVisible(true)}>
             <Icon name="ellipsis-horizontal" size={24} color="black" />
         </Pressable>}
       </View>
@@ -141,10 +154,10 @@ const ItemPost = ({item}) => {
           onPress={() => handleOnLove()}>
             <Icon
               name={
-                item.love.indexOf(user.uid) > -1 ? 'heart' : 'heart-outline'
+                item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
               }
               size={26}
-              color={item.love.indexOf(user.uid) > -1 ? 'red' : 'black'}
+              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
             />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.comment, styles.itemIcon]} onPress={() => handleOpenComments()}>

@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import imgBr from '../../assets/images/br.png';
 import auth from '@react-native-firebase/auth';
-
+import firestore from '@react-native-firebase/firestore';
 // import {useDispatch} from 'react-redux';
 import {registerUser} from '../redux/actions/user'
 
@@ -59,6 +59,19 @@ export default function SignUp({navigation}) {
                     .currentUser.updateProfile({
                         displayName: name,
                     })
+            firestore()
+                .collection('users')
+                .add({
+                        uid:auth().currentUser.uid,
+                        displayName:name,
+                        description:'',
+                        imageAvatar: '',
+                        imageCover:'',
+                        email: auth().currentUser.email,
+                })
+                .then(() => {
+                    console.log('User added!');
+                });
             })
     }
   return (

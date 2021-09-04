@@ -3,20 +3,21 @@ import { View, Text ,Pressable,StyleSheet} from 'react-native'
 import {Avatar} from 'react-native-elements';
 import { useNavigation } from "@react-navigation/native";
 
-const Header = () => {
+const Header = ({imageAvatar}) => {
     const navigation= useNavigation();
     return (
         <View style={styles.header}>
         <View style={styles.logo}>
           <Text style={styles.textLogo}>Animee</Text>
         </View>
-        <Pressable style={styles.avatar} onPress={() =>navigation.navigate('Settings')}>
+        <Pressable style={styles.avatar} onPress={() =>navigation.navigate('ProfileUser')}>
           <Avatar
             size={32}
             rounded
             source={{
-              uri: 'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg',
-            }}
+                uri: imageAvatar||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
+              }}
           />
         </Pressable>
       </View>
