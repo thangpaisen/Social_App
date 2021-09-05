@@ -35,8 +35,8 @@ const ItemPost = ({item}) => {
   }, []);
   useEffect(() => {
         const uidUserItemPost =item.user.uid
-      firestore().collection('users').get()
-      .then(querySnapshot => {
+     const subscriber= firestore().collection('users')
+      .onSnapshot(querySnapshot => {
       var userPost = {};
       querySnapshot.forEach(doc => {
           if(doc.data().uid === uidUserItemPost)
@@ -44,6 +44,9 @@ const ItemPost = ({item}) => {
       });
       setUserItemPost(userPost);
     });
+    return () => {
+        subscriber()
+    }
   }, []);
   const handleOnLove = () => {
     const checkLove = item.love.indexOf(userNow.uid);

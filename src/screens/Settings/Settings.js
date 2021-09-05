@@ -28,11 +28,10 @@ const ItemSettings = ({item,navigation})=>(
 export default function Settings() {
     const navigation= useNavigation()
     const [user, setUser] = useState({})
-    console.log(user)
     useEffect(() => {
         const uidUserNow =auth().currentUser.uid
-      firestore().collection('users').get()
-      .then(querySnapshot => {
+      const subscriber = firestore().collection('users')
+      .onSnapshot(querySnapshot => {
       var user = {};
       querySnapshot.forEach(doc => {
           if(doc.data().uid === uidUserNow)
@@ -40,6 +39,9 @@ export default function Settings() {
       });
       setUser(user);
     });
+    return () => {
+        subscriber()
+    }
   }, []);
     const logoutUser = async ()=> {
     try {

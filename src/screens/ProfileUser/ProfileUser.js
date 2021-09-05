@@ -23,11 +23,10 @@ const ProfileUser = () => {
   const [refreshing, setRefreshing] = useState(false);
   const ref = firestore().collection('postsUser').orderBy('createdAt', 'desc');
   const [user, setUser] = useState({})
-  console.log('postsUser ' + postsUser)
   useEffect(() => {
         const uidUserNow =auth().currentUser.uid
-      firestore().collection('users').get()
-      .then(querySnapshot => {
+      firestore().collection('users')
+      .onSnapshot(querySnapshot => {
       var user = {};
       querySnapshot.forEach(doc => {
           if(doc.data().uid === uidUserNow)
@@ -83,8 +82,8 @@ const ProfileUser = () => {
             <Text style={styles.textEditProfile}>Chỉnh sửa hồ sơ</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.name}>Thang Paisen</Text>
-        <Text style={styles.discription}>Nguyeenx Huwux Thangs i</Text>
+        <Text style={styles.name}>{user.displayName}</Text>
+        <Text style={styles.description}>{user.description}</Text>
         <View style={styles.follower}>
           <Text style={{fontSize: 14, marginRight: 10}}>
             <Text style={{fontWeight: 'bold'}}>31 </Text>
@@ -104,8 +103,9 @@ const ProfileUser = () => {
               size={36}
               rounded
               source={{
-                uri: 'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg',
-              }}
+              uri: user.imageAvatar ||
+              'https://image.flaticon.com/icons/png/512/149/149071.png',
+            }}
             />
           </View>
           <View style={styles.inputPost}>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginTop: 10,
   },
-  discription: {
+  description: {
     fontSize: 14,
     paddingHorizontal: 10,
     marginTop: 10,

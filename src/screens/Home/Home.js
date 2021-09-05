@@ -12,7 +12,6 @@ const Home = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
   const [user, setUser] = useState({});
-// console.log('user ', user)
     const [refreshing, setRefreshing] = useState(false);
   const ref =firestore().collection('postsUser').orderBy('createdAt', 'desc') ;
   useEffect(() => {
@@ -34,8 +33,8 @@ const Home = () => {
   }, [refreshing]);
   useEffect(() => {
         const uidUserNow =auth().currentUser.uid
-      firestore().collection('users').get()
-      .then(querySnapshot => {
+      const subscriber= firestore().collection('users')
+      .onSnapshot(querySnapshot => {
         // console.log('Total users: ', querySnapshot.size);
       var user = {};
       querySnapshot.forEach(doc => {
@@ -44,6 +43,9 @@ const Home = () => {
       });
       setUser(user);
     });
+    return () => {
+        subscriber();
+    }
   }, []);
   return (
     <View style={styles.container}>

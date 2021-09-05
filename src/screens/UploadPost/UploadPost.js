@@ -26,8 +26,8 @@ const UploadPost = () => {
   const [user, setUser] = useState({})
   useEffect(() => {
         const uidUserNow =auth().currentUser.uid
-      firestore().collection('users').get()
-      .then(querySnapshot => {
+      const subscriber = firestore().collection('users')
+      .onSnapshot(querySnapshot => {
         console.log('Total users: ', querySnapshot.size);
       var user = {};
       querySnapshot.forEach(doc => {
@@ -36,6 +36,9 @@ const UploadPost = () => {
       });
       setUser(user);
     });
+    return () => {
+        subscriber();
+    }
   }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false)
   const [text, onChangeText] = useState('');
@@ -148,7 +151,7 @@ const UploadPost = () => {
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.uriImage||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
+            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
           </View>
           <TextInput
             style={styles.input}
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
   model:{
       flex: 1,
       backgroundColor: 'white',
-      opacity: 0.6,
+      opacity: 0.4,
       justifyContent:'center',
       alignItems: 'center',
   }

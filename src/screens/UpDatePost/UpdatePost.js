@@ -27,11 +27,21 @@ const UpDatePost = ({route}) => {
   const navigation = useNavigation();
   const [user, setUser] = useState({})
   useEffect(() => {
-      const a= auth().currentUser
-        if(a) {
-            setUser(a)
-        }
-  }, [])
+        const uidUserNow =auth().currentUser.uid
+      const subscriber = firestore().collection('users')
+      .onSnapshot(querySnapshot => {
+        console.log('Total users: ', querySnapshot.size);
+      var user = {};
+      querySnapshot.forEach(doc => {
+          if(doc.data().uid === uidUserNow)
+                user= {...doc.data()}
+      });
+      setUser(user);
+    });
+    return () => {
+        subscriber();
+    }
+  }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false)
   const [text, onChangeText] = useState(dataPost.message.text);
   const [imageUpImp, setImageUpImp] = useState({
@@ -135,7 +145,7 @@ const UpDatePost = ({route}) => {
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.uriImage||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
+            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
           </View>
           <TextInput
           autoFocus

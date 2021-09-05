@@ -9,99 +9,278 @@ import {
   ImageBackground,
   Pressable,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import Modal from 'react-native-modal';
+import Toast from 'react-native-toast-message';
 import Header from './Header';
 import {Avatar} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Input} from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import {useNavigation} from '@react-navigation/native';
 const UpdateProfileUser = () => {
+  const navigation = useNavigation();
   const [text, setTextName] = useState('');
+  const [typeImage, setTypeImage] = useState('');
   const [profileUser, setProfileUser] = useState({
-      displayName:'',
-      description:'',
-      imageAvatar: '',
-      imageCover:'',
+    displayName: '',
+    description: '',
+    imageAvatar: {
+      fileName: '',
+      uri: '',
+    },
+    imageCover: {
+      fileName: '',
+      uri: '',
+    },
   });
-  const [user, setUser] = useState({})
-  console.log('user',user)
-  console.log('profileUser' ,profileUser)
+  const [user, setUser] = useState({});
+  const [idDocUserFb, setIdDocUserFb] = useState('');
+
   useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
-      firestore().collection('users').get()
+    const uidUserNow = auth().currentUser.uid;
+    firestore()
+      .collection('users')
+      .get()
       .then(querySnapshot => {
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
-                user= {...doc.data()}
+        var user = {};
+        querySnapshot.forEach(doc => {
+          if (doc.data().uid === uidUserNow) {
+            user = {...doc.data()};
+            setIdDocUserFb(doc.id);
+          }
+        });
+        setUser(user);
+        setProfileUser({
+          displayName: user.displayName,
+          description: user.description,
+          imageAvatar: {
+            fileName: '',
+            uri: user.imageAvatar,
+          },
+          imageCover: {
+            fileName: '',
+            uri: user.imageCover,
+          },
+        });
       });
-      setUser(user);
-      setProfileUser({
-          displayName:user.displayName,
-      description:user.description,
-      imageAvatar: user.imageAvatar,
-      imageCover:user.imageCover,
-      })
-    });
   }, []);
-  const handleOnSave=()=>{
-      console.log('aa',profileUser)
-  }
-  const [description, setTextDes] = useState('');
+  const handleOnSave = async () => {
+    // console.log('profileUser', profileUser);
+    if (
+      user.displayName !== profileUser.displayName ||
+      user.description !== profileUser.description ||
+      user.imageAvatar !== profileUser.imageAvatar.uri ||
+      user.imageCover !== profileUser.imageCover.uri
+    ) {
+      setLoading(true);
+      var uriImageAvatar = profileUser.imageAvatar.uri;
+      var uriImageCover = profileUser.imageCover.uri;
+      if (
+        !uriImageAvatar.includes('firebase') &&
+        profileUser.imageAvatar.fileName !== ''
+      ) {
+        const reference = storage().ref(profileUser.imageAvatar.fileName);
+        await reference.putFile(uriImageAvatar);
+        uriImageAvatar = await storage()
+          .ref(profileUser.imageAvatar.fileName)
+          .getDownloadURL();
+      }
+      if (
+        !uriImageCover.includes('firebase') &&
+        profileUser.imageCover.fileName !== ''
+      ) {
+        const reference = storage().ref(profileUser.imageCover.fileName);
+        await reference.putFile(uriImageCover);
+        uriImageCover = await storage()
+          .ref(profileUser.imageCover.fileName)
+          .getDownloadURL();
+      }
+      firestore()
+        .collection('users')
+        .doc(idDocUserFb)
+        .update({
+          displayName: profileUser.displayName,
+          description: profileUser.description,
+          imageAvatar: uriImageAvatar,
+          imageCover: uriImageCover,
+        })
+        .then(() => {
+          console.log('done');
+          setLoading(false);
+          Toast.show({
+            text1: 'Hồ sơ đã được Cập nhật',
+            visibilityTime: 100,
+          });
+          navigation.goBack();
+        });
+    }
+  };
+  const openLibrary = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: false,
+      },
+      response => {
+        if (!response.didCancel) {
+          const {uri, fileName, height, width} = response.assets[0];
+          if (typeImage === 'avatar') {
+            setProfileUser({
+              ...profileUser,
+              imageAvatar: {
+                fileName: fileName,
+                uri: uri,
+              },
+            });
+            setModalVisible(false);
+          }
+          if (typeImage === 'cover') {
+            setProfileUser({
+              ...profileUser,
+              imageCover: {
+                fileName: fileName,
+                uri: uri,
+              },
+            });
+            setModalVisible(false);
+          }
+        } else console.log('exit ');
+      },
+    );
+  };
+  const openCamera = () => {
+    launchCamera(
+      {
+        mediaType: 'photo',
+        includeBase64: false,
+      },
+      response => {
+        if (!response.didCancel) {
+          const {uri, fileName, height, width} = response.assets[0];
+          if (typeImage === 'avatar') {
+            setProfileUser({
+              ...profileUser,
+              imageAvatar: {
+                fileName: fileName,
+                uri: uri,
+              },
+            });
+            setModalVisible(false);
+          }
+          if (typeImage === 'cover') {
+            setProfileUser({
+              ...profileUser,
+              imageCover: {
+                fileName: fileName,
+                uri: uri,
+              },
+            });
+            setModalVisible(false);
+          }
+        } else console.log('exit ');
+      },
+    );
+  };
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   return (
-    <View style={styles.container}>
-      <Header handleOnSave={handleOnSave}/>
-      <Pressable>
-        <ImageBackground
-          source={{
-            uri: profileUser.imageCover ||
-            'https://image.flaticon.com/icons/png/512/149/149071.png',
-          }}
-          style={styles.imageCover}>
-          <Icon name="camera-outline" size={30} color={'#fff'} />
-        </ImageBackground>
-      </Pressable>
-      <Pressable>
-        <ImageBackground
-          style={styles.editAvatar}
-          imageStyle={{borderRadius: 35}}
-          source={{
-            uri: profileUser.imageAvatar ||
-            'https://image.flaticon.com/icons/png/512/149/149071.png',
-          }}
-          >
-          <Icon name="camera-outline" size={30} color={'#fff'} />
-        </ImageBackground>
-      </Pressable>
-      <View style={{marginHorizontal: 20, marginTop: 20}}>
-        <Text style={{fontSize: 18}}>Tên</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={text =>setProfileUser({
-              ...profileUser,
-              displayName:text,
-          })}
-          value={profileUser.displayName}
-          placeholder="Tên không được để trống"
-          maxLength={50}
-        />
+    <>
+      <View style={styles.container}>
+        <Header handleOnSave={handleOnSave} />
+        <Pressable
+          onPress={() => {
+            setModalVisible(true);
+            setTypeImage('cover');
+          }}>
+          <ImageBackground
+            source={{
+              uri:
+                profileUser?.imageCover?.uri ||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
+            }}
+            style={styles.imageCover}>
+            <Icon name="camera-outline" size={30} color={'#fff'} />
+          </ImageBackground>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            setModalVisible(true);
+            setTypeImage('avatar');
+          }}>
+          <ImageBackground
+            style={styles.editAvatar}
+            imageStyle={{borderRadius: 35}}
+            source={{
+              uri:
+                profileUser?.imageAvatar?.uri ||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
+            }}>
+            <Icon name="camera-outline" size={30} color={'#fff'} />
+          </ImageBackground>
+        </Pressable>
+        <View style={{marginHorizontal: 20, marginTop: 20}}>
+          <Text style={{fontSize: 18}}>Tên</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={text =>
+              setProfileUser({
+                ...profileUser,
+                displayName: text,
+              })
+            }
+            value={profileUser.displayName}
+            placeholder="Tên không được để trống"
+            maxLength={50}
+          />
+        </View>
+        <View style={{marginHorizontal: 20}}>
+          <Text style={{fontSize: 18, marginTop: 20}}>Mô tả</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={text =>
+              setProfileUser({
+                ...profileUser,
+                description: text,
+              })
+            }
+            value={profileUser.description}
+            placeholder="Mô tả"
+            multiline
+            maxLength={255}
+          />
+        </View>
       </View>
-      <View style={{marginHorizontal: 20}}>
-        <Text style={{fontSize: 18, marginTop: 20}}>Mô tả</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={text =>setProfileUser({
-              ...profileUser,
-              description:text
-          })}
-          value={profileUser.description}
-          placeholder="Mô tả"
-          multiline
-          maxLength={255}
-        />
-      </View>
-    </View>
+      {/* model choiceImage */}
+      <Modal
+        isVisible={modalVisible}
+        onBackdropPress={() => setModalVisible(false)}>
+        <View style={styles.model}>
+          <View style={styles.choiceImage}>
+            <TouchableOpacity onPress={() => openCamera()}>
+              <Text style={styles.textChoice}>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => openLibrary()}>
+              <Text style={styles.textChoice}>Library</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* model loading */}
+      <Modal
+        // animationType="slide"
+        // transparent={true}
+        backdropOpacity={0.3}
+        isVisible={loading}>
+        <View style={styles.model}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -119,9 +298,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  //   onImageButton: {
-  //     position: 'absolute',
-  //   },
   editAvatar: {
     marginTop: -35,
     marginLeft: 20,
@@ -139,5 +315,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderBottomWidth: 0.4,
     borderBottomColor: '#333',
+  },
+  model: {
+    flex: 1,
+    //   backgroundColor: 'black',
+    //   opacity: 0.2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  choiceImage: {
+    padding: 20,
+    width: width - 60,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    elevation: 3,
+  },
+  textChoice: {
+    fontSize: 16,
+    paddingVertical: 5,
   },
 });
