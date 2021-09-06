@@ -8,6 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 import Header from './Header';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import Loading from "./../../components/Loading";
 const Home = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
@@ -77,9 +78,13 @@ const Home = () => {
             <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
           </View>
         </Pressable>
-        {postsUser.map((item, index) => (
-          <ItemPost item={item} key={index} />
+        {!refreshing?
+        <>
+        {postsUser.map((item) => (
+          <ItemPost item={item} key={item.id} />
         ))}
+        </>
+        :<Loading/>}
       </ScrollView>
     </View>
   );

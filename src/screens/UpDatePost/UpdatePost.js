@@ -23,14 +23,12 @@ import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 const UpDatePost = ({route}) => {
     const {dataPost} = route.params;
-    console.log(dataPost.id)
   const navigation = useNavigation();
   const [user, setUser] = useState({})
   useEffect(() => {
         const uidUserNow =auth().currentUser.uid
       const subscriber = firestore().collection('users')
       .onSnapshot(querySnapshot => {
-        console.log('Total users: ', querySnapshot.size);
       var user = {};
       querySnapshot.forEach(doc => {
           if(doc.data().uid === uidUserNow)
@@ -38,9 +36,7 @@ const UpDatePost = ({route}) => {
       });
       setUser(user);
     });
-    return () => {
-        subscriber();
-    }
+    return () => subscriber()
   }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false)
   const [text, onChangeText] = useState(dataPost.message.text);
@@ -145,7 +141,7 @@ const UpDatePost = ({route}) => {
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
+            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://image.flaticon.com/icons/png/512/149/149071.png'}} />
           </View>
           <TextInput
           autoFocus

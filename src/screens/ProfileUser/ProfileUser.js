@@ -20,12 +20,12 @@ import auth from '@react-native-firebase/auth';
 const ProfileUser = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+//   const [refreshing, setRefreshing] = useState(false);
   const ref = firestore().collection('postsUser').orderBy('createdAt', 'desc');
   const [user, setUser] = useState({})
   useEffect(() => {
         const uidUserNow =auth().currentUser.uid
-      firestore().collection('users')
+      const unsubscribe = firestore().collection('users')
       .onSnapshot(querySnapshot => {
       var user = {};
       querySnapshot.forEach(doc => {
@@ -34,12 +34,13 @@ const ProfileUser = () => {
       });
       setUser(user);
     });
+    return () => unsubscribe();
   }, []);
   useEffect(() => {
-      const subscriber = ref.onSnapshot(querySnapshot => {
+      const unsubscribe = ref.onSnapshot(querySnapshot => {
       const listPostsUser = [];
       querySnapshot.forEach(doc => {
-          if(doc.data().user.uid === auth().currentUser.uid)
+          if(doc.data().uidUser === auth().currentUser.uid)
             listPostsUser.push({
             id: doc.id,
             ...doc.data(),
@@ -47,10 +48,8 @@ const ProfileUser = () => {
       });
       setPostsUser(listPostsUser);
     });
-    return () => {
-      subscriber();
-    };
-  }, [refreshing]);
+    return () => unsubscribe();
+  }, []);
   return (
     <View style={styles.container}>
       <Header />
@@ -113,7 +112,7 @@ const ProfileUser = () => {
           </View>
         </Pressable>
       {postsUser.map((item, index) => (
-          <ItemPost item={item} key={index} />
+          <ItemPost item={item} key={item.id} />
         ))}
         </ScrollView>
     </View>

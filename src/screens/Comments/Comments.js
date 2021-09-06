@@ -25,11 +25,19 @@ const Comments = ({route}) => {
     .doc(dataPost.id)
     .collection('comments');
 
+  const [user, setUser] = useState({})
   useEffect(() => {
-    const a = auth().currentUser;
-    if (a) {
-      setUserNow(a);
-    }
+      const subscriber = firestore().collection('users')
+      .onSnapshot(querySnapshot => {
+        console.log('Total users: ', querySnapshot.size);
+      var user = {};
+      querySnapshot.forEach(doc => {
+          if(doc.data().uid === auth().currentUser.uid)
+                user= {...doc.data()}
+      });
+      setUserNow(user);
+    });
+    return () => subscriber()
   }, []);
   useEffect(() => {
     const abc = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
@@ -77,12 +85,12 @@ const Comments = ({route}) => {
             rounded
             source={{
               uri:
-                // item.user.uriImage ||
+                userNow.imageAvatar ||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
           />
           <View style={styles.title}>
-            <Text style={styles.name}>{dataPost?.user.displayName}</Text>
+            <Text style={styles.name}>{userNow?.displayName}</Text>
             <Text style={styles.lastTime}>
               {dateFormat(dataPost?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
                 '5 phút tr'}

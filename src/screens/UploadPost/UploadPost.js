@@ -25,20 +25,17 @@ const UploadPost = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState({})
   useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
       const subscriber = firestore().collection('users')
       .onSnapshot(querySnapshot => {
         console.log('Total users: ', querySnapshot.size);
       var user = {};
       querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
+          if(doc.data().uid === auth().currentUser.uid)
                 user= {...doc.data()}
       });
       setUser(user);
     });
-    return () => {
-        subscriber();
-    }
+    return () => subscriber()
   }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false)
   const [text, onChangeText] = useState('');
@@ -116,11 +113,7 @@ const UploadPost = () => {
                 text:text,
                 image:url,
             },
-            user: {
-            uid: user.uid,
-            displayName: user.displayName,
-            imageAvatar:''
-            },
+            uidUser:auth().currentUser.uid,
             createdAt: new Date().getTime(),
             UpDateAt: new Date().getTime(),
         });
@@ -151,7 +144,7 @@ const UploadPost = () => {
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://i.pinimg.com/564x/e1/55/94/e15594a1ebed28e40a7836dd7927b150.jpg'}} />
+            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://image.flaticon.com/icons/png/512/149/149071.png'}} />
           </View>
           <TextInput
             style={styles.input}

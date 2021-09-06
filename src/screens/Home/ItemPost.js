@@ -34,18 +34,16 @@ const ItemPost = ({item}) => {
     }
   }, []);
   useEffect(() => {
-        const uidUserItemPost =item.user.uid
-     const subscriber= firestore().collection('users')
-      .onSnapshot(querySnapshot => {
+     firestore().collection('users').where('uid', '==', item.uidUser).get()
+      .then(querySnapshot => {
       var userPost = {};
       querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserItemPost)
-                userPost= {...doc.data()}
+                userPost = {...doc.data()}
       });
       setUserItemPost(userPost);
+      
     });
     return () => {
-        subscriber()
     }
   }, []);
   const handleOnLove = () => {
@@ -127,7 +125,7 @@ const ItemPost = ({item}) => {
             {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') || '5 phút tr'}
           </Text>
         </View>
-        {userNow.uid===item.user.uid&&<Pressable style={styles.morePost} onPress={()=>setModalVisible(true)}>
+        {userNow.uid===item.uidUser&&<Pressable style={styles.morePost} onPress={()=>setModalVisible(true)}>
             <Icon name="ellipsis-horizontal" size={24} color="black" />
         </Pressable>}
       </View>
