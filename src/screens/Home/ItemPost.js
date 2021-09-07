@@ -16,35 +16,28 @@ import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
 import Icon from 'react-native-vector-icons/Ionicons';
 import image from '../../assets/images/br.png';
-import luffy from '../../assets/images/luffy.jpg';
 import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
+import { useSelector } from "react-redux";
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
-  const [userNow, setUserNow] = useState({});
+  const userNow = useSelector(state => state.user.data)
   const [userItemPost, setUserItemPost] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
+
   useEffect(() => {
-    const a = auth().currentUser;
-    if (a) {
-      setUserNow(a);
-    }
-  }, []);
-  useEffect(() => {
-     firestore().collection('users').where('uid', '==', item.uidUser).get()
-      .then(querySnapshot => {
+     const sub=firestore().collection('users').where('uid', '==', item.uidUser)
+      .onSnapshot(querySnapshot => {
       var userPost = {};
       querySnapshot.forEach(doc => {
                 userPost = {...doc.data()}
       });
       setUserItemPost(userPost);
-      
     });
-    return () => {
-    }
+    return () =>sub()
   }, []);
   const handleOnLove = () => {
     const checkLove = item.love.indexOf(userNow.uid);

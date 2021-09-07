@@ -13,34 +13,32 @@ import dateFormat from 'dateformat';
 import ItemComment from './ItemComment';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { useSelector } from "react-redux";
 
 const Comments = ({route}) => {
   const {dataPost} = route.params;
   const navigation = useNavigation();
-  const [userNow, setUserNow] = useState({});
+  const userNow = useSelector(state => state.user.data)
+    const [userItemPost, setUserItemPost] = useState({});
   const [textComment, setTextComment] = useState('');
   const [listComments, setListComments] = useState([]);
   const ref = firestore()
     .collection('postsUser')
     .doc(dataPost.id)
     .collection('comments');
-
-  const [user, setUser] = useState({})
-  useEffect(() => {
-      const subscriber = firestore().collection('users')
+    useEffect(() => {
+     const sub=firestore().collection('users').where('uid', '==', dataPost.uidUser)
       .onSnapshot(querySnapshot => {
-        console.log('Total users: ', querySnapshot.size);
-      var user = {};
+      var userPost = {};
       querySnapshot.forEach(doc => {
-          if(doc.data().uid === auth().currentUser.uid)
-                user= {...doc.data()}
+                userPost = {...doc.data()}
       });
-      setUserNow(user);
+      setUserItemPost(userPost);
     });
-    return () => subscriber()
+    return () =>sub()
   }, []);
   useEffect(() => {
-    const abc = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
+    const sub = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
       const listComments = querySnapshot.docs.map(doc => {
         const data = {
           id: doc.id,
@@ -51,7 +49,7 @@ const Comments = ({route}) => {
       setListComments(listComments);
     });
     return () => {
-      abc();
+      sub();
     };
   }, []);
   const handleSendComment = () => {
@@ -60,12 +58,9 @@ const Comments = ({route}) => {
       ref.add({
         love: [],
         textComment,
-        userComment: {
-          uid: userNow.uid,
-          displayName: userNow.displayName,
-          uriImage: userNow.uriImage||'',
-        },
+        uidUserComment:userNow.uid,
         createdAt: new Date().getTime(),
+        idPost:dataPost.id
       });
       setTextComment('')
     }
@@ -85,12 +80,12 @@ const Comments = ({route}) => {
             rounded
             source={{
               uri:
-                userNow.imageAvatar ||
+                userItemPost.imageAvatar ||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
           />
           <View style={styles.title}>
-            <Text style={styles.name}>{userNow?.displayName}</Text>
+            <Text style={styles.name}>{userItemPost?.displayName}</Text>
             <Text style={styles.lastTime}>
               {dateFormat(dataPost?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
                 '5 phút tr'}
@@ -99,9 +94,12 @@ const Comments = ({route}) => {
           </View>
         </View>
       )}
+      {listComments.length>0&&
+      <>
       {listComments.map((item, index) => (
-        <ItemComment item={item} idPost={dataPost.id} key={index} />
+        <ItemComment item={item} key={item.id} />
       ))}
+      </>}
       <View style={styles.inputTextComment}>
         <TextInput
           style={styles.inputText}

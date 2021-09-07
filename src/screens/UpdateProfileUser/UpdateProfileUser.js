@@ -22,9 +22,12 @@ import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
+import { useSelector,useDispatch } from "react-redux";
+import { getUser } from "./../../redux/actions/user";
 const UpdateProfileUser = () => {
   const navigation = useNavigation();
   const [text, setTextName] = useState('');
+  const dispatch = useDispatch()
   const [typeImage, setTypeImage] = useState('');
   const [profileUser, setProfileUser] = useState({
     displayName: '',
@@ -38,36 +41,21 @@ const UpdateProfileUser = () => {
       uri: '',
     },
   });
-  const [user, setUser] = useState({});
-  const [idDocUserFb, setIdDocUserFb] = useState('');
-
+  const user = useSelector(state => state.user.data);
   useEffect(() => {
-    const uidUserNow = auth().currentUser.uid;
-    firestore()
-      .collection('users')
-      .get()
-      .then(querySnapshot => {
-        var user = {};
-        querySnapshot.forEach(doc => {
-          if (doc.data().uid === uidUserNow) {
-            user = {...doc.data()};
-            setIdDocUserFb(doc.id);
-          }
-        });
-        setUser(user);
-        setProfileUser({
-          displayName: user.displayName,
-          description: user.description,
-          imageAvatar: {
-            fileName: '',
-            uri: user.imageAvatar,
-          },
-          imageCover: {
-            fileName: '',
-            uri: user.imageCover,
-          },
-        });
-      });
+    setProfileUser({
+      displayName: user.displayName,
+      description: user.description,
+      imageAvatar: {
+        fileName: '',
+        uri: user.imageAvatar,
+      },
+      imageCover: {
+        fileName: '',
+        uri: user.imageCover,
+      },
+    });
+    
   }, []);
   const handleOnSave = async () => {
     // console.log('profileUser', profileUser);
@@ -102,7 +90,7 @@ const UpdateProfileUser = () => {
       }
       firestore()
         .collection('users')
-        .doc(idDocUserFb)
+        .doc(user.idDocFb)
         .update({
           displayName: profileUser.displayName,
           description: profileUser.description,
@@ -116,6 +104,7 @@ const UpdateProfileUser = () => {
             text1: 'Hồ sơ đã được Cập nhật',
             visibilityTime: 100,
           });
+          dispatch(getUser())
           navigation.goBack();
         });
     }

@@ -13,18 +13,25 @@ import dateFormat from 'dateformat';
 import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-const ItemComment = ({item, idPost}) => {
-  const [userNow, setUserNow] = useState({});
+import { useSelector } from "react-redux";
+const ItemComment = ({item}) => {
+  const userNow = useSelector(state => state.user.data)
+  const [userComment, setUserComment] = useState({})
   const ref = firestore()
     .collection('postsUser')
-    .doc(idPost)
+    .doc(item.idPost)
     .collection('comments')
     .doc(item.id);
-  useEffect(() => {
-    const a = auth().currentUser;
-    if (a) {
-      setUserNow(a);
-    }
+useEffect(() => {
+     const sub=firestore().collection('users').where('uid', '==', item?.uidUserComment)
+      .onSnapshot(querySnapshot => {
+      var userComment = {};
+      querySnapshot.forEach(doc => {
+                userComment = {...doc.data()}
+      });
+      setUserComment(userComment);
+    });
+    return () =>sub()
   }, []);
   const handleOnLove = () => {
     const checkLove = item.love.indexOf(userNow.uid);
@@ -76,12 +83,12 @@ const ItemComment = ({item, idPost}) => {
         rounded
         source={{
           uri:
-            item.userComment.uriImage ||
+            userComment.imageAvatar ||
             'https://image.flaticon.com/icons/png/512/149/149071.png',
         }}
       />
       <View style={styles.title}>
-        <Text style={styles.name}>{item?.userComment?.displayName}</Text>
+        <Text style={styles.name}>{userComment.displayName}</Text>
         <Pressable onLongPress={()=>{
             HandleOnLongPressTextComment();
         }}>

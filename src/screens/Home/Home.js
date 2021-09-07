@@ -9,15 +9,18 @@ import Header from './Header';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Loading from "./../../components/Loading";
+import {useDispatch,useSelector} from 'react-redux'
+import { getUser } from "./../../redux/actions/user";
+
 const Home = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
-  const [user, setUser] = useState({});
+  const user = useSelector(state => state.user.data)
+    const dispatch =useDispatch();
     const [refreshing, setRefreshing] = useState(false);
   const ref =firestore().collection('postsUser').orderBy('createdAt', 'desc') ;
   useEffect(() => {
         const abc=  ref.onSnapshot(querySnapshot => {
-            //  console.log('Total listPostsUser: ', querySnapshot.size);
         const listPostsUser = querySnapshot.docs.map(doc => {
           const data = {
               id:doc.id,
@@ -33,20 +36,7 @@ const Home = () => {
     };
   }, [refreshing]);
   useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
-      const subscriber= firestore().collection('users')
-      .onSnapshot(querySnapshot => {
-        // console.log('Total users: ', querySnapshot.size);
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
-                user= {...doc.data()}
-      });
-      setUser(user);
-    });
-    return () => {
-        subscriber();
-    }
+      dispatch(getUser())
   }, []);
   return (
     <View style={styles.container}>

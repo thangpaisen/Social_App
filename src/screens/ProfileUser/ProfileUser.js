@@ -16,39 +16,16 @@ import {Avatar} from 'react-native-elements';
 import ItemPost from './../Home/ItemPost';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { useSelector,useDispatch } from "react-redux";
+import { getListPostUser } from "./../../redux/actions/listPostUser";
 
 const ProfileUser = () => {
   const navigation = useNavigation();
-  const [postsUser, setPostsUser] = useState([]);
-//   const [refreshing, setRefreshing] = useState(false);
-  const ref = firestore().collection('postsUser').orderBy('createdAt', 'desc');
-  const [user, setUser] = useState({})
+  const user = useSelector(state => state.user.data)
+  const listPostUser = useSelector(state => state.listPostUser.data)
+  const dispatch=useDispatch()
   useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
-      const unsubscribe = firestore().collection('users')
-      .onSnapshot(querySnapshot => {
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
-                user= {...doc.data()}
-      });
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-  useEffect(() => {
-      const unsubscribe = ref.onSnapshot(querySnapshot => {
-      const listPostsUser = [];
-      querySnapshot.forEach(doc => {
-          if(doc.data().uidUser === auth().currentUser.uid)
-            listPostsUser.push({
-            id: doc.id,
-            ...doc.data(),
-            });
-      });
-      setPostsUser(listPostsUser);
-    });
-    return () => unsubscribe();
+    dispatch(getListPostUser())
   }, []);
   return (
     <View style={styles.container}>
@@ -111,7 +88,7 @@ const ProfileUser = () => {
             <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
           </View>
         </Pressable>
-      {postsUser.map((item, index) => (
+      {listPostUser.map((item, index) => (
           <ItemPost item={item} key={item.id} />
         ))}
         </ScrollView>

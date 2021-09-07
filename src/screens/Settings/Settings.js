@@ -3,11 +3,10 @@ import {StyleSheet, Text, View,TouchableOpacity,FlatList,Pressable} from 'react-
 import {Avatar, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native';
-// import {AuthContext} from '../navigation/AuthProvider';
-// import {logout} from '../redux/actions/user'
-// import {useDispatch,useSelector} from 'react-redux'
+import {useDispatch,useSelector} from 'react-redux'
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { getUser } from "./../../redux/actions/user";
 
 const LisData=[
     {icon:'receipt',title:'Hồ sơ',nav:'ProfileUser'},
@@ -25,23 +24,13 @@ const ItemSettings = ({item,navigation})=>(
       </View>
     </Pressable>
   )
+
 export default function Settings() {
     const navigation= useNavigation()
-    const [user, setUser] = useState({})
+    const dispatch = useDispatch();
+    const user = useSelector(state => state.user.data)
     useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
-      const subscriber = firestore().collection('users')
-      .onSnapshot(querySnapshot => {
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
-                user= {...doc.data()}
-      });
-      setUser(user);
-    });
-    return () => {
-        subscriber()
-    }
+        // dispatch(getUser())
   }, []);
     const logoutUser = async ()=> {
     try {
