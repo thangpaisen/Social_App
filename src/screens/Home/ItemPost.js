@@ -26,8 +26,16 @@ const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const userNow = useSelector(state => state.user.data)
   const [userItemPost, setUserItemPost] = useState({});
+  const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
+useEffect(() => {
+     const sub=firestore().collection('postsUser').doc(item.id).collection('comments')
+      .onSnapshot(querySnapshot => {
+         setTotalComment(querySnapshot.size)
+        });
+        return () =>sub()
+  }, []);
   useEffect(() => {
      const sub=firestore().collection('users').where('uid', '==', item.uidUser)
       .onSnapshot(querySnapshot => {
@@ -169,9 +177,9 @@ const ItemPost = ({item}) => {
             </Text>
           </View>
         )}
-        {item?.numberComments > 0 && (
+        {totalComment > 0 && (
           <View style={styles.quantityComment}>
-            <Text style={styles.textQuantityComment}>{item?.numberComments} bình luận</Text>
+            <Text style={styles.textQuantityComment}>{totalComment} bình luận</Text>
           </View>
         )}
       </View>
@@ -205,7 +213,7 @@ export default ItemPost;
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   itemPost: {
-    marginTop: 10,
+    // marginTop: 10,
     paddingTop: 10,
     backgroundColor: 'white',
   },
