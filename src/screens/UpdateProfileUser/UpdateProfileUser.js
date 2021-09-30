@@ -250,10 +250,10 @@ const UpdateProfileUser = () => {
         onBackdropPress={() => setModalVisible(false)}>
         <View style={styles.model}>
           <View style={styles.choiceImage}>
-            <TouchableOpacity onPress={() => openCamera()}>
+            <TouchableOpacity style={{padding:4}} onPress={() => openCamera()}>
               <Text style={styles.textChoice}>Camera</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => openLibrary()}>
+            <TouchableOpacity style={{padding:4}} onPress={() => openLibrary()}>
               <Text style={styles.textChoice}>Library</Text>
             </TouchableOpacity>
           </View>

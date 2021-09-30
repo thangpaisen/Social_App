@@ -28,9 +28,21 @@ const ItemSettings = ({item,navigation})=>(
 export default function Settings() {
     const navigation= useNavigation()
     const dispatch = useDispatch();
-    const user = useSelector(state => state.user.data)
+    const [user, setUser] = useState({})
     useEffect(() => {
-        // dispatch(getUser())
+    const sub2 = firestore()
+      .collection('users')
+      .where('uid', '==', auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        var me = {};
+        querySnapshot.forEach(doc => {
+          me = {
+              id: doc.id,
+              ...doc.data()};
+        });
+        setUser(me);
+      });
+      return () => sub2();
   }, []);
     const logoutUser = async ()=> {
     try {
@@ -52,14 +64,13 @@ export default function Settings() {
           containerStyle={styles.imageAvatar}
         />
         <View style={styles.profileTitle}>
-          {/* <Text style={styles.fullName}>❤ {user.email}</Text> */}
           <Text style={styles.fullName} numberOfLines={1} ellipsizeMode="tail">❤ {user.displayName || ''}</Text>
           <View style={styles.follower}>
             <Text style={{fontSize: 14, marginRight:10}}>
-                <Text style={{fontWeight: 'bold'}}>31 </Text>
+                <Text style={{fontWeight: 'bold'}}>{user?.follow?.length} </Text>
                  đang Follow</Text>
             <Text style={{fontSize: 14, marginRight:10}}>
-                <Text style={{fontWeight: 'bold'}}>2 </Text>
+                <Text style={{fontWeight: 'bold'}}>{user?.follower?.length} </Text>
                  Follower</Text>
           </View>
         </View>

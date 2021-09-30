@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, ScrollView, Pressable,RefreshControl} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  RefreshControl,
+} from 'react-native';
 import {Avatar} from 'react-native-elements';
 
 import ItemPost from './ItemPost';
@@ -8,49 +15,70 @@ import {useNavigation} from '@react-navigation/native';
 import Header from './Header';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import Loading from "./../../components/Loading";
-import {useDispatch,useSelector} from 'react-redux'
-import { getUser } from "./../../redux/actions/user";
+import Loading from './../../components/Loading';
+import {useDispatch, useSelector} from 'react-redux';
+import {getUser} from './../../redux/actions/user';
 
 const Home = () => {
   const navigation = useNavigation();
   const [postsUser, setPostsUser] = useState([]);
-  const user = useSelector(state => state.user.data)
-    const dispatch =useDispatch();
-    const [refreshing, setRefreshing] = useState(false);
-  const ref =firestore().collection('postsUser').orderBy('createdAt', 'desc') ;
+  const [user, setUser] = useState({});
+  const dispatch = useDispatch();
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
-        const abc=  ref.onSnapshot(querySnapshot => {
-        const listPostsUser = querySnapshot.docs.map(doc => {
-          const data = {
-              id:doc.id,
+    const sub = firestore()
+      .collection('postsUser')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(querySnapshot => {
+        const listPostUser = [];
+        querySnapshot.forEach(doc => {
+          if (
+            doc.data().uidUser === user.uid ||
+            user?.follow?.indexOf(doc.data().uidUser) >= 0
+          )
+            listPostUser.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+        });
+        setPostsUser(listPostUser);
+        setRefreshing(false);
+      });
+    return () => {
+      sub();
+    };
+  }, [refreshing,user]);
+  useEffect(() => {
+    //   dispatch(getUser())
+    const sub2 = firestore()
+      .collection('users')
+      .where('uid', '==', auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        var me = {};
+        querySnapshot.forEach(doc => {
+          me = {
+            id: doc.id,
             ...doc.data(),
           };
-          return data;
         });
-        setPostsUser(listPostsUser);
-        setRefreshing(false)
+        setUser(me);
       });
-      return () => {
-        abc();
+    return () => {
+      sub2();
     };
-  }, [refreshing]);
-  useEffect(() => {
-      dispatch(getUser())
   }, []);
   return (
     <View style={styles.container}>
-      <Header user={user}/>
-      <ScrollView 
-        style={styles.content} 
+      <Header user={user} />
+      <ScrollView
+        style={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={()=>setRefreshing(true)}
+            onRefresh={() => setRefreshing(true)}
           />
-        }
-        >
+        }>
         <Pressable
           style={styles.upPost}
           onPress={() => navigation.navigate('UploadPost')}>
@@ -59,8 +87,9 @@ const Home = () => {
               size={36}
               rounded
               source={{
-                uri: user.imageAvatar ||
-                'https://image.flaticon.com/icons/png/512/149/149071.png',
+                uri:
+                  user.imageAvatar ||
+                  'https://image.flaticon.com/icons/png/512/149/149071.png',
               }}
             />
           </View>
@@ -68,13 +97,15 @@ const Home = () => {
             <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
           </View>
         </Pressable>
-        {!refreshing?
-        <>
-        {postsUser.map((item) => (
-          <ItemPost item={item} key={item.id} />
-        ))}
-        </>
-        :<Loading/>}
+        {!refreshing ? (
+          <>
+            {postsUser.map(item => (
+              <ItemPost item={item} key={item.id} />
+            ))}
+          </>
+        ) : (
+          <Loading />
+        )}
       </ScrollView>
     </View>
   );

@@ -24,7 +24,7 @@ import * as Animatable from 'react-native-animatable';
 import { useSelector } from "react-redux";
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
-  const userNow = useSelector(state => state.user.data)
+  const [userNow, setUser] = useState({})
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -34,7 +34,23 @@ useEffect(() => {
       .onSnapshot(querySnapshot => {
          setTotalComment(querySnapshot.size)
         });
-        return () =>sub()
+    const sub2 = firestore()
+      .collection('users')
+      .where('uid', '==', auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        var me = {};
+        querySnapshot.forEach(doc => {
+          me = {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setUser(me);
+      });
+        return () =>{
+            sub();
+            sub2()
+        }
   }, []);
   useEffect(() => {
      const sub=firestore().collection('users').where('uid', '==', item.uidUser)

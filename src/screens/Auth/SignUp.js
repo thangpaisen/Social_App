@@ -68,6 +68,8 @@ export default function SignUp({navigation}) {
                         imageAvatar: '',
                         imageCover:'',
                         email: auth().currentUser.email,
+                        follow:[],
+                        follower:[],
                 })
                 .then(() => {
                     console.log('User added!');

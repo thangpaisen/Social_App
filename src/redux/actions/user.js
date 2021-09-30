@@ -8,15 +8,14 @@ export const setUser = data => {
   };
 };
 export const getUser = () => dispatch => {
-        firestore().collection('users').get()
-      .then(querySnapshot => {
+        firestore().collection('users')
+      .onSnapshot(querySnapshot => {
       var user = {};
-      querySnapshot.forEach(doc => {
+      querySnapshot?.forEach(doc => {
           if(doc.data().uid === auth().currentUser.uid)
                  user= {...doc.data(),idDocFb:doc.id}
       });
       dispatch(setUser(user))
-      
     });
 }
 // export const updateUser = (data) => dispatch => {
