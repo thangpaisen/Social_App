@@ -44,7 +44,7 @@ useEffect(() => {
                 userPost = {...doc.data()}
       });
       setUserItemPost(userPost);
-    });
+    },);
     return () =>sub()
   }, []);
   const handleOnLove = () => {
@@ -121,7 +121,11 @@ useEffect(() => {
           }}
         />
         <View style={styles.title}>
-          <Text style={styles.name}>{userItemPost.displayName}</Text>
+          <TouchableOpacity onPress={() =>{
+              navigation.navigate('ProfileUser',{uidUser:item.uidUser})
+          }}>
+            <Text style={styles.name}>{userItemPost.displayName}</Text>
+          </TouchableOpacity>
           <Text style={styles.lastTime}>
             {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') || '5 phút tr'}
           </Text>

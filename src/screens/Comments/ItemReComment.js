@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    marginLeft:10,
+    marginLeft: 10,
   },
   name: {
     fontSize: 14,

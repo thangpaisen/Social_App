@@ -16,9 +16,9 @@ const LisData=[
     {icon:'reader',title:'Version',nav:'ProfileUser'},
   ]
 const ItemSettings = ({item,navigation})=>(
-    <Pressable style={styles.settingItem} onPress={() =>navigation.navigate(item.nav)}>
-      <Icon style={styles.iconSetting} name={item.icon} size={20} color='black'/>
-      <Text style={styles.titleItemSetting} >{item.title}</Text>
+    <Pressable style={styles.settingItem} onPress={() =>navigation.navigate('ProfileUser',{uidUser:auth().currentUser.uid})}>
+      <Icon style={styles.iconSetting} name={'receipt'} size={20} color='black'/>
+      <Text style={styles.titleItemSetting}>Hồ sơ</Text>
       <View style={styles.iconMore}>
         <Icon  name={'chevron-forward-outline'} size={20} color='black'/>
       </View>

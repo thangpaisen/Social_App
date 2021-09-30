@@ -18,10 +18,12 @@ import { useSelector } from "react-redux";
 const Comments = ({route}) => {
   const {dataPost} = route.params;
   const navigation = useNavigation();
-  const userNow = useSelector(state => state.user.data)
+    const userNow = useSelector(state => state.user.data)
     const [userItemPost, setUserItemPost] = useState({});
   const [textComment, setTextComment] = useState('');
   const [listComments, setListComments] = useState([]);
+  const [reply, setReply] = useState('');
+
   const ref = firestore()
     .collection('postsUser')
     .doc(dataPost.id)
@@ -64,6 +66,13 @@ const Comments = ({route}) => {
       });
       setTextComment('')
     }
+  };
+  const handleSendReComment = (text,refFb) => {
+
+  }
+  const handleOnClickReComment = (nameUserReply,text,refFb) => {
+      setReply(nameUserReply);
+
   };
   return (
     <View style={styles.commentsContainer}>

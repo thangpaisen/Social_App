@@ -3,19 +3,19 @@ import { View, Text ,Pressable,StyleSheet} from 'react-native'
 import {Avatar} from 'react-native-elements';
 import { useNavigation } from "@react-navigation/native";
 
-const Header = ({imageAvatar}) => {
+const Header = ({user}) => {
     const navigation= useNavigation();
     return (
         <View style={styles.header}>
         <View style={styles.logo}>
           <Text style={styles.textLogo}>Animee</Text>
         </View>
-        <Pressable style={styles.avatar} onPress={() =>navigation.navigate('ProfileUser')}>
+        <Pressable style={styles.avatar} onPress={() =>navigation.navigate('ProfileUser',{uidUser:user.uid})}>
           <Avatar
             size={32}
             rounded
             source={{
-                uri: imageAvatar||
+                uri: user.imageAvatar||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
               }}
           />

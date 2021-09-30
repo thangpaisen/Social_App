@@ -108,7 +108,6 @@ const UploadPost = () => {
         .collection('postsUser')
         .add({
             love:[],
-            numberComments:0,
             message:{
                 text:text,
                 image:url,

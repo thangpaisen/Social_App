@@ -7,7 +7,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -16,82 +16,209 @@ import {Avatar} from 'react-native-elements';
 import ItemPost from './../Home/ItemPost';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import { useSelector,useDispatch } from "react-redux";
-import { getListPostUser } from "./../../redux/actions/listPostUser";
+import {useSelector, useDispatch} from 'react-redux';
+import {getListPostUser} from './../../redux/actions/listPostUser';
 
-const ProfileUser = () => {
+const ProfileUser = ({route}) => {
+  const {uidUser} = route.params;
   const navigation = useNavigation();
-  const user = useSelector(state => state.user.data)
-  const listPostUser = useSelector(state => state.listPostUser.data)
-  const dispatch=useDispatch()
+  const [listPostUser, setListPostUser] = useState([]);
+  const [userProfile, setUserProfile] = useState({});
+  const [checkUserFl, setCheckUserFl] = useState(false)
+  const [me, setMe] = useState({})
   useEffect(() => {
-    dispatch(getListPostUser())
+    const sub = firestore()
+      .collection('users')
+      .where('uid', '==', uidUser)
+      .onSnapshot(querySnapshot => {
+        var userProfile = {};
+        querySnapshot.forEach(doc => {
+          userProfile = {
+              id: doc.id,
+              ...doc.data()};
+        });
+        setUserProfile(userProfile);
+      });
+    const sub2 = firestore()
+      .collection('users')
+      .where('uid', '==', auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        var me = {};
+        querySnapshot.forEach(doc => {
+          me = {
+              id: doc.id,
+              ...doc.data()};
+        });
+        setMe(me);
+      });
+    const sub1 = firestore()
+      .collection('postsUser')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(querySnapshot => {
+        const listPostUser = [];
+        querySnapshot.forEach(doc => {
+          if (doc.data().uidUser === uidUser)
+            listPostUser.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+        });
+        setListPostUser(listPostUser);
+      });
+    
+    return () => {
+      sub();
+      sub1();
+      sub2()
+    };
   }, []);
+  useEffect(() => {
+      const checkFl = me?.follow?.indexOf(userProfile.uid);
+      if (checkFl > -1)
+        setCheckUserFl(true)
+    else{
+        setCheckUserFl(false)
+    }
+  }, [me])
+  const handleOnFollow =() =>{
+    const checkFollower = userProfile?.follower.indexOf(auth().currentUser.uid);
+    const checkFl = me.follow.indexOf(userProfile.uid);
+    if (checkFl > -1)
+        {
+            var newArr = [...userProfile.follower];
+            var newArr2 = [...me.follow];
+            newArr.splice(checkFollower, 1);
+            newArr2.splice(checkFl, 1);
+            firestore()
+                .collection('users')
+                .doc(userProfile.id)
+                .set(
+                {
+                    follower: [...newArr],
+                },
+                {merge: true},
+                );
+            firestore()
+                .collection('users')
+                .doc(me.id)
+                .set(
+                {
+                    follow: [...newArr2],
+                },
+                {merge: true},
+                );
+        }
+    else{
+            firestore()
+                .collection('users')
+                .doc(userProfile.id)
+                .set(
+                {
+                    follower: [...userProfile.follower,auth().currentUser.uid],
+                },
+                {merge: true},
+                );
+            firestore()
+                .collection('users')
+                .doc(me.id)
+                .set(
+                {
+                    follow: [...me.follow,userProfile.uid],
+                },
+                {merge: true},
+                );
+    }
+  }
   return (
     <View style={styles.container}>
-      <Header />
+      <Header title={userProfile.displayName} />
       <ScrollView>
-      <View style={styles.profile}>
-        <Image
-          source={{
-            uri: user.imageCover ||
-            'https://image.flaticon.com/icons/png/512/149/149071.png',
-          }}
-          style={styles.imageCover}
-        />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginHorizontal: 20,
-          }}>
-          <Avatar
+        <View style={styles.profile}>
+          <Image
             source={{
-              uri: user.imageAvatar ||
-              'https://image.flaticon.com/icons/png/512/149/149071.png',
+              uri:
+                userProfile.imageCover ||
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
-            size={70}
-            rounded
-            containerStyle={{marginTop: -35}}
+            style={styles.imageCover}
           />
-          <TouchableOpacity style={styles.editProfile} onPress={() => navigation.navigate('UpdateProfileUser')}>
-            <Text style={styles.textEditProfile}>Chỉnh sửa hồ sơ</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.name}>{user.displayName}</Text>
-        <Text style={styles.description}>{user.description}</Text>
-        <View style={styles.follower}>
-          <Text style={{fontSize: 14, marginRight: 10}}>
-            <Text style={{fontWeight: 'bold'}}>31 </Text>
-            đang Follow
-          </Text>
-          <Text style={{fontSize: 14, marginRight: 10}}>
-            <Text style={{fontWeight: 'bold'}}>2 </Text>
-            Follower
-          </Text>
-        </View>
-      </View>
-      <Pressable
-          style={styles.upPost}
-          onPress={() => navigation.navigate('UploadPost')}>
-          <View style={styles.avatar}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginHorizontal: 20,
+            }}>
             <Avatar
-              size={36}
-              rounded
               source={{
-              uri: user.imageAvatar ||
-              'https://image.flaticon.com/icons/png/512/149/149071.png',
-            }}
+                uri:
+                  userProfile.imageAvatar ||
+                  'https://image.flaticon.com/icons/png/512/149/149071.png',
+              }}
+              size={70}
+              rounded
+              containerStyle={{marginTop: -35}}
             />
+            {auth().currentUser.uid === uidUser ? (
+              <TouchableOpacity
+                style={styles.editProfile}
+                onPress={() => navigation.navigate('UpdateProfileUser')}>
+                <Text style={styles.textEditProfile}>Chỉnh sửa hồ sơ</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.editProfile, !checkUserFl && {backgroundColor: 'black'}]}
+                onPress={() => {
+                    handleOnFollow();
+                }}>
+                <Text
+                  style={[styles.textEditProfile, !checkUserFl && {color: 'white'}]}>
+                  {!checkUserFl ? 'Theo dõi' : 'Đang theo dõi'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={styles.inputPost}>
-            <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
+          <Text style={styles.name}>{userProfile.displayName}</Text>
+          <Text style={styles.description}>{userProfile.description}</Text>
+          <View style={styles.follower}>
+            <Text style={{fontSize: 14, marginRight: 10}}>
+              <Text style={{fontWeight: 'bold'}}>{userProfile?.follow?.length} </Text>
+              đang Follow
+            </Text>
+            <Text style={{fontSize: 14, marginRight: 10}}>
+              <Text style={{fontWeight: 'bold'}}>{userProfile?.follower?.length} </Text>
+              Follower
+            </Text>
           </View>
-        </Pressable>
-      {listPostUser.map((item, index) => (
-          <ItemPost item={item} key={item.id} />
-        ))}
-        </ScrollView>
+        </View>
+        {auth().currentUser.uid === uidUser && (
+          <Pressable
+            style={styles.upPost}
+            onPress={() => navigation.navigate('UploadPost')}>
+            <View style={styles.avatar}>
+              <Avatar
+                size={36}
+                rounded
+                source={{
+                  uri:
+                    userProfile.imageAvatar ||
+                    'https://image.flaticon.com/icons/png/512/149/149071.png',
+                }}
+              />
+            </View>
+            <View style={styles.inputPost}>
+              <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
+            </View>
+          </Pressable>
+        )}
+        <View style={{marginTop: 20}}>
+          <Text style={{padding: 10, fontSize: 18, fontWeight: 'bold'}}>
+            Bài viết
+          </Text>
+          {listPostUser.map((item, index) => (
+            <ItemPost item={item} key={item.id} />
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -111,6 +238,8 @@ const styles = StyleSheet.create({
   editProfile: {
     marginTop: 10,
     paddingHorizontal: 10,
+    paddingVertical: 6,
+
     padding: 0,
     backgroundColor: 'white',
     borderWidth: 1,
@@ -128,7 +257,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     paddingHorizontal: 10,
-    marginTop: 10,
   },
   description: {
     fontSize: 14,
@@ -152,10 +280,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     padding: 8,
     borderRadius: 20,
-    // backgroundColor: '#ebebeb',
   },
   inputText: {
-    // paddingLeft: 10,
     fontSize: 16,
     color: 'gray',
   },

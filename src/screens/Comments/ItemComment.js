@@ -18,11 +18,38 @@ import ItemReComment from "./ItemReComment";
 const ItemComment = ({item}) => {
   const userNow = useSelector(state => state.user.data);
   const [userComment, setUserComment] = useState({});
+  const [hideReComments, setHideReComments] = useState(true);
+  const [listReComments, setListReComments] = useState({
+      total: 0,
+      data:[],
+  });
+
   const ref = firestore()
     .collection('postsUser')
     .doc(item.idPost)
     .collection('comments')
     .doc(item.id);
+useEffect(() => {
+    const sub =ref.collection('reComments')
+    .onSnapshot(querySnapshot => {
+        var data = [];
+        var total = querySnapshot.size;
+        querySnapshot.forEach(doc => {
+          data.push(
+              {
+                id: doc.id,
+              ...doc.data()
+              });
+        });
+        setListReComments({
+            total: total,
+            data:data
+        });
+    })
+    return () => {
+        sub();
+    }
+}, [])
   useEffect(() => {
     const sub = firestore()
       .collection('users')
@@ -123,12 +150,19 @@ const ItemComment = ({item}) => {
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.reComment}>
-            <TouchableOpacity>
-                <Text style={styles.textShowReComment}>{false?'--------- Xem 3 câu trả lời':'--------- Ẩn câu trả lời'} </Text>
+        {listReComments.total>0&&<View style={styles.reComment}>
+            <TouchableOpacity onPress={() =>{
+                setHideReComments(!hideReComments)
+            }}>
+                <Text style={styles.textShowReComment}>{hideReComments?`--------- Xem ${listReComments.total} câu trả lời`:'--------- Ẩn câu trả lời'} </Text>
             </TouchableOpacity>
-            <ItemReComment item={item}/>
-        </View>
+            {!hideReComments&&
+                listReComments.data.map((item)=>
+                    <ItemReComment item={item} key={item.id}/>
+                )
+                }
+        </View>}
+        
       </View>
     </View>
   );

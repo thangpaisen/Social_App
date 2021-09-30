@@ -11,6 +11,8 @@ import UpDatePost from "./../screens/UpDatePost/UpdatePost";
 import UploadPost from "./../screens/UploadPost";
 import ProfileUser from "./../screens/ProfileUser/ProfileUser";
 import UpdateProfileUser from "./../screens/UpdateProfileUser/UpdateProfileUser";
+import Search from "./../screens/Search/Search";
+import Chat from "./../screens/Chat/Chat";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -33,6 +35,26 @@ function MyTabs() {
         }}
       />
       <Tab.Screen
+        name="Search"
+        component={Search}
+        options={{
+          tabBarLabel: 'Tìm kiếm',
+          tabBarIcon: ({color}) => (
+            <Icon name="search" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          tabBarLabel: 'Chat',
+          tabBarIcon: ({color}) => (
+            <Icon name="chatbox" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Settings"
         component={Settings}
         options={{
@@ -42,6 +64,7 @@ function MyTabs() {
           ),
         }}
       />
+      
     </Tab.Navigator>
   );
 }

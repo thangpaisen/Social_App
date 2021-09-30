@@ -2,14 +2,14 @@ import React from 'react'
 import { View, Text,StyleSheet ,Pressable} from 'react-native'
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-const Header = () => {
+const Header = ({title}) => {
     const navigation = useNavigation();
     return (
         <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()}>
           <Icon name="chevron-back-outline" size={30} color={'black'} />
         </Pressable>
-        <Text style={{fontSize:18,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>Trang cá nhân </Text>
+        <Text style={{fontSize:18,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>{title}</Text>
       </View>
     )
 }

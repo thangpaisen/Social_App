@@ -40,7 +40,7 @@ const Home = () => {
   }, []);
   return (
     <View style={styles.container}>
-      <Header imageAvatar={user.imageAvatar}/>
+      <Header user={user}/>
       <ScrollView 
         style={styles.content} 
         showsVerticalScrollIndicator={false}
