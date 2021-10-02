@@ -18,7 +18,7 @@ const Tab = createMaterialBottomTabNavigator();
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Chat"
       activeColor="#09bff2"
       inactiveColor="gray"
       barStyle={{backgroundColor: 'white'}}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,7 +9,45 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Avatar, Badge} from 'react-native-elements';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import ItemRoomChat from "./ItemRoomChat";
 const Chat = () => {
+    const [listUsers, setListUsers] = useState([])
+      const [messagesThreads, setMessagesThreads] = useState([]);
+
+    useEffect(() => {
+        const sub = firestore()
+      .collection('users')
+      .onSnapshot(querySnapshot => {
+        var listUsers =[] ;
+        querySnapshot.forEach(doc => {
+         listUsers.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        });
+        setListUsers(listUsers);
+      });
+      const sub2 = firestore()
+      .collection('users')
+      .doc('nnsdLDQQiIT4K1MY6GVQ')
+      .collection('messages_threads')
+      .onSnapshot(querySnapshot => {
+        var messagesThreads =[] ;
+        querySnapshot.forEach(doc => {
+         messagesThreads.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        });
+        setMessagesThreads(messagesThreads);
+      });
+    return () =>{
+        sub()
+        sub2()
+    };
+    }, [])
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -21,13 +59,19 @@ const Chat = () => {
       <View style={styles.listFriendOnLine}>
         <FlatList
           horizontal
-          data={[1, 2, 3, 4, 5]}
-          renderItem={(item, index) => (
-            <TouchableOpacity style={styles.itemFriendOnLine}>
+          data={listUsers}
+          renderItem={({item, index}) => (
+            <TouchableOpacity style={styles.itemFriendOnLine}
+                onPress={() =>
+                    {
+                    }
+                }
+            >
               <View>
                 <Avatar
                   source={{
-                    uri: 'https://image.flaticon.com/icons/png/512/149/149071.png',
+                    uri: item.imageAvatar||
+                    'https://image.flaticon.com/icons/png/512/149/149071.png',
                   }}
                   size={50}
                   rounded
@@ -38,11 +82,11 @@ const Chat = () => {
                 />
               </View>
               <Text style={styles.nameItemFriendOnLine} numberOfLines={2}>
-                Nguyễn Hữu Thắng
+                {item.displayName || 'ahihi'}
               </Text>
             </TouchableOpacity>
           )}
-          keyExtractor={item => item}
+          keyExtractor={item => item.id}
         />
       </View>
       <View
@@ -53,21 +97,9 @@ const Chat = () => {
         }}></View>
       <View style={styles.listMessage}>
         <FlatList
-          data={[1, 2, 3, 4, 5]}
-          renderItem={(item, index) => (
-            <TouchableOpacity style={styles.itemMessage}>
-              <Avatar
-                source={{
-                  uri: 'https://image.flaticon.com/icons/png/512/149/149071.png',
-                }}
-                size={50}
-                rounded
-              />
-              <View style={{paddingLeft: 10}}>
-                <Text style={styles.nameFriendMessage}>Nguyễn Hữu Thắng</Text>
-                <Text style={styles.lastMessage}>Bạn: Hello world!</Text>
-              </View>
-            </TouchableOpacity>
+          data={messagesThreads}
+          renderItem={({item, index}) => (
+            <ItemRoomChat item={item}/>
           )}
           keyExtractor={item => item}
         />
@@ -105,6 +137,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 12,
     textAlign: 'center',
+    color:'black'
   },
   listMessage: {},
   itemMessage: {
