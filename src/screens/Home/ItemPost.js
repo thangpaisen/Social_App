@@ -36,16 +36,12 @@ useEffect(() => {
         });
     const sub2 = firestore()
       .collection('users')
-      .where('uid', '==', auth().currentUser.uid)
-      .onSnapshot(querySnapshot => {
-        var me = {};
-        querySnapshot.forEach(doc => {
-          me = {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setUser(me);
+      .doc(auth().currentUser.uid)
+      .onSnapshot(doc => {
+        setUser({
+            id:doc.id,
+            ...doc.data()
+            });
       });
         return () =>{
             sub();
@@ -53,14 +49,15 @@ useEffect(() => {
         }
   }, []);
   useEffect(() => {
-     const sub=firestore().collection('users').where('uid', '==', item.uidUser)
-      .onSnapshot(querySnapshot => {
-      var userPost = {};
-      querySnapshot.forEach(doc => {
-                userPost = {...doc.data()}
+     const sub = firestore()
+      .collection('users')
+      .doc(item.uidUser)
+      .onSnapshot(doc => {
+        setUserItemPost({
+            id:doc.id,
+            ...doc.data()
+            });
       });
-      setUserItemPost(userPost);
-    },);
     return () =>sub()
   }, []);
   const handleOnLove = () => {
@@ -90,7 +87,7 @@ useEffect(() => {
     }
   };
   const handleOpenComments =()=>{
-      navigation.navigate('Comments',{dataPost:item})
+      navigation.navigate('Comments',{dataPost:item,userItemPost:userItemPost})
   }
   const handleClickButtonDeletePost =()=>{
       Alert.alert(

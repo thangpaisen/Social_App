@@ -49,19 +49,14 @@ const Home = () => {
     };
   }, [refreshing,user]);
   useEffect(() => {
-    //   dispatch(getUser())
     const sub2 = firestore()
       .collection('users')
-      .where('uid', '==', auth().currentUser.uid)
-      .onSnapshot(querySnapshot => {
-        var me = {};
-        querySnapshot.forEach(doc => {
-          me = {
-            id: doc.id,
-            ...doc.data(),
-          };
-        });
-        setUser(me);
+      .doc(auth().currentUser.uid)
+      .onSnapshot(doc => {
+        setUser({
+            id:doc.id,
+            ...doc.data()
+            });
       });
     return () => {
       sub2();

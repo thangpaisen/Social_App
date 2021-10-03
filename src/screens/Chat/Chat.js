@@ -12,13 +12,15 @@ import {Avatar, Badge} from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import ItemRoomChat from "./ItemRoomChat";
+import { useNavigation } from "@react-navigation/native";
 const Chat = () => {
     const [listUsers, setListUsers] = useState([])
       const [messagesThreads, setMessagesThreads] = useState([]);
-
+      const navigation =useNavigation()
     useEffect(() => {
         const sub = firestore()
       .collection('users')
+      .where('uid', '!=', auth().currentUser.uid)
       .onSnapshot(querySnapshot => {
         var listUsers =[] ;
         querySnapshot.forEach(doc => {
@@ -31,8 +33,9 @@ const Chat = () => {
       });
       const sub2 = firestore()
       .collection('users')
-      .doc('nnsdLDQQiIT4K1MY6GVQ')
+      .doc(auth().currentUser.uid)
       .collection('messages_threads')
+      .orderBy('lastMessage.createdAt', 'desc')
       .onSnapshot(querySnapshot => {
         var messagesThreads =[] ;
         querySnapshot.forEach(doc => {
@@ -63,8 +66,7 @@ const Chat = () => {
           renderItem={({item, index}) => (
             <TouchableOpacity style={styles.itemFriendOnLine}
                 onPress={() =>
-                    {
-                    }
+                    navigation.navigate('Messages',{uidUserReceiver:item.uid})
                 }
             >
               <View>
@@ -101,7 +103,7 @@ const Chat = () => {
           renderItem={({item, index}) => (
             <ItemRoomChat item={item}/>
           )}
-          keyExtractor={item => item}
+          keyExtractor={item => item.id}
         />
       </View>
     </View>

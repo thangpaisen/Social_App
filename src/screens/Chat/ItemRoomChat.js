@@ -3,12 +3,15 @@ import { StyleSheet, Text, View,TouchableOpacity } from 'react-native'
 import { Avatar } from "react-native-elements";
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { useNavigation } from "@react-navigation/native";
 const ItemRoomChat = ({item}) => {
+    const navigation = useNavigation();
     const [userReceiver,setUserReceiver] =useState({})
+    console.log('userReceiver',userReceiver)
     useEffect(() => {
         const sub = firestore()
       .collection('users')
-      .doc('nnsdLDQQiIT4K1MY6GVQ')
+      .doc(item.id)
       .onSnapshot(doc => { 
         setUserReceiver({...doc.data()});
       });
@@ -17,7 +20,9 @@ const ItemRoomChat = ({item}) => {
         }
     }, [])
     return (
-        <TouchableOpacity style={styles.itemMessage}>
+        <TouchableOpacity style={styles.itemMessage} onPress={() =>{
+             navigation.navigate('Messages',{uidUserReceiver:item.id})
+        }}>
               <Avatar
                 source={{
                   uri: userReceiver.imageAvatar||
@@ -27,7 +32,7 @@ const ItemRoomChat = ({item}) => {
                 rounded
               />
               <View style={{paddingLeft: 10}}>
-                <Text style={styles.nameFriendMessage}>{userReceiver.displayName}</Text>
+                <Text style={styles.nameFriendMessage}>{userReceiver.displayName}</Text>    
                 <Text style={styles.lastMessage}>Bạn: {item.lastMessage.text}</Text>
               </View>
             </TouchableOpacity>

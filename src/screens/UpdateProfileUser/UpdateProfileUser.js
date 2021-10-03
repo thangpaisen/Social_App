@@ -24,26 +24,14 @@ import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
 import { useSelector,useDispatch } from "react-redux";
 import { getUser } from "./../../redux/actions/user";
-const UpdateProfileUser = () => {
+const UpdateProfileUser = ({route}) => {
+    const {user} = route.params;
+    console.log('user',user)
   const navigation = useNavigation();
   const [text, setTextName] = useState('');
   const dispatch = useDispatch()
   const [typeImage, setTypeImage] = useState('');
   const [profileUser, setProfileUser] = useState({
-    displayName: '',
-    description: '',
-    imageAvatar: {
-      fileName: '',
-      uri: '',
-    },
-    imageCover: {
-      fileName: '',
-      uri: '',
-    },
-  });
-  const user = useSelector(state => state.user.data);
-  useEffect(() => {
-    setProfileUser({
       displayName: user.displayName,
       description: user.description,
       imageAvatar: {
@@ -55,10 +43,7 @@ const UpdateProfileUser = () => {
         uri: user.imageCover,
       },
     });
-    
-  }, []);
   const handleOnSave = async () => {
-    // console.log('profileUser', profileUser);
     if (
       user.displayName !== profileUser.displayName ||
       user.description !== profileUser.description ||
@@ -90,7 +75,7 @@ const UpdateProfileUser = () => {
       }
       firestore()
         .collection('users')
-        .doc(user.idDocFb)
+        .doc(user.uid)
         .update({
           displayName: profileUser.displayName,
           description: profileUser.description,

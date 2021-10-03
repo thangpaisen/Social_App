@@ -13,32 +13,18 @@ import dateFormat from 'dateformat';
 import ItemComment from './ItemComment';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import { useSelector } from "react-redux";
+import {useSelector} from 'react-redux';
 
 const Comments = ({route}) => {
-  const {dataPost} = route.params;
+  const {dataPost,userItemPost} = route.params;
   const navigation = useNavigation();
-    const userNow = useSelector(state => state.user.data)
-    const [userItemPost, setUserItemPost] = useState({});
   const [textComment, setTextComment] = useState('');
   const [listComments, setListComments] = useState([]);
   const [reply, setReply] = useState('');
-
   const ref = firestore()
     .collection('postsUser')
     .doc(dataPost.id)
     .collection('comments');
-    useEffect(() => {
-     const sub=firestore().collection('users').where('uid', '==', dataPost.uidUser)
-      .onSnapshot(querySnapshot => {
-      var userPost = {};
-      querySnapshot.forEach(doc => {
-                userPost = {...doc.data()}
-      });
-      setUserItemPost(userPost);
-    });
-    return () =>sub()
-  }, []);
   useEffect(() => {
     const sub = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
       const listComments = querySnapshot.docs.map(doc => {
@@ -55,24 +41,21 @@ const Comments = ({route}) => {
     };
   }, []);
   const handleSendComment = () => {
-      console.log('send comment')
+    console.log('send comment');
     if (textComment.trim().length > 0) {
       ref.add({
         love: [],
         textComment,
-        uidUserComment:userNow.uid,
+        uidUserComment: auth().currentUser.uid,
         createdAt: new Date().getTime(),
-        idPost:dataPost.id
+        idPost: dataPost.id,
       });
-      setTextComment('')
+      setTextComment('');
     }
   };
-  const handleSendReComment = (text,refFb) => {
-
-  }
-  const handleOnClickReComment = (nameUserReply,text,refFb) => {
-      setReply(nameUserReply);
-
+  const handleSendReComment = (text, refFb) => {};
+  const handleOnClickReComment = (nameUserReply, text, refFb) => {
+    setReply(nameUserReply);
   };
   return (
     <View style={styles.commentsContainer}>
@@ -103,12 +86,13 @@ const Comments = ({route}) => {
           </View>
         </View>
       )}
-      {listComments.length>0&&
-      <>
-      {listComments.map((item, index) => (
-        <ItemComment item={item} key={item.id} />
-      ))}
-      </>}
+      {listComments.length > 0 && (
+        <>
+          {listComments.map((item, index) => (
+            <ItemComment item={item} key={item.id} />
+          ))}
+        </>
+      )}
       <View style={styles.inputTextComment}>
         <TextInput
           style={styles.inputText}
@@ -119,9 +103,14 @@ const Comments = ({route}) => {
         <TouchableOpacity
           onPress={() => handleSendComment()}
           style={styles.send}
-          disabled={textComment.trim().length>0?false:true}
-          >
-          <Text style={[styles.textSend,textComment.trim()==0&&{opacity:0.5}]}>Send</Text>
+          disabled={textComment.trim().length > 0 ? false : true}>
+          <Text
+            style={[
+              styles.textSend,
+              textComment.trim() == 0 && {opacity: 0.5},
+            ]}>
+            Send
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

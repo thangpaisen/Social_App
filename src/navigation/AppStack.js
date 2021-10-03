@@ -13,12 +13,13 @@ import ProfileUser from "./../screens/ProfileUser/ProfileUser";
 import UpdateProfileUser from "./../screens/UpdateProfileUser/UpdateProfileUser";
 import Search from "./../screens/Search/Search";
 import Chat from "./../screens/Chat/Chat";
+import Messages from "./../screens/Chat/Messages";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Chat"
+      initialRouteName="Home"
       activeColor="#09bff2"
       inactiveColor="gray"
       barStyle={{backgroundColor: 'white'}}
@@ -116,6 +117,13 @@ const AppStack = () => {
       <Stack.Screen
         name="UpdateProfileUser"
         component={UpdateProfileUser}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS  ,
+        }}
+      />
+      <Stack.Screen
+        name="Messages"
+        component={Messages}
         options={{
           ...TransitionPresets.SlideFromRightIOS  ,
         }}

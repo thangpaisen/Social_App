@@ -29,27 +29,19 @@ const ProfileUser = ({route}) => {
   useEffect(() => {
     const sub = firestore()
       .collection('users')
-      .where('uid', '==', uidUser)
-      .onSnapshot(querySnapshot => {
-        var userProfile = {};
-        querySnapshot.forEach(doc => {
-          userProfile = {
-              id: doc.id,
-              ...doc.data()};
-        });
-        setUserProfile(userProfile);
+      .doc(uidUser)
+      .onSnapshot(doc => {
+        setUserProfile({
+            id: doc.id,
+            ...doc.data()});
       });
     const sub2 = firestore()
       .collection('users')
-      .where('uid', '==', auth().currentUser.uid)
-      .onSnapshot(querySnapshot => {
-        var me = {};
-        querySnapshot.forEach(doc => {
-          me = {
-              id: doc.id,
-              ...doc.data()};
-        });
-        setMe(me);
+      .doc(auth().currentUser.uid)
+      .onSnapshot(doc => {
+        setMe({
+            id: doc.id,
+            ...doc.data()});
       });
     const sub1 = firestore()
       .collection('postsUser')
@@ -92,40 +84,36 @@ const ProfileUser = ({route}) => {
             firestore()
                 .collection('users')
                 .doc(userProfile.id)
-                .set(
+                .update(
                 {
                     follower: [...newArr],
-                },
-                {merge: true},
+                }
                 );
             firestore()
                 .collection('users')
                 .doc(me.id)
-                .set(
+                .update(
                 {
                     follow: [...newArr2],
-                },
-                {merge: true},
+                }
                 );
         }
     else{
             firestore()
                 .collection('users')
                 .doc(userProfile.id)
-                .set(
+                .update(
                 {
                     follower: [...userProfile.follower,auth().currentUser.uid],
-                },
-                {merge: true},
+                }
                 );
             firestore()
                 .collection('users')
                 .doc(me.id)
-                .set(
+                .update(
                 {
                     follow: [...me.follow,userProfile.uid],
-                },
-                {merge: true},
+                }
                 );
     }
   }
@@ -161,7 +149,7 @@ const ProfileUser = ({route}) => {
             {auth().currentUser.uid === uidUser ? (
               <TouchableOpacity
                 style={styles.editProfile}
-                onPress={() => navigation.navigate('UpdateProfileUser')}>
+                onPress={() => navigation.navigate('UpdateProfileUser',{user:me})}>
                 <Text style={styles.textEditProfile}>Chỉnh sửa hồ sơ</Text>
               </TouchableOpacity>
             ) : (

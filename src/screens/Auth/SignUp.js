@@ -61,7 +61,8 @@ export default function SignUp({navigation}) {
                     })
             firestore()
                 .collection('users')
-                .add({
+                .doc(auth().currentUser.uid)
+                .set({
                         uid:auth().currentUser.uid,
                         displayName:name,
                         description:'',

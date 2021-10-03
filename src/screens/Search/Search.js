@@ -15,9 +15,9 @@ const Search = () => {
   const handleOnSearch = value => {
     setShowData(true);
     setLoading(true);
-    const sub = firestore()
-      .collection('users')
-      .onSnapshot(querySnapshot => {
+    firestore()
+      .collection('users').get()
+      .then(querySnapshot => {
         var listUser = [];
         querySnapshot.forEach(doc => {
           if (value.toUpperCase() === doc.data().email.toUpperCase())
@@ -32,7 +32,6 @@ const Search = () => {
         setListUserSearch(listUser);
         setLoading(false);
       });
-    return () => sub();
   };
   const handleOnHideData = value => {
     setShowData(false);

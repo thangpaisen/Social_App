@@ -64,7 +64,7 @@ useEffect(() => {
     return () => sub();
   }, []);
   const handleOnLove = () => {
-    const checkLove = item.love.indexOf(userNow.uid);
+    const checkLove = item.love.indexOf(auth().currentUser.uid);
     if (checkLove > -1) {
       var newArr = [...item.love];
       newArr.splice(checkLove, 1);
@@ -77,7 +77,7 @@ useEffect(() => {
     } else {
       ref.set(
         {
-          love: [userNow.uid, ...item.love],
+          love: [auth().currentUser.uid, ...item.love],
         },
         {merge: true},
       );
@@ -143,10 +143,10 @@ useEffect(() => {
           <TouchableOpacity style={styles.love} onPress={() => handleOnLove()}>
             <Icon
               name={
-                item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
+                item.love.indexOf(auth().currentUser.uid) > -1 ? 'heart' : 'heart-outline'
               }
               size={16}
-              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+              color={item.love.indexOf(auth().currentUser.uid) > -1 ? 'red' : 'black'}
             />
           </TouchableOpacity>
         </View>

@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,7 +10,7 @@ import {
   Dimensions,
   ScrollView,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,23 +22,23 @@ import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 const UpDatePost = ({route}) => {
-    const {dataPost} = route.params;
+  const {dataPost} = route.params;
   const navigation = useNavigation();
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState({});
   useEffect(() => {
-        const uidUserNow =auth().currentUser.uid
-      const subscriber = firestore().collection('users')
+    const uidUserNow = auth().currentUser.uid;
+    const subscriber = firestore()
+      .collection('users')
       .onSnapshot(querySnapshot => {
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === uidUserNow)
-                user= {...doc.data()}
+        var user = {};
+        querySnapshot.forEach(doc => {
+          if (doc.data().uid === uidUserNow) user = {...doc.data()};
+        });
+        setUser(user);
       });
-      setUser(user);
-    });
-    return () => subscriber()
+    return () => subscriber();
   }, []);
-  const [lockUpPosts, setLockUpPosts] = useState(false)
+  const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState(dataPost.message.text);
   const [imageUpImp, setImageUpImp] = useState({
     uri: dataPost.message.image,
@@ -46,23 +46,23 @@ const UpDatePost = ({route}) => {
     width: 360,
     height: 360,
   });
-  const handleOnPressRemoveImageUpTmp=()=>{
-      if(imageUpImp.uri.length >0 &&!imageUpImp.uri.includes("firebase"))
-        RNFS.unlink(imageUpImp.uri);
-        setImageUpImp({...imageUpImp, uri: ''})
-  }
-  const openLibrary =  () => {
+  const handleOnPressRemoveImageUpTmp = () => {
+    if (imageUpImp.uri.length > 0 && !imageUpImp.uri.includes('firebase'))
+      RNFS.unlink(imageUpImp.uri);
+    setImageUpImp({...imageUpImp, uri: ''});
+  };
+  const openLibrary = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
         includeBase64: false,
       },
-      async response =>{
+      async response => {
         if (!response.didCancel) {
-            var {uri, fileName, height, width} = response.assets[0];
-            const reference = storage().ref(fileName);
-            await reference.putFile(uri);
-            url = await storage().ref(fileName).getDownloadURL();
+          var {uri, fileName, height, width} = response.assets[0];
+          const reference = storage().ref(fileName);
+          await reference.putFile(uri);
+          url = await storage().ref(fileName).getDownloadURL();
           setImageUpImp({
             uri,
             fileName,
@@ -83,9 +83,9 @@ const UpDatePost = ({route}) => {
       async response => {
         if (!response.didCancel) {
           var {uri, fileName, height, width} = response.assets[0];
-            const reference = storage().ref(fileName);
-            await reference.putFile(uri);
-            url = await storage().ref(fileName).getDownloadURL();
+          const reference = storage().ref(fileName);
+          await reference.putFile(uri);
+          url = await storage().ref(fileName).getDownloadURL();
           setImageUpImp({
             uri,
             fileName,
@@ -97,97 +97,110 @@ const UpDatePost = ({route}) => {
       },
     );
   };
-  const handleOnUploadPosts= async () => {
-      if(text ||imageUpImp.uri )
-      {
-          setLockUpPosts(true)
-        firestore()
+  const handleOnUploadPosts = async () => {
+    if (text || imageUpImp.uri) {
+      setLockUpPosts(true);
+      firestore()
         .collection('postsUser')
         .doc(dataPost.id)
         .update({
-            message:{
-                text:text,
-                image:imageUpImp.uri,
-            },
-            UpDateAt: new Date().getTime(),
+          message: {
+            text: text,
+            image: imageUpImp.uri,
+          },
+          UpDateAt: new Date().getTime(),
         })
         .then(() => {
-        console.log('done');
-            setLockUpPosts(false)
-            handleOnPressRemoveImageUpTmp()
-            onChangeText('')
-            Toast.show({
-                text1: 'Bài viết đã được Cập nhật',
-                visibilityTime: 100,
-                });
-            navigation.navigate('Home')
+          console.log('done');
+          setLockUpPosts(false);
+          handleOnPressRemoveImageUpTmp();
+          onChangeText('');
+          Toast.show({
+            text1: 'Bài viết đã được Cập nhật',
+            visibilityTime: 100,
+          });
+          navigation.navigate('Home');
         });
-        
-      }
-
-  }
+    }
+  };
   return (
-      <>
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.navigate('Home')}>
-          <Icon name="close" size={36} color={'black'} />
-        </Pressable>
-        <Text style={{fontSize:16,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>Cập nhật bài viết </Text>
-        <Pressable style={styles.upPost} onPress={() =>handleOnUploadPosts()}  disabled={lockUpPosts}>
-          <Text style={styles.textUpPost}>Lưu</Text>
-        </Pressable>
-      </View>
-      <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://image.flaticon.com/icons/png/512/149/149071.png'}} />
-          </View>
-          <TextInput
-          autoFocus
-            style={styles.input}
-            onChangeText={onChangeText}
-            value={text}
-            placeholder="Bạn đang nghĩ gì ?"
-            multiline={true}
-          />
+    <>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.navigate('Home')}>
+            <Icon name="close" size={36} color={'black'} />
+          </Pressable>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: 'bold',
+              flex: 1,
+              paddingHorizontal: 10,
+            }}
+            numberOfLines={1}>
+            Cập nhật bài viết{' '}
+          </Text>
+          <Pressable
+            style={styles.upPost}
+            onPress={() => handleOnUploadPosts()}
+            disabled={lockUpPosts}>
+            <Text style={styles.textUpPost}>Lưu</Text>
+          </Pressable>
         </View>
-        {imageUpImp.uri.length != 0 && (
-          <View style={styles.imageUpImp}>
-            <Image source={{uri: imageUpImp.uri}} style={[styles.image]} />
-            <Pressable
-              style={styles.removeImageUpTmp}
-              onPress={() => {
-                  handleOnPressRemoveImageUpTmp()
-              }}>
-              <Icon name="close" size={30} color={'white'} />
-            </Pressable>
+        <ScrollView>
+          <View style={styles.content}>
+            <View style={styles.avatar}>
+              <Avatar
+                size={36}
+                rounded
+                source={{
+                  uri:
+                    user.imageAvatar ||
+                    'https://image.flaticon.com/icons/png/512/149/149071.png',
+                }}
+              />
+            </View>
+            <TextInput
+              autoFocus
+              style={styles.input}
+              onChangeText={onChangeText}
+              value={text}
+              placeholder="Bạn đang nghĩ gì ?"
+              multiline={true}
+            />
           </View>
-        )}
-      </ScrollView>
-      <View style={styles.choiceImage}>
-        <TouchableOpacity
-          style={styles.itemChoice}
-          onPress={() => openCamera()}>
-          <Icon name="camera-outline" size={30} color={'black'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.itemChoice}
-          onPress={() => openLibrary()}>
-          <Icon name="image-outline" size={30} color={'black'} />
-        </TouchableOpacity>
+          {imageUpImp.uri.length != 0 && (
+            <View style={styles.imageUpImp}>
+              <Image source={{uri: imageUpImp.uri}} style={[styles.image]} />
+              <Pressable
+                style={styles.removeImageUpTmp}
+                onPress={() => {
+                  handleOnPressRemoveImageUpTmp();
+                }}>
+                <Icon name="close" size={30} color={'white'} />
+              </Pressable>
+            </View>
+          )}
+        </ScrollView>
+        <View style={styles.choiceImage}>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openCamera()}>
+            <Icon name="camera-outline" size={30} color={'black'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openLibrary()}>
+            <Icon name="image-outline" size={30} color={'black'} />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-    <Modal
-        animationType="slide"
-        transparent={true}
-        visible={lockUpPosts}
-      >
+      <Modal animationType="slide" transparent={true} visible={lockUpPosts}>
         <View style={styles.model}>
-                <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
       </Modal>
-      </>
+    </>
   );
 };
 
@@ -202,7 +215,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // backgroundColor: 'red',
   },
   upPost: {
     backgroundColor: '#00a6ff',
@@ -221,16 +233,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  avatar: {
-    //   marginTop: 10,
-  },
+  avatar: {},
   input: {
     flex: 1,
-    //   backgroundColor:'red',
+
     fontSize: 18,
     lineHeight: 23,
     paddingTop: 4,
-    //   marginTop:0,
+
     marginHorizontal: 10,
   },
   choiceImage: {
@@ -252,11 +262,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   image: {
-    // backgroundColor: 'red',
     borderRadius: 5,
     width: width - 20,
     height: height / 2,
-    // resizeMode: 'center'
   },
   removeImageUpTmp: {
     position: 'absolute',
@@ -269,11 +277,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  model:{
-      flex: 1,
-      backgroundColor: 'white',
-      opacity: 0.6,
-      justifyContent:'center',
-      alignItems: 'center',
-  }
+  model: {
+    flex: 1,
+    backgroundColor: 'white',
+    opacity: 0.6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
