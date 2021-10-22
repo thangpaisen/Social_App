@@ -28,126 +28,50 @@ const ItemPost = ({item}) => {
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-
-  useEffect(() => {
-    const sub = firestore()
-      .collection('postsUser')
-      .doc(item.id)
-      .collection('comments')
-      .onSnapshot(querySnapshot => {
-        setTotalComment(querySnapshot.size);
-      });
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-    return () => {
-      sub();
-      sub2();
-    };
-  }, []);
-  useEffect(() => {
-    const sub = firestore()
-      .collection('users')
-      .doc(item.uidUser)
-      .onSnapshot(doc => {
-        setUserItemPost({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-    return () => sub();
-  }, []);
-  const handleOnLove = () => {
-    const checkLove = item.love.indexOf(userNow.uid);
-    if (checkLove > -1) {
-      var newArr = [...item.love];
-      newArr.splice(checkLove, 1);
-      firestore()
-        .collection('postsUser')
-        .doc(item.id)
-        .set(
-          {
-            love: [...newArr],
-          },
-          {merge: true},
-        );
-    } else {
-      firestore()
-        .collection('postsUser')
-        .doc(item.id)
-        .set(
-          {
-            love: [userNow.uid, ...item.love],
-          },
-          {merge: true},
-        );
-    }
-  };
-  const handleOpenComments = () => {
-    navigation.navigate('Comments', {
-      dataPost: item,
-      userItemPost: userItemPost,
-    });
-  };
-  const handleClickButtonDeletePost = () => {
-    Alert.alert('Thông báo', 'Bạn muốn xóa bài viết', [
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {text: 'OK', onPress: () => deletePost()},
-    ]);
-  };
-  const handleClickButtonUpDatePost = () => {
-    setModalVisible(false);
-    navigation.navigate('UpDatePost', {dataPost: item});
-  };
-  const deletePost = () => {
-    firestore()
-      .collection('postsUser')
-      .doc(item.id)
-      .delete()
-      .then(() => {
-        setModalVisible(false);
-        Toast.show({
-          text1: 'Đã xóa bài viết',
-          visibilityTime: 100,
-        });
-      });
-  };
   return (
     <>
       <View style={styles.itemPost}>
         <View style={styles.headerItemPost}>
           <Avatar
-            size={34}
+            size={50}
             rounded
             source={{
               uri:
-                userItemPost.imageAvatar ||
-                'https://image.flaticon.com/icons/png/512/149/149071.png',
+                'https://images6.alphacoders.com/102/1029037.jpg',
+            }}
+          >
+            <Avatar
+            size={25}
+            rounded
+            containerStyle={{position: 'absolute', bottom: 0, right: -6}}
+            source={{
+              uri:
+                'https://images6.alphacoders.com/740/thumb-1920-740310.jpg',
             }}
           />
+          </Avatar>
           <View style={styles.title}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('ProfileUser', {uidUser: item.uidUser});
+                // navigation.navigate('ProfileUser', {uidUser: item?.uidUser});
               }}>
-              <Text style={styles.name}>{userItemPost.displayName}</Text>
+              <Text style={styles.name} numberOfLines={2}>{userItemPost.displayName|| 'Anime - Trá tim của tôi Anime'}</Text>
             </TouchableOpacity>
-            <Text style={styles.lastTime}>
-              {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') ||
+            <View style={{flexDirection: 'row',
+                alignItems: 'center',
+            }}>
+                <TouchableOpacity>
+                    <Text style={{marginRight:6}}>
+                    Roronoa Zoro
+                </Text>
+                </TouchableOpacity>
+                <Text style={styles.lastTime}>
+              {dateFormat(item?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
                 '5 phút tr'}
             </Text>
+            </View>
           </View>
-          {userNow.uid === item.uidUser && (
+          {userNow.uid === item?.uidUser && (
             <Pressable
               style={styles.morePost}
               onPress={() => setModalVisible(true)}>
@@ -156,16 +80,16 @@ const ItemPost = ({item}) => {
           )}
         </View>
         <View style={styles.content}>
-          {item.message.text.length > 0 && (
+          {item?.message.text.length > 0 && (
             <Text
               style={[
                 styles.textContent,
-                !item.message.image && {fontSize: 20},
+                !item?.message.image && {fontSize: 20},
               ]}>
-              {item.message.text}
+              {item?.message.text}
             </Text>
           )}
-          {item.message.image ? (
+          {true ? (
             <Lightbox
               navigator={navigation.navigator}
               activeProps={{
@@ -176,25 +100,25 @@ const ItemPost = ({item}) => {
                   resizeMode: 'contain',
                 },
               }}>
-              <Image source={{uri: item.message.image}} style={styles.image} />
+              <Image source={{uri: item?.message.image|| 'https://images6.alphacoders.com/102/1029037.jpg'}} style={styles.image} />
             </Lightbox>
           ) : null}
         </View>
         <View style={styles.react}>
           <TouchableOpacity
             style={[styles.feel, styles.itemIcon]}
-            onPress={() => handleOnLove()}>
+            // onPress={() => handleOnLove()}
+            >
             <Icon
-              name={
-                item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
-              }
+              name={'heart-outline'}
               size={26}
-              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+              color={'black'}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.comment, styles.itemIcon]}
-            onPress={() => handleOpenComments()}>
+            // onPress={() => handleOpenComments()}
+            >
             <Icon name="chatbox-outline" size={26} color={'black'} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.share, styles.itemIcon]}>
@@ -202,10 +126,10 @@ const ItemPost = ({item}) => {
           </TouchableOpacity>
         </View>
         <View style={styles.reactQuantity}>
-          {item.love.length > 0 && (
+          {item?.love.length > 0 && (
             <View style={[styles.quantityLove]}>
               <Text style={styles.textQuantityLove}>
-                {item.love.length} lượt thích
+                {item?.love.length} lượt thích
               </Text>
             </View>
           )}
@@ -228,7 +152,8 @@ const ItemPost = ({item}) => {
         <View style={styles.morePostContent}>
           <TouchableOpacity
             style={styles.morePostItem}
-            onPress={() => handleClickButtonUpDatePost()}>
+            // onPress={() => handleClickButtonUpDatePost()}
+            >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>
               Chỉnh sửa bài viết
@@ -236,7 +161,8 @@ const ItemPost = ({item}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.morePostItem}
-            onPress={() => handleClickButtonDeletePost()}>
+            // onPress={() => handleClickButtonDeletePost()}
+            >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>
           </TouchableOpacity>
@@ -265,8 +191,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700',
+    paddingRight:10,
   },
   lastTime: {
     fontSize: 12,

@@ -26,6 +26,11 @@ const Home = () => {
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
+      dispatch(getUser());
+  }, [])
+    const userRedux = useSelector(state => state.user);
+    // console.log('userRedux',userRedux);
+  useEffect(() => {
     const sub = firestore()
       .collection('postsUser')
       .orderBy('createdAt', 'desc')

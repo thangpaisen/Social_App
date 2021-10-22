@@ -6,6 +6,7 @@ import Home from './../screens/Home';
 import Settings from './../screens/Settings';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/FontAwesome';
 import Comments from "./../screens/Comments";
 import UpDatePost from "./../screens/UpDatePost/UpdatePost";
 import UploadPost from "./../screens/UploadPost";
@@ -14,6 +15,9 @@ import UpdateProfileUser from "./../screens/UpdateProfileUser/UpdateProfileUser"
 import Search from "./../screens/Search/Search";
 import Chat from "./../screens/Chat/Chat";
 import Messages from "./../screens/Chat/Messages";
+import Groups from "./../screens/Groups/Groups";
+import CreateGroup from "./../screens/Groups/CreateGroup";
+import DetailGroup from "./../screens/Groups/DetailGroup";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -46,6 +50,16 @@ function MyTabs() {
         }}
       />
       <Tab.Screen
+        name="Groups"
+        component={Groups}
+        options={{
+          tabBarLabel: 'Hội nhóm',
+          tabBarIcon: ({color}) => (
+            <Icon2 name="users" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Chat"
         component={Chat}
         options={{
@@ -61,11 +75,10 @@ function MyTabs() {
         options={{
           tabBarLabel: 'Cá nhân',
           tabBarIcon: ({color}) => (
-            <Icon name="person" size={24} color={color} />
+            <Icon name="settings" size={24} color={color} />
           ),
         }}
       />
-      
     </Tab.Navigator>
   );
 }
@@ -89,9 +102,6 @@ const AppStack = () => {
       <Stack.Screen
         name="UploadPost"
         component={UploadPost}
-        // options={{
-        //   ...TransitionPresets.SlideFromRightIOS,
-        // }}
       />
       <Stack.Screen
         name="UpDatePost"
@@ -128,10 +138,48 @@ const AppStack = () => {
           ...TransitionPresets.SlideFromRightIOS  ,
         }}
       />
+      <Stack.Screen
+        name="StackGroups"
+        component={StackGroups}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS  ,
+        }}
+      />
       
     </Stack.Navigator>
   );
 };
 export default AppStack;
 
-const styles = StyleSheet.create({});
+const StackGroups = () => {
+  return (
+    <Stack.Navigator
+      initialRouteName="Groups"
+      screenOptions={{
+        headerShown: false,
+      }}>
+
+      <Stack.Screen
+        name="Groups"
+        component={Groups}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="CreateGroup"
+        component={CreateGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="DetailGroup"
+        component={DetailGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+    </Stack.Navigator>
+  );
+};

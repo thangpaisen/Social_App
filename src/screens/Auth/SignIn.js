@@ -21,11 +21,11 @@ export default function SignIn({navigation}) {
 //   const dispatch = useDispatch()
   const [secureTextEntry, setSecureTextEntry] = useState(true)
   const handleOnPressLogin =() =>{
-        if(!validateEmail(email))
+        if(!validateEmail(email.trim()))
           setErrorMessageEmail('Email must be a valid email')
         if(password.trim().length<6)
           setErrorMessagePassword('Password must be at least 6 characters')
-        if(validateEmail(email) && password.trim().length>=6)
+        if(validateEmail(email.trim()) && password.trim().length>=6)
           loginUser(email.trim(),password.trim());      
   }
   const loginUser =   async (email, password) => 
