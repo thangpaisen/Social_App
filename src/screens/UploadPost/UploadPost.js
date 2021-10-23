@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // backgroundColor: 'red',
   },
   upPost: {
     backgroundColor: '#00a6ff',
@@ -223,15 +222,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   avatar: {
-    //   marginTop: 10,
   },
   input: {
     flex: 1,
-    //   backgroundColor:'red',
     fontSize: 18,
     lineHeight: 23,
     paddingTop: 4,
-    //   marginTop:0,
     marginHorizontal: 10,
   },
   choiceImage: {
@@ -253,11 +249,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   image: {
-    // backgroundColor: 'red',
     borderRadius: 5,
     width: width - 20,
     height: height / 2,
-    // resizeMode: 'center'
   },
   removeImageUpTmp: {
     position: 'absolute',

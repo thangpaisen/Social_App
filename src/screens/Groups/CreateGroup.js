@@ -7,10 +7,14 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  ToastAndroid
 } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Button} from 'react-native-elements';
 import {useNavigation} from '@react-navigation/native';
+import auth from "@react-native-firebase/auth";
+
 const CreateGroup = () => {
     const navigation = useNavigation();
   const [dataGroup, setDataGroup] = useState({
@@ -21,11 +25,28 @@ const CreateGroup = () => {
   const [loadingCreateGroup, setLoadingCreateGroup] = useState(false);
   const handleCreateGroup =()=>{
     setLoadingCreateGroup(true);
-    setTimeout(() => {
-        setLoadingCreateGroup(false);
-        navigation.navigate('Groups');
-    }, 2000);
-    }
+    firestore().collection('groups').add({
+        name: dataGroup.name,
+        description: dataGroup.description,
+        imageCover:'https://2.pik.vn/2021e887e2af-5499-49b8-9bfa-ba980086e4bd.png',
+        members: [auth().currentUser.uid],
+        createdAt: new Date().getTime(),
+        author: auth().currentUser.uid,
+    }).then((res)=>{
+        firestore().collection('groups').doc(res._documentPath._parts[1]).collection('member').doc(auth().currentUser.uid).set({
+            uid: auth().currentUser.uid,
+            role: 'admin',
+            createdAt: new Date().getTime(),
+        }).then(()=>{
+            setLoadingCreateGroup(false);
+            navigation.navigate('DetailGroup', {id: res._documentPath._parts[1]});
+        })
+    })
+    .catch((err)=>{
+            ToastAndroid.show('Có lỗi xảy ra', ToastAndroid.SHORT);
+            setLoadingCreateGroup(false);
+        })
+  }
   return (
       <>
     <View style={styles.container}>
