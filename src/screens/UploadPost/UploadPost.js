@@ -21,22 +21,22 @@ import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-const UploadPost = () => {
+import { LogBox } from 'react-native';
+
+const UploadPost = ({route}) => {
+    const {ref} = route.params;
   const navigation = useNavigation();
   const [user, setUser] = useState({})
   useEffect(() => {
-      const subscriber = firestore().collection('users')
-      .onSnapshot(querySnapshot => {
-        console.log('Total users: ', querySnapshot.size);
-      var user = {};
-      querySnapshot.forEach(doc => {
-          if(doc.data().uid === auth().currentUser.uid)
-                user= {...doc.data()}
-      });
-      setUser(user);
-    });
+      const subscriber = firestore().collection('users').doc(auth().currentUser.uid).onSnapshot(doc => {
+        setUser(doc.data())
+        })
     return () => subscriber()
   }, []);
+  
+LogBox.ignoreLogs([
+ 'Non-serializable values were found in the navigation state',
+]);
   const [lockUpPosts, setLockUpPosts] = useState(false)
   const [text, onChangeText] = useState('');
   const [imageUpImp, setImageUpImp] = useState({
@@ -104,8 +104,7 @@ const UploadPost = () => {
             url = await storage().ref(imageUpImp.fileName).getDownloadURL();
             console.log(url);
         }
-        firestore()
-        .collection('postsUser')
+        ref
         .add({
             love:[],
             message:{

@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 
 const Header = ({data}) => {
     const navigation = useNavigation();
-    console.log('data',data)
     return (
         <View style={styles.header}>
         <TouchableOpacity
@@ -25,16 +24,18 @@ export default Header
 
 const styles = StyleSheet.create({
     header: {
-    position: 'absolute',
-    zIndex: 99999,
-    top: 0,
-    left: 0,
-    right: 0,
+    // position: 'absolute',
+    // zIndex: 99999,
+    // top: 0,
+    // left: 0,
+    // right: 0,
+    borderBottomWidth: 0.3,
+    borderBottomColor: '#d1d1d1',
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: '#fff',
   },
   nameGroup: {
     flex:1,

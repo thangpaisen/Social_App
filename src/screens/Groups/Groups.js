@@ -11,7 +11,7 @@ import {
   Pressable
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import ItemPost from './ItemPost';
+import ItemPostGroups from './ItemPostGroups';
 import Header from "./Header";
 import { useNavigation } from "@react-navigation/native";
 import firestore from "@react-native-firebase/firestore";
@@ -58,8 +58,8 @@ const Groups = () => {
             keyExtractor={index => index.toString()}
           />
         </View>
-        <ItemPost />
-        <ItemPost />
+        <ItemPostGroups />
+        <ItemPostGroups />
       </ScrollView>
     </View>
   );

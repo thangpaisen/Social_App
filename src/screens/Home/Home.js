@@ -25,14 +25,13 @@ const Home = () => {
   const [user, setUser] = useState({});
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
+  const refPosts = firestore().collection('postsUser')
   useEffect(() => {
       dispatch(getUser());
   }, [])
     const userRedux = useSelector(state => state.user);
-    // console.log('userRedux',userRedux);
   useEffect(() => {
-    const sub = firestore()
-      .collection('postsUser')
+    const sub = refPosts
       .orderBy('createdAt', 'desc')
       .onSnapshot(querySnapshot => {
         const listPostUser = [];
@@ -81,7 +80,7 @@ const Home = () => {
         }>
         <Pressable
           style={styles.upPost}
-          onPress={() => navigation.navigate('UploadPost')}>
+          onPress={() => navigation.navigate('UploadPost',{ref:refPosts})}>
           <View style={styles.avatar}>
             <Avatar
               size={36}

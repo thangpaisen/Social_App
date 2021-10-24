@@ -22,7 +22,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
-const ItemPost = ({item}) => {
+const ItemPostGroups = ({item}) => {
   const navigation = useNavigation();
   const [userNow, setUser] = useState({});
   const [userItemPost, setUserItemPost] = useState({});
@@ -172,7 +172,7 @@ const ItemPost = ({item}) => {
   );
 };
 
-export default ItemPost;
+export default ItemPostGroups;
 
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({

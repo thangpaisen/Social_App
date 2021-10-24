@@ -15,26 +15,21 @@ import {Avatar} from 'react-native-elements';
 import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
 import Icon from 'react-native-vector-icons/Ionicons';
-import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
-const ItemPost = ({item}) => {
+const ItemPost = ({item,id}) => {
   const navigation = useNavigation();
   const [userNow, setUser] = useState({});
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-    const ref =firestore()
-        .collection('postsUser')
-        .doc(item.id)
+    const ref = firestore().collection('groups').doc(id).collection('posts').doc(item.id);
   useEffect(() => {
-    const sub = firestore()
-      .collection('postsUser')
-      .doc(item.id)
+    const sub = ref
       .collection('comments')
       .onSnapshot(querySnapshot => {
         setTotalComment(querySnapshot.size);
@@ -70,7 +65,7 @@ const ItemPost = ({item}) => {
     if (checkLove > -1) {
       var newArr = [...item.love];
       newArr.splice(checkLove, 1);
-        ref
+      ref
         .set(
           {
             love: [...newArr],

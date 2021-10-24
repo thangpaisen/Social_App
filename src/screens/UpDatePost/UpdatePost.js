@@ -22,20 +22,15 @@ import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 const UpDatePost = ({route}) => {
-  const {dataPost} = route.params;
+  const {dataPost,ref} = route.params;
   const navigation = useNavigation();
   const [user, setUser] = useState({});
   useEffect(() => {
-    const uidUserNow = auth().currentUser.uid;
     const subscriber = firestore()
       .collection('users')
-      .onSnapshot(querySnapshot => {
-        var user = {};
-        querySnapshot.forEach(doc => {
-          if (doc.data().uid === uidUserNow) user = {...doc.data()};
+      .doc(auth().currentUser.uid).onSnapshot(doc => {
+        setUser(doc.data());
         });
-        setUser(user);
-      });
     return () => subscriber();
   }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false);
@@ -100,9 +95,7 @@ const UpDatePost = ({route}) => {
   const handleOnUploadPosts = async () => {
     if (text || imageUpImp.uri) {
       setLockUpPosts(true);
-      firestore()
-        .collection('postsUser')
-        .doc(dataPost.id)
+      ref
         .update({
           message: {
             text: text,
@@ -119,7 +112,7 @@ const UpDatePost = ({route}) => {
             text1: 'Bài viết đã được Cập nhật',
             visibilityTime: 100,
           });
-          navigation.navigate('Home');
+          navigation.goBack();
         });
     }
   };
