@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,45 +8,74 @@ import {
   Dimensions,
   FlatList,
   ScrollView,
-  Pressable
+  Pressable,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ItemPostGroups from './ItemPostGroups';
-import Header from "./Header";
-import { useNavigation } from "@react-navigation/native";
-import firestore from "@react-native-firebase/firestore";
-import auth from "@react-native-firebase/auth";
+import Header from './Header';
+import {useNavigation} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const Groups = () => {
-    const navigation = useNavigation();
-    const [myGroups, setMyGroups] = React.useState([]);
-    useEffect(() => {
-        firestore().collection('groups').where('members', 'array-contains', auth().currentUser.uid).onSnapshot(querySnapshot => {
-            const groups = [];
-            querySnapshot.forEach(doc => {
-                groups.push({
-                    id: doc.id,
-                    ...doc.data(),
+  const navigation = useNavigation();
+  const [myGroups, setMyGroups] = React.useState([]);
+  const [postsGroups, setPostsGroups] = React.useState([]);
+  useEffect(() => {
+    firestore()
+      .collection('groups')
+      .where('members', 'array-contains', auth().currentUser.uid)
+      .get()
+      .then(async querySnapshot => {
+        setMyGroups(
+          querySnapshot.docs.map(item => {
+            return {
+              ...item.data(),
+              id: item.id,
+            };
+          }),
+        );
+        const postsGroups = [];
+        for (const doc of querySnapshot.docs) {
+          await firestore()
+            .collection(`groups/${doc.id}/posts`)
+            .get()
+            .then(querySnapshot => {
+              querySnapshot.docs.forEach(doc2 => {
+                postsGroups.push({
+                  ...doc2.data(),
+                  id: doc2.id,
+                  idGroup: doc.id,
                 });
+              });
             });
-            setMyGroups(groups);
-        });
-    }, [])
+        }
+        setPostsGroups(postsGroups);
+      });
+  }, []);
+  console.log('postsGroups', postsGroups);
   return (
     <View style={styles.container}>
-      <Header/>
+      <Header />
       <ScrollView>
         <View style={{marginVertical: 10}}>
           <FlatList
             data={myGroups}
             horizontal
             renderItem={({item}) => (
-              <Pressable style={styles.itemGroup}
-                onPress={() => navigation.navigate('StackGroups',{ screen: 'DetailGroup', params:{id:item.id}})}
-              >
+              <Pressable
+                style={styles.itemGroup}
+                onPress={() =>
+                  navigation.navigate('StackGroups', {
+                    screen: 'DetailGroup',
+                    params: {id: item.id},
+                  })
+                }>
                 <Image
                   source={{
-                    uri: item.imageCover || 'https://images6.alphacoders.com/102/1029037.jpg',
+                    uri:
+                      item.imageCover ||
+                      'https://images6.alphacoders.com/102/1029037.jpg',
                   }}
                   style={styles.imgGroup}
                 />
@@ -55,11 +84,12 @@ const Groups = () => {
                 </Text>
               </Pressable>
             )}
-            keyExtractor={index => index.toString()}
+            keyExtractor={(item, index) => item.id}
           />
         </View>
-        <ItemPostGroups />
-        <ItemPostGroups />
+        {postsGroups.map(item => (
+          <ItemPostGroups key={item.id} item={item} />
+        ))}
       </ScrollView>
     </View>
   );

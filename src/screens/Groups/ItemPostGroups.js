@@ -28,6 +28,32 @@ const ItemPostGroups = ({item}) => {
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const [dataGroupPost, setDataGroupPost] = useState({});
+  useEffect(() => {
+    const sub = firestore()
+      .collection('groups')
+      .doc(`${item.idGroup}`)
+      .onSnapshot(doc => {
+        setDataGroupPost(doc.data());
+      });
+    const sub2 = firestore()
+      .collection('users')
+      .doc(`${item.uidUser}`)
+      .onSnapshot(doc => {
+        setUserItemPost(doc.data());
+      });
+    const sub3 = firestore()
+      .collection('users')
+      .doc(`${auth().currentUser.uid}`)
+      .onSnapshot(doc => {
+        setUser(doc.data());
+      });
+    return () => {
+      sub();
+      sub2();
+      sub3();
+    };
+  }, []);
   return (
     <>
       <View style={styles.itemPost}>
@@ -37,38 +63,45 @@ const ItemPostGroups = ({item}) => {
             rounded
             source={{
               uri:
+                dataGroupPost?.imageCover ||
                 'https://images6.alphacoders.com/102/1029037.jpg',
-            }}
-          >
+            }}>
             <Avatar
-            size={25}
-            rounded
-            containerStyle={{position: 'absolute', bottom: 0, right: -6}}
-            source={{
-              uri:
-                'https://images6.alphacoders.com/740/thumb-1920-740310.jpg',
-            }}
-          />
+              size={25}
+              rounded
+              containerStyle={{position: 'absolute', bottom: 0, right: -6}}
+              source={{
+                uri:
+                  userItemPost?.imageAvatar ||
+                  'https://images6.alphacoders.com/740/thumb-1920-740310.jpg',
+              }}
+            />
           </Avatar>
           <View style={styles.title}>
             <TouchableOpacity
               onPress={() => {
-                // navigation.navigate('ProfileUser', {uidUser: item?.uidUser});
+                navigation.navigate('StackGroups', {
+                  screen: 'DetailGroup',
+                  params: {id: item.idGroup},
+                });
               }}>
-              <Text style={styles.name} numberOfLines={2}>{userItemPost.displayName|| 'Anime - Trá tim của tôi Anime'}</Text>
+              <Text style={styles.name} numberOfLines={2}>
+                {dataGroupPost?.name}
+              </Text>
             </TouchableOpacity>
-            <View style={{flexDirection: 'row',
-                alignItems: 'center',
-            }}>
-                <TouchableOpacity>
-                    <Text style={{marginRight:6}}>
-                    Roronoa Zoro
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('ProfileUser', {uidUser: item.uidUser});
+                }}>
+                <Text style={{marginRight: 6}}>
+                  {userItemPost?.displayName}
                 </Text>
-                </TouchableOpacity>
-                <Text style={styles.lastTime}>
-              {dateFormat(item?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
-                '5 phút tr'}
-            </Text>
+              </TouchableOpacity>
+              <Text style={styles.lastTime}>
+                {dateFormat(item?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
+                  '5 phút tr'}
+              </Text>
             </View>
           </View>
           {userNow.uid === item?.uidUser && (
@@ -89,7 +122,7 @@ const ItemPostGroups = ({item}) => {
               {item?.message.text}
             </Text>
           )}
-          {true ? (
+          {item?.message.image.length > 0 ? (
             <Lightbox
               navigator={navigation.navigator}
               activeProps={{
@@ -100,7 +133,14 @@ const ItemPostGroups = ({item}) => {
                   resizeMode: 'contain',
                 },
               }}>
-              <Image source={{uri: item?.message.image|| 'https://images6.alphacoders.com/102/1029037.jpg'}} style={styles.image} />
+              <Image
+                source={{
+                  uri:
+                    item?.message.image ||
+                    'https://cdn.presslabs.com/wp-content/uploads/2018/10/upload-error.png',
+                }}
+                style={styles.image}
+              />
             </Lightbox>
           ) : null}
         </View>
@@ -108,17 +148,13 @@ const ItemPostGroups = ({item}) => {
           <TouchableOpacity
             style={[styles.feel, styles.itemIcon]}
             // onPress={() => handleOnLove()}
-            >
-            <Icon
-              name={'heart-outline'}
-              size={26}
-              color={'black'}
-            />
+          >
+            <Icon name={'heart-outline'} size={26} color={'black'} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.comment, styles.itemIcon]}
             // onPress={() => handleOpenComments()}
-            >
+          >
             <Icon name="chatbox-outline" size={26} color={'black'} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.share, styles.itemIcon]}>
@@ -153,7 +189,7 @@ const ItemPostGroups = ({item}) => {
           <TouchableOpacity
             style={styles.morePostItem}
             // onPress={() => handleClickButtonUpDatePost()}
-            >
+          >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>
               Chỉnh sửa bài viết
@@ -162,7 +198,7 @@ const ItemPostGroups = ({item}) => {
           <TouchableOpacity
             style={styles.morePostItem}
             // onPress={() => handleClickButtonDeletePost()}
-            >
+          >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>
           </TouchableOpacity>
@@ -193,7 +229,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: '700',
-    paddingRight:10,
+    paddingRight: 10,
   },
   lastTime: {
     fontSize: 12,

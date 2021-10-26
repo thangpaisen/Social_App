@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     addMember:{
+        marginLeft: 4,
         flexDirection: 'row',
         alignItems: 'center',
         padding:4,
