@@ -21,18 +21,14 @@ import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import {LogBox} from 'react-native';
 const UpDatePost = ({route}) => {
-  const {dataPost,ref} = route.params;
+  LogBox.ignoreLogs([
+    'Non-serializable values were found in the navigation state',
+  ]);
+  const {dataPost, ref} = route.params;
   const navigation = useNavigation();
   const [user, setUser] = useState({});
-  useEffect(() => {
-    const subscriber = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid).onSnapshot(doc => {
-        setUser(doc.data());
-        });
-    return () => subscriber();
-  }, []);
   const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState(dataPost.message.text);
   const [imageUpImp, setImageUpImp] = useState({
@@ -41,6 +37,15 @@ const UpDatePost = ({route}) => {
     width: 360,
     height: 360,
   });
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .onSnapshot(doc => {
+        setUser(doc.data());
+      });
+    return () => subscriber();
+  }, []);
   const handleOnPressRemoveImageUpTmp = () => {
     if (imageUpImp.uri.length > 0 && !imageUpImp.uri.includes('firebase'))
       RNFS.unlink(imageUpImp.uri);
@@ -55,17 +60,8 @@ const UpDatePost = ({route}) => {
       async response => {
         if (!response.didCancel) {
           var {uri, fileName, height, width} = response.assets[0];
-          const reference = storage().ref(fileName);
-          await reference.putFile(uri);
-          url = await storage().ref(fileName).getDownloadURL();
-          setImageUpImp({
-            uri,
-            fileName,
-            width,
-            height,
-          });
-          console.log(uri, fileName, width, height);
-        } else console.log('exit ');
+          setImageUpImp({uri, fileName, height, width});
+        }
       },
     );
   };
@@ -78,33 +74,29 @@ const UpDatePost = ({route}) => {
       async response => {
         if (!response.didCancel) {
           var {uri, fileName, height, width} = response.assets[0];
-          const reference = storage().ref(fileName);
-          await reference.putFile(uri);
-          url = await storage().ref(fileName).getDownloadURL();
-          setImageUpImp({
-            uri,
-            fileName,
-            width,
-            height,
-          });
-          console.log(uri, fileName, width, height);
-        } else console.log('exit ');
+          setImageUpImp({uri, fileName, height, width});
+        }
       },
     );
   };
   const handleOnUploadPosts = async () => {
     if (text || imageUpImp.uri) {
       setLockUpPosts(true);
+      let uri = imageUpImp.uri;
+      if(imageUpImp.uri.length > 0 && !imageUpImp.uri.includes('firebase')){
+          const reference = storage().ref(imageUpImp.fileName);
+            await reference.putFile(imageUpImp.uri);
+            uri = await storage().ref(imageUpImp.fileName).getDownloadURL();
+      }
       ref
         .update({
           message: {
             text: text,
-            image: imageUpImp.uri,
+            image: uri,
           },
           UpDateAt: new Date().getTime(),
         })
         .then(() => {
-          console.log('done');
           setLockUpPosts(false);
           handleOnPressRemoveImageUpTmp();
           onChangeText('');

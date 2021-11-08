@@ -8,7 +8,8 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  Pressable
+  Pressable,
+  ScrollView
 } from 'react-native';
 import Header from './Header';
 import auth from '@react-native-firebase/auth';
@@ -49,7 +50,7 @@ const DetailGroup = ({route}) => {
   return (
     <View style={styles.container}>
       <Header data={dataGroup} />
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <Image
           source={{
             uri:
@@ -112,7 +113,7 @@ const DetailGroup = ({route}) => {
         {postsGroup.map(item => (
               <ItemPost item={item} key={item.id} id={id}/>
             ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };

@@ -29,6 +29,8 @@ const ItemPostGroups = ({item}) => {
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [dataGroupPost, setDataGroupPost] = useState({});
+  const [dataPost, setDataPost] = useState(item);
+  const ref = firestore().collection('groups').doc(item.idGroup).collection('posts').doc(item.id);
   useEffect(() => {
     const sub = firestore()
       .collection('groups')
@@ -48,12 +50,70 @@ const ItemPostGroups = ({item}) => {
       .onSnapshot(doc => {
         setUser(doc.data());
       });
+    const sub4 = ref.onSnapshot(doc => {
+        if(doc.exists){
+            setDataPost(doc.data());
+        ref.collection('comments')
+        .onSnapshot(querySnapshot => {
+            setTotalComment(querySnapshot.size);
+        });
+        }
+        else {
+            setDataPost(null);
+        }
+    });
     return () => {
       sub();
       sub2();
       sub3();
+      sub4();
     };
   }, []);
+  const handleOnLove = () => {
+    const checkLove = dataPost?.love.indexOf(userNow.uid);
+    if (checkLove > -1) {
+      var newArr = [...dataPost.love];
+      newArr.splice(checkLove, 1);
+      ref
+        .update({
+            love: [...newArr],
+          });
+    } else {
+      ref
+        .update(
+          {
+            love: [userNow.uid, ...dataPost.love],
+          });
+    }
+  };
+  const handleClickButtonUpDatePost = () => {
+    setModalVisible(false);
+    navigation.navigate('UpDatePost', {dataPost: dataPost,ref:ref});
+  };
+  const handleClickButtonDeletePost = () => {
+    Alert.alert('Thông báo', 'Bạn muốn xóa bài viết', [
+      {
+        text: 'Cancel',
+        onPress: () => setModalVisible(false),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => deletePost()},
+    ]);
+  };
+  
+  const deletePost = () => {
+    ref
+      .delete()
+      .then(() => {
+        setModalVisible(false);
+        Toast.show({
+          text1: 'Đã xóa bài viết',
+          visibilityTime: 100,
+        });
+      });
+  };
+  if(!dataPost)
+    return null;
   return (
     <>
       <View style={styles.itemPost}>
@@ -92,7 +152,7 @@ const ItemPostGroups = ({item}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('ProfileUser', {uidUser: item.uidUser});
+                  navigation.navigate('ProfileUser', {uidUser: dataPost?.uidUser});
                 }}>
                 <Text style={{marginRight: 6}}>
                   {userItemPost?.displayName}
@@ -113,16 +173,16 @@ const ItemPostGroups = ({item}) => {
           )}
         </View>
         <View style={styles.content}>
-          {item?.message.text.length > 0 && (
+          {dataPost?.message?.text.length > 0 && (
             <Text
               style={[
                 styles.textContent,
-                !item?.message.image && {fontSize: 20},
+                !dataPost?.message.image && {fontSize: 20},
               ]}>
-              {item?.message.text}
+              {dataPost?.message.text}
             </Text>
           )}
-          {item?.message.image.length > 0 ? (
+          {dataPost?.message?.image.length > 0 ? (
             <Lightbox
               navigator={navigation.navigator}
               activeProps={{
@@ -136,7 +196,7 @@ const ItemPostGroups = ({item}) => {
               <Image
                 source={{
                   uri:
-                    item?.message.image ||
+                    dataPost?.message.image ||
                     'https://cdn.presslabs.com/wp-content/uploads/2018/10/upload-error.png',
                 }}
                 style={styles.image}
@@ -147,9 +207,15 @@ const ItemPostGroups = ({item}) => {
         <View style={styles.react}>
           <TouchableOpacity
             style={[styles.feel, styles.itemIcon]}
-            // onPress={() => handleOnLove()}
+            onPress={() => handleOnLove()}
           >
-            <Icon name={'heart-outline'} size={26} color={'black'} />
+            <Icon
+              name={
+                dataPost?.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
+              }
+              size={26}
+              color={dataPost?.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.comment, styles.itemIcon]}
@@ -162,10 +228,10 @@ const ItemPostGroups = ({item}) => {
           </TouchableOpacity>
         </View>
         <View style={styles.reactQuantity}>
-          {item?.love.length > 0 && (
+          {dataPost?.love.length > 0 && (
             <View style={[styles.quantityLove]}>
               <Text style={styles.textQuantityLove}>
-                {item?.love.length} lượt thích
+                {dataPost?.love.length} lượt thích
               </Text>
             </View>
           )}
@@ -188,7 +254,7 @@ const ItemPostGroups = ({item}) => {
         <View style={styles.morePostContent}>
           <TouchableOpacity
             style={styles.morePostItem}
-            // onPress={() => handleClickButtonUpDatePost()}
+            onPress={() => handleClickButtonUpDatePost()}
           >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>
@@ -197,7 +263,7 @@ const ItemPostGroups = ({item}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.morePostItem}
-            // onPress={() => handleClickButtonDeletePost()}
+            onPress={() => handleClickButtonDeletePost()}
           >
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>

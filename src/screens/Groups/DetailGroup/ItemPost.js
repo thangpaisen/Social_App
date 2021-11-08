@@ -43,13 +43,7 @@ const ItemPost = ({item,id}) => {
           ...doc.data(),
         });
       });
-    return () => {
-      sub();
-      sub2();
-    };
-  }, []);
-  useEffect(() => {
-    const sub = firestore()
+      const sub3 = firestore()
       .collection('users')
       .doc(item.uidUser)
       .onSnapshot(doc => {
@@ -58,7 +52,11 @@ const ItemPost = ({item,id}) => {
           ...doc.data(),
         });
       });
-    return () => sub();
+    return () => {
+      sub();
+      sub2();
+      sub3();
+    };
   }, []);
   const handleOnLove = () => {
     const checkLove = item.love.indexOf(userNow.uid);
@@ -66,19 +64,17 @@ const ItemPost = ({item,id}) => {
       var newArr = [...item.love];
       newArr.splice(checkLove, 1);
       ref
-        .set(
+        .update(
           {
             love: [...newArr],
-          },
-          {merge: true},
+          }
         );
     } else {
       ref
-        .set(
+        .update(
           {
             love: [userNow.uid, ...item.love],
-          },
-          {merge: true},
+          }
         );
     }
   };
@@ -92,16 +88,13 @@ const ItemPost = ({item,id}) => {
     Alert.alert('Thông báo', 'Bạn muốn xóa bài viết', [
       {
         text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
+        onPress: () => setModalVisible(false),
         style: 'cancel',
       },
       {text: 'OK', onPress: () => deletePost()},
     ]);
   };
-  const handleClickButtonUpDatePost = () => {
-    setModalVisible(false);
-    navigation.navigate('UpDatePost', {dataPost: item,ref:ref});
-  };
+  
   const deletePost = () => {
     ref
       .delete()
@@ -112,6 +105,10 @@ const ItemPost = ({item,id}) => {
           visibilityTime: 100,
         });
       });
+  };
+  const handleClickButtonUpDatePost = () => {
+    setModalVisible(false);
+    navigation.navigate('UpDatePost', {dataPost: item,ref:ref});
   };
   return (
     <>

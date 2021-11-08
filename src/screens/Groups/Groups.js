@@ -25,8 +25,7 @@ const Groups = () => {
     firestore()
       .collection('groups')
       .where('members', 'array-contains', auth().currentUser.uid)
-      .get()
-      .then(async querySnapshot => {
+      .get().then(async querySnapshot => {
         setMyGroups(
           querySnapshot.docs.map(item => {
             return {
@@ -37,10 +36,7 @@ const Groups = () => {
         );
         const postsGroups = [];
         for (const doc of querySnapshot.docs) {
-          await firestore()
-            .collection(`groups/${doc.id}/posts`)
-            .get()
-            .then(querySnapshot => {
+            await firestore().collection(`groups/${doc.id}/posts`).get().then(querySnapshot => {
               querySnapshot.docs.forEach(doc2 => {
                 postsGroups.push({
                   ...doc2.data(),
@@ -53,7 +49,6 @@ const Groups = () => {
         setPostsGroups(postsGroups);
       });
   }, []);
-  console.log('postsGroups', postsGroups);
   return (
     <View style={styles.container}>
       <Header />
