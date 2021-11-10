@@ -24,7 +24,9 @@ const Groups = () => {
   const [myGroups, setMyGroups] = React.useState([]);
   const [postsGroups, setPostsGroups] = React.useState([]);
   const [refreshing, setRefreshing] = useState(false);
+const [loading, setLoading] = useState(true);
   useEffect(() => {
+    setLoading(true);
     const unsubscribe = firestore()
       .collection('groups')
       .where('members', 'array-contains', auth().currentUser.uid)
@@ -49,8 +51,9 @@ const Groups = () => {
           });
         }
         setPostsGroups(postsGroups.sort((a, b) => b.createdAt - a.createdAt));
+        setLoading(false)
       });
-    setRefreshing(false);
+      setRefreshing(false);
     return () => unsubscribe();
   }, [refreshing]);
   return (
@@ -95,7 +98,7 @@ const Groups = () => {
               <Text style={styles.textButtonMoreListGroup}>Xem thêm</Text>
             </TouchableOpacity>
           </View>
-          {!refreshing?
+          {!loading?
           <FlatList
             data={myGroups}
             horizontal
@@ -125,7 +128,7 @@ const Groups = () => {
           />
         :<Loading />}
         </View>
-        {!refreshing?postsGroups.map(item => (
+        {!loading?postsGroups.map(item => (
           <ItemPostGroups key={item.id} item={item} />
         ))
         :<Loading />}

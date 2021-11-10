@@ -28,7 +28,7 @@ const DetailGroup = ({route}) => {
   const [user, setUser] = useState({});
   useEffect(() => {
     const sub = groupRef.onSnapshot(doc => {
-      setDataGroup(doc.data());
+      setDataGroup({...doc.data(),id: doc.id});
     });
     const sub2 = firestore().collection('users').doc(auth().currentUser.uid).onSnapshot(doc => {
         setUser(doc.data());

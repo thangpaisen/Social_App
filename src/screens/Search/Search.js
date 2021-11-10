@@ -119,24 +119,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-//   tabChoices: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-around',
-//     // marginTop: 10,
-//     },
-//     tabChoice: {
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//         borderWidth: 1,
-//         borderColor: '#E5E5E5',
-//         borderRadius: 10,
-//         paddingVertical: 4,
-//         paddingHorizontal: 12,
-//     },
-//     textTabChoice: {
-//         fontSize: 16,
-//         fontWeight: 'bold',
-    // }
-    
+  },  
 });

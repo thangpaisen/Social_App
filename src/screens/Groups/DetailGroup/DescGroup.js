@@ -26,7 +26,9 @@ const DescGroup = ({route}) => {
         <View style={styles.member}>
             <View style={styles.hdMember}>
                 <Text style={styles.hdMemberText}>Thành viên</Text>
-                <TouchableOpacity style={styles.btnMoreMember}>
+                <TouchableOpacity style={styles.btnMoreMember}
+                    onPress={() =>navigation.navigate('MembersGroup',{dataGroup:dataGroup})}
+                >
                     <Text style={styles.btnMoreMemberText}>Xem thêm</Text>
                 </TouchableOpacity>
             </View>

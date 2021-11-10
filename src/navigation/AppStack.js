@@ -20,12 +20,13 @@ import CreateGroup from "./../screens/Groups/CreateGroup";
 import DetailGroup from "./../screens/Groups/DetailGroup";
 import MyGroups from "./../screens/Groups/MyGroups/MyGroups";
 import DescGroup from "./../screens/Groups/DetailGroup/DescGroup";
+import MembersGroup from "./../screens/Groups/DetailGroup/MembersGroup";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Groups"
       activeColor="#09bff2"
       inactiveColor="gray"
       barStyle={{backgroundColor: 'white'}}
@@ -188,6 +189,13 @@ const StackGroups = () => {
       <Stack.Screen
         name="DescGroup"
         component={DescGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="MembersGroup"
+        component={MembersGroup}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}

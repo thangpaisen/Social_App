@@ -114,16 +114,16 @@ const ItemPost = ({item,id}) => {
             rounded
             source={{
               uri:
-                userItemPost.imageAvatar ||
+                userItemPost?.imageAvatar ||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
           />
           <View style={styles.title}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('ProfileUser', {uidUser: item.uidUser});
+                navigation.navigate('ProfileUser', {uidUser: item?.uidUser});
               }}>
-              <Text style={styles.name}>{userItemPost.displayName}</Text>
+              <Text style={styles.name}>{userItemPost?.displayName}</Text>
             </TouchableOpacity>
             <Text style={styles.lastTime}>
               {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') ||
