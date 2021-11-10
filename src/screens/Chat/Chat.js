@@ -121,6 +121,8 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderBottomWidth:0.3,
+    borderBottomColor: '#e3e3e3',
   },
   textHeader: {
     fontSize: 24,

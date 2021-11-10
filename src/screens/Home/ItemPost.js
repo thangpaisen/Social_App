@@ -22,19 +22,16 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
+import Colors from './../../assets/themes/Colors';
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const [userNow, setUser] = useState({});
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-    const ref =firestore()
-        .collection('postsUser')
-        .doc(item.id)
+  const ref = firestore().collection('postsUser').doc(item.id);
   useEffect(() => {
-    const sub = firestore()
-      .collection('postsUser')
-      .doc(item.id)
+    const sub = ref
       .collection('comments')
       .onSnapshot(querySnapshot => {
         setTotalComment(querySnapshot.size);
@@ -43,10 +40,7 @@ const ItemPost = ({item}) => {
       .collection('users')
       .doc(auth().currentUser.uid)
       .onSnapshot(doc => {
-        setUser({
-          id: doc.id,
-          ...doc.data(),
-        });
+        setUser(doc.data());
       });
     return () => {
       sub();
@@ -70,27 +64,26 @@ const ItemPost = ({item}) => {
     if (checkLove > -1) {
       var newArr = [...item.love];
       newArr.splice(checkLove, 1);
-        ref
-        .set(
-          {
-            love: [...newArr],
-          },
-          {merge: true},
-        );
+      ref.set(
+        {
+          love: [...newArr],
+        },
+        {merge: true},
+      );
     } else {
-      ref
-        .set(
-          {
-            love: [userNow.uid, ...item.love],
-          },
-          {merge: true},
-        );
+      ref.set(
+        {
+          love: [userNow.uid, ...item.love],
+        },
+        {merge: true},
+      );
     }
   };
   const handleOpenComments = () => {
     navigation.navigate('Comments', {
       dataPost: item,
       userItemPost: userItemPost,
+      ref: ref.collection('comments'),
     });
   };
   const handleClickButtonDeletePost = () => {
@@ -105,18 +98,16 @@ const ItemPost = ({item}) => {
   };
   const handleClickButtonUpDatePost = () => {
     setModalVisible(false);
-    navigation.navigate('UpDatePost', {dataPost: item,ref:ref});
+    navigation.navigate('UpDatePost', {dataPost: item, ref: ref});
   };
   const deletePost = () => {
-    ref
-      .delete()
-      .then(() => {
-        setModalVisible(false);
-        Toast.show({
-          text1: 'Đã xóa bài viết',
-          visibilityTime: 100,
-        });
+    ref.delete().then(() => {
+      setModalVisible(false);
+      Toast.show({
+        text1: 'Đã xóa bài viết',
+        visibilityTime: 100,
       });
+    });
   };
   return (
     <>
@@ -127,7 +118,7 @@ const ItemPost = ({item}) => {
             rounded
             source={{
               uri:
-                userItemPost.imageAvatar ||
+                userItemPost?.imageAvatar ||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
           />
@@ -178,44 +169,33 @@ const ItemPost = ({item}) => {
         </View>
         <View style={styles.react}>
           <TouchableOpacity
-            style={[styles.feel, styles.itemIcon]}
+            style={styles.itemIcon}
             onPress={() => handleOnLove()}>
             <Icon
               name={
                 item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
               }
-              size={26}
-              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+              size={22}
+              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
             />
+            {item.love.length > 0 && (
+              <Text style={styles.textItemReact}>{item.love.length}</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.comment, styles.itemIcon]}
+            style={styles.itemIcon}
             onPress={() => handleOpenComments()}>
-            <Icon name="chatbox-outline" size={26} color={'black'} />
+            <Icon name="chatbox-outline" size={22} color={'#666'} />
+            {totalComment > 0 && (
+              <Text style={styles.textItemReact}>{totalComment}</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.share, styles.itemIcon]}>
-            <Icon name="share-social-outline" size={26} color={'black'} />
+          <TouchableOpacity style={styles.itemIcon}>
+            <Icon name="share-social-outline" size={22} color={'#666'} />
           </TouchableOpacity>
-        </View>
-        <View style={styles.reactQuantity}>
-          {item.love.length > 0 && (
-            <View style={[styles.quantityLove]}>
-              <Text style={styles.textQuantityLove}>
-                {item.love.length} lượt thích
-              </Text>
-            </View>
-          )}
-          {totalComment > 0 && (
-            <View style={styles.quantityComment}>
-              <Text style={styles.textQuantityComment}>
-                {totalComment} bình luận
-              </Text>
-            </View>
-          )}
         </View>
       </View>
       <Modal
-        // animationType="slide"
         transparent={true}
         visible={modalVisible}>
         <Pressable
@@ -249,6 +229,8 @@ const styles = StyleSheet.create({
   itemPost: {
     paddingTop: 10,
     backgroundColor: 'white',
+    borderBottomWidth: 6,
+    borderBottomColor: '#e3e3e3',
   },
   headerItemPost: {
     paddingHorizontal: 10,
@@ -297,22 +279,23 @@ const styles = StyleSheet.create({
     height: height / 2,
   },
   react: {
-    paddingVertical: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 10,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   itemIcon: {
-    marginLeft: 10,
+    flex: 1,
+    flexDirection: 'row',
+    marginHorizontal: 5,
+    paddingVertical: 4,
+    justifyContent: 'center',
+    backgroundColor: '#f1f2f6',
+    borderRadius: 20,
   },
-  reactQuantity: {
-    marginLeft: 10,
-    paddingBottom: 10,
-  },
-  textQuantityLove: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  textQuantityComment: {
-    fontSize: 14,
-    color: 'gray',
+  textItemReact: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: '#666',
   },
 });

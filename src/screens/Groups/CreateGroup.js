@@ -32,6 +32,7 @@ const CreateGroup = () => {
         members: [auth().currentUser.uid],
         createdAt: new Date().getTime(),
         author: auth().currentUser.uid,
+        managers: [auth().currentUser.uid],
     }).then((res)=>{
         firestore().collection('groups').doc(res._documentPath._parts[1]).collection('member').doc(auth().currentUser.uid).set({
             uid: auth().currentUser.uid,
@@ -39,7 +40,7 @@ const CreateGroup = () => {
             createdAt: new Date().getTime(),
         }).then(()=>{
             setLoadingCreateGroup(false);
-            navigation.navigate('DetailGroup', {id: res._documentPath._parts[1]});
+            navigation.replace('DetailGroup', {id: res._documentPath._parts[1]});
         })
     })
     .catch((err)=>{

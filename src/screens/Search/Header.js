@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, Pressable, TextInput,TouchableOpacity} from 'rea
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import {useDispatch} from 'react-redux'
-const Header = ({handleOnSearch,handleOnHideData,setValueSearch,valueSearch}) => {
+const Header = ({type,handleOnSearch,handleOnHideData,setValueSearch,valueSearch}) => {
     const navigation = useNavigation();
     // const dispatch = useDispatch();
     const [value, onChangeText] = useState('');
@@ -33,7 +33,7 @@ const Header = ({handleOnSearch,handleOnHideData,setValueSearch,valueSearch}) =>
                         }
                     }}
                     value={valueSearch}
-                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold', }} placeholder="Nhập Tên hoặc Email"></TextInput>
+                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold', }} placeholder={type!=='group'?"Nhập Tên hoặc Email":'Nhập tên nhóm'}></TextInput>
                 {
                     valueSearch !== '' ? (
                         <TouchableOpacity

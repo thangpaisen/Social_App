@@ -7,7 +7,6 @@ import { useNavigation } from "@react-navigation/native";
 const ItemRoomChat = ({item}) => {
     const navigation = useNavigation();
     const [userReceiver,setUserReceiver] =useState({})
-    console.log('userReceiver',userReceiver)
     useEffect(() => {
         const sub = firestore()
       .collection('users')

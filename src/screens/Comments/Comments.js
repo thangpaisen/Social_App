@@ -16,25 +16,16 @@ import auth from '@react-native-firebase/auth';
 import {useSelector} from 'react-redux';
 
 const Comments = ({route}) => {
-  const {dataPost,userItemPost} = route.params;
+  const {dataPost, userItemPost,ref} = route.params;
   const navigation = useNavigation();
   const [textComment, setTextComment] = useState('');
   const [listComments, setListComments] = useState([]);
   const [reply, setReply] = useState('');
-  const ref = firestore()
-    .collection('postsUser')
-    .doc(dataPost.id)
-    .collection('comments');
   useEffect(() => {
     const sub = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
-      const listComments = querySnapshot.docs.map(doc => {
-        const data = {
-          id: doc.id,
-          ...doc.data(),
-        };
-        return data;
-      });
-      setListComments(listComments);
+      setListComments(
+        querySnapshot.docs.map(doc => ({...doc.data(), id: doc.id})),
+      );
     });
     return () => {
       sub();
@@ -89,7 +80,7 @@ const Comments = ({route}) => {
       {listComments.length > 0 && (
         <>
           {listComments.map((item, index) => (
-            <ItemComment item={item} key={item.id} />
+            <ItemComment item={item} key={item.id} refItem={ref}/>
           ))}
         </>
       )}
@@ -177,7 +168,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 10,
     fontSize: 16,
-    // backgroundColor: 'red'
   },
   send: {
     paddingVertical: 5,

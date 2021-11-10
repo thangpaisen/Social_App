@@ -26,7 +26,6 @@ import { useSelector,useDispatch } from "react-redux";
 import { getUser } from "./../../redux/actions/user";
 const UpdateProfileUser = ({route}) => {
     const {user} = route.params;
-    console.log('user',user)
   const navigation = useNavigation();
   const [text, setTextName] = useState('');
   const dispatch = useDispatch()

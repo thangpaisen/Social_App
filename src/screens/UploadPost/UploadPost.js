@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,184 +10,166 @@ import {
   Dimensions,
   ScrollView,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
+  FlatList,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import { LogBox } from 'react-native';
+import {LogBox} from 'react-native';
 
 const UploadPost = ({route}) => {
-    const {ref} = route.params;
+  const {ref} = route.params;
   const navigation = useNavigation();
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState({});
   useEffect(() => {
-      const subscriber = firestore().collection('users').doc(auth().currentUser.uid).onSnapshot(doc => {
-        setUser(doc.data())
-        })
-    return () => subscriber()
+    const subscriber = firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .onSnapshot(doc => {
+        setUser(doc.data());
+      });
+    return () => subscriber();
   }, []);
-  
-LogBox.ignoreLogs([
- 'Non-serializable values were found in the navigation state',
-]);
-  const [lockUpPosts, setLockUpPosts] = useState(false)
+  LogBox.ignoreLogs([
+    'Non-serializable values were found in the navigation state',
+  ]);
+  const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState('');
   const [imageUpImp, setImageUpImp] = useState({
     uri: '',
     fileName: '',
-    width: 360,
-    height: 360,
   });
-  const handleOnPressRemoveImageUpTmp=()=>{
-      if(imageUpImp.uri.length >0)
-        RNFS.unlink(imageUpImp.uri);
-        setImageUpImp({...imageUpImp, uri: ''})
-  }
+  const handleOnPressRemoveImageUpTmp = () => {
+    setImageUpImp({
+      uri: '',
+      fileName: '',
+    });
+    ImagePicker.clean();
+  };
   const openLibrary = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      response => {
-        if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          //   upLoadedImageToFirebase(uri,fileName,height,width);
-          setImageUpImp({
-            uri,
-            fileName,
-            width,
-            height,
-          });
-          console.log(uri, fileName, width, height);
-        } else console.log('exit ');
-      },
-    );
+    ImagePicker.openPicker({}).then(image => {
+      setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    });
   };
   const openCamera = () => {
-    launchCamera(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      response => {
-        if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          //   upLoadedImageToFirebase(uri,fileName,height,width);
-          setImageUpImp({
-            uri,
-            fileName,
-            width,
-            height,
-          });
-          console.log(uri, fileName, width, height);
-        } else console.log('exit ');
-      },
-    );
+    ImagePicker.openCamera({}).then(image => {
+      setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    });
   };
-  const handleOnUploadPosts= async () => {
-      if(text ||imageUpImp.uri )
-      {
-          setLockUpPosts(true)
-        var url=''
-        if(imageUpImp.uri)
-        {
-            const reference = storage().ref(imageUpImp.fileName);
-            await reference.putFile(imageUpImp.uri);
-            url = await storage().ref(imageUpImp.fileName).getDownloadURL();
-            console.log(url);
-        }
-        ref
-        .add({
-            love:[],
-            message:{
-                text:text,
-                image:url,
-            },
-            uidUser:auth().currentUser.uid,
-            createdAt: new Date().getTime(),
-            UpDateAt: new Date().getTime(),
-        });
-        console.log('done');
-        setLockUpPosts(false)
-        handleOnPressRemoveImageUpTmp()
-        onChangeText('')
-        Toast.show({
-            text1: 'Bài viết đã được gửi đi',
-            visibilityTime: 100,
-            });
-        navigation.goBack()
+  const handleOnUploadPosts = async () => {
+    if (text || imageUpImp?.uri) {
+      setLockUpPosts(true);
+      var url = '';
+      if (imageUpImp?.uri) {
+        const reference = storage().ref(imageUpImp.fileName);
+        await reference.putFile(imageUpImp?.uri);
+        url = await storage().ref(imageUpImp.fileName).getDownloadURL();
       }
-
-  }
+      ref.add({
+        love: [],
+        message: {
+          text: text,
+          image: url,
+        },
+        uidUser: auth().currentUser.uid,
+        createdAt: new Date().getTime(),
+        UpDateAt: new Date().getTime(),
+      });
+      setLockUpPosts(false);
+      handleOnPressRemoveImageUpTmp();
+      onChangeText('');
+      Toast.show({
+        text1: 'Bài viết đã được gửi đi',
+        visibilityTime: 100,
+      });
+      navigation.goBack();
+    }
+  };
   return (
-      <>
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.navigate('Home')}>
-          <Icon name="close" size={36} color={'black'} />
-        </Pressable>
-        <Text style={{fontSize:16,fontWeight: 'bold',flex:1,paddingHorizontal:10,}} numberOfLines={1}>Tạo bài viết </Text>
-        <Pressable style={styles.upPost} onPress={() =>handleOnUploadPosts()}  disabled={lockUpPosts}>
-          <Text style={styles.textUpPost}>Đăng bài</Text>
-        </Pressable>
-      </View>
-      <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.avatar}>
-            <Avatar size={36} rounded source={{uri:user.imageAvatar||'https://image.flaticon.com/icons/png/512/149/149071.png'}} />
-          </View>
-          <TextInput
-            style={styles.input}
-            onChangeText={onChangeText}
-            value={text}
-            placeholder="Bạn đang nghĩ gì ?"
-            multiline={true}
-          />
+    <>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.navigate('Home')}>
+            <Icon name="close" size={36} color={'black'} />
+          </Pressable>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: 'bold',
+              flex: 1,
+              paddingHorizontal: 10,
+            }}
+            numberOfLines={1}>
+            Tạo bài viết{' '}
+          </Text>
+          <Pressable
+            style={styles.upPost}
+            onPress={() => handleOnUploadPosts()}
+            disabled={lockUpPosts}>
+            <Text style={styles.textUpPost}>Đăng bài</Text>
+          </Pressable>
         </View>
-        {imageUpImp.uri.length != 0 && (
-          <View style={styles.imageUpImp}>
-            <Image source={{uri: imageUpImp.uri}} style={[styles.image]} />
-            <Pressable
-              style={styles.removeImageUpTmp}
-              onPress={() => {
-                  handleOnPressRemoveImageUpTmp()
-              }}>
-              <Icon name="close" size={30} color={'white'} />
-            </Pressable>
+        <ScrollView>
+          <View style={styles.content}>
+            <View style={styles.avatar}>
+              <Avatar
+                size={36}
+                rounded
+                source={{
+                  uri:
+                    user.imageAvatar ||
+                    'https://image.flaticon.com/icons/png/512/149/149071.png',
+                }}
+              />
+            </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={onChangeText}
+              value={text}
+              placeholder="Bạn đang nghĩ gì ?"
+              multiline={true}
+            />
           </View>
-        )}
-      </ScrollView>
-      <View style={styles.choiceImage}>
-        <TouchableOpacity
-          style={styles.itemChoice}
-          onPress={() => openCamera()}>
-          <Icon name="camera-outline" size={30} color={'black'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.itemChoice}
-          onPress={() => openLibrary()}>
-          <Icon name="image-outline" size={30} color={'black'} />
-        </TouchableOpacity>
+          {imageUpImp?.uri?.length ? (
+            <View style={styles.imageUpImp}>
+              <Image source={{uri: imageUpImp?.uri}} style={styles.image} />
+              <Pressable
+                style={styles.removeImageUpTmp}
+                onPress={() => {
+                  handleOnPressRemoveImageUpTmp();
+                }}>
+                <Icon name="close" size={30} color={'white'} />
+              </Pressable>
+            </View>
+          ) : null}
+        </ScrollView>
+        <View style={styles.choiceImage}>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openCamera()}>
+            <Icon name="camera-outline" size={30} color={'black'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openLibrary()}>
+            <Icon name="image-outline" size={30} color={'black'} />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-    <Modal
-        animationType="slide"
-        transparent={true}
-        visible={lockUpPosts}
-      >
+      <Modal animationType="slide" transparent={true} visible={lockUpPosts}>
         <View style={styles.model}>
-                <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
       </Modal>
-      </>
+    </>
   );
 };
 
@@ -220,8 +202,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  avatar: {
-  },
+  avatar: {},
   input: {
     flex: 1,
     fontSize: 18,
@@ -263,11 +244,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  model:{
-      flex: 1,
-      backgroundColor: 'white',
-      opacity: 0.4,
-      justifyContent:'center',
-      alignItems: 'center',
-  }
+  model: {
+    flex: 1,
+    backgroundColor: 'white',
+    opacity: 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

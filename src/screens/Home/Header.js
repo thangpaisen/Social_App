@@ -1,8 +1,8 @@
 import React from 'react'
-import { View, Text ,Pressable,StyleSheet} from 'react-native'
+import { View, Text ,TouchableOpacity,StyleSheet} from 'react-native'
 import {Avatar} from 'react-native-elements';
 import { useNavigation } from "@react-navigation/native";
-
+import Icon from 'react-native-vector-icons/Ionicons'
 const Header = ({user}) => {
     const navigation= useNavigation();
     return (
@@ -10,16 +10,11 @@ const Header = ({user}) => {
         <View style={styles.logo}>
           <Text style={styles.textLogo}>Animee</Text>
         </View>
-        <Pressable style={styles.avatar} onPress={() =>navigation.navigate('ProfileUser',{uidUser:user.uid})}>
-          <Avatar
-            size={32}
-            rounded
-            source={{
-                uri: user.imageAvatar||
-                'https://image.flaticon.com/icons/png/512/149/149071.png',
-              }}
-          />
-        </Pressable>
+        <TouchableOpacity
+            onPress={() => navigation.navigate('Search',{type: 'user'})}
+          >
+            <Icon name="search" size={30} color={'black'} />
+          </TouchableOpacity>
       </View>
     )
 }

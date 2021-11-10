@@ -12,12 +12,9 @@ const Header = () => {
           style={{
             flexDirection: 'row',
           }}>
-          <TouchableOpacity style={{marginRight: 10}}
-            onPress={() => navigation.navigate('StackGroups',{ screen: 'CreateGroup' })}
-            >
-            <Icon name="add-circle-outline" size={30} color={'black'} />
-          </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Search',{type: 'group'})}
+          >
             <Icon name="search" size={30} color={'black'} />
           </TouchableOpacity>
         </View>
@@ -32,9 +29,11 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderBottomWidth:0.3,
+    borderBottomColor: '#e3e3e3',
   },
   textHeader: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
   },
 })

@@ -18,16 +18,17 @@ import Messages from "./../screens/Chat/Messages";
 import Groups from "./../screens/Groups/Groups";
 import CreateGroup from "./../screens/Groups/CreateGroup";
 import DetailGroup from "./../screens/Groups/DetailGroup";
+import MyGroups from "./../screens/Groups/MyGroups/MyGroups";
+import DescGroup from "./../screens/Groups/DetailGroup/DescGroup";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Groups"
+      initialRouteName="Home"
       activeColor="#09bff2"
       inactiveColor="gray"
       barStyle={{backgroundColor: 'white'}}
-      // labeled={false}
     >
       <Tab.Screen
         name="Home"
@@ -36,16 +37,6 @@ function MyTabs() {
           tabBarLabel: 'Trang Chủ',
           tabBarIcon: ({color}) => (
             <Icon name="planet" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Search"
-        component={Search}
-        options={{
-          tabBarLabel: 'Tìm kiếm',
-          tabBarIcon: ({color}) => (
-            <Icon name="search" size={24} color={color} />
           ),
         }}
       />
@@ -139,6 +130,13 @@ const AppStack = () => {
         }}
       />
       <Stack.Screen
+        name="Search"
+        component={Search}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS  ,
+        }}
+      />
+      <Stack.Screen
         name="StackGroups"
         component={StackGroups}
         options={{
@@ -174,8 +172,22 @@ const StackGroups = () => {
         }}
       />
       <Stack.Screen
+        name="MyGroups"
+        component={MyGroups}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
         name="DetailGroup"
         component={DetailGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="DescGroup"
+        component={DescGroup}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}

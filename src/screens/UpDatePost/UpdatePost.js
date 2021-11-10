@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
@@ -34,8 +35,6 @@ const UpDatePost = ({route}) => {
   const [imageUpImp, setImageUpImp] = useState({
     uri: dataPost.message.image,
     fileName: '',
-    width: 360,
-    height: 360,
   });
   useEffect(() => {
     const subscriber = firestore()
@@ -48,36 +47,21 @@ const UpDatePost = ({route}) => {
   }, []);
   const handleOnPressRemoveImageUpTmp = () => {
     if (imageUpImp.uri.length > 0 && !imageUpImp.uri.includes('firebase'))
-      RNFS.unlink(imageUpImp.uri);
-    setImageUpImp({...imageUpImp, uri: ''});
+        ImagePicker.clean()
+    setImageUpImp({
+        uri: '',
+        fileName:''
+    });
   };
   const openLibrary = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      async response => {
-        if (!response.didCancel) {
-          var {uri, fileName, height, width} = response.assets[0];
-          setImageUpImp({uri, fileName, height, width});
-        }
-      },
-    );
+    ImagePicker.openPicker({}).then(image => {
+      setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    });
   };
   const openCamera = () => {
-    launchCamera(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      async response => {
-        if (!response.didCancel) {
-          var {uri, fileName, height, width} = response.assets[0];
-          setImageUpImp({uri, fileName, height, width});
-        }
-      },
-    );
+    ImagePicker.openCamera({}).then(image => {
+      setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    });
   };
   const handleOnUploadPosts = async () => {
     if (text || imageUpImp.uri) {
@@ -154,7 +138,7 @@ const UpDatePost = ({route}) => {
               multiline={true}
             />
           </View>
-          {imageUpImp.uri.length != 0 && (
+          {imageUpImp?.uri.length != 0 && (
             <View style={styles.imageUpImp}>
               <Image source={{uri: imageUpImp.uri}} style={[styles.image]} />
               <Pressable

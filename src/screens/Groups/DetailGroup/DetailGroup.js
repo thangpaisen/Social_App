@@ -59,7 +59,9 @@ const DetailGroup = ({route}) => {
           }}
           style={styles.image}
         />
-        <TouchableOpacity style={styles.info}>
+        <TouchableOpacity style={styles.info}
+            onPress={() => navigation.navigate('DescGroup', {dataGroup:dataGroup})}
+        >
           <View style={styles.nameGroup}>
             <Text style={styles.title}>{dataGroup?.name}</Text>
             <Icon
@@ -124,7 +126,6 @@ const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#bcbfc4',
     backgroundColor: '#fff',
   },
   content: {
@@ -176,7 +177,6 @@ const styles = StyleSheet.create({
     },
 announced:{
     marginTop: 20,
-    // marginVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     padding:10,
@@ -190,8 +190,8 @@ titleAnnounced: {
 },
 bulkhead:{
     marginVertical:10,
-    paddingVertical:5,
-    backgroundColor: '#bfc2c7'
+    paddingVertical:3,
+    backgroundColor: '#e3e3e3'
 },
 upPost: {
     // marginTop: 10,

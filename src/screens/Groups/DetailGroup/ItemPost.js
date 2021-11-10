@@ -38,19 +38,13 @@ const ItemPost = ({item,id}) => {
       .collection('users')
       .doc(auth().currentUser.uid)
       .onSnapshot(doc => {
-        setUser({
-          id: doc.id,
-          ...doc.data(),
-        });
+        setUser(doc.data());
       });
       const sub3 = firestore()
       .collection('users')
       .doc(item.uidUser)
       .onSnapshot(doc => {
-        setUserItemPost({
-          id: doc.id,
-          ...doc.data(),
-        });
+        setUserItemPost(doc.data());
       });
     return () => {
       sub();
@@ -82,6 +76,7 @@ const ItemPost = ({item,id}) => {
     navigation.navigate('Comments', {
       dataPost: item,
       userItemPost: userItemPost,
+      ref: ref.collection('comments'),
     });
   };
   const handleClickButtonDeletePost = () => {
@@ -170,44 +165,33 @@ const ItemPost = ({item,id}) => {
         </View>
         <View style={styles.react}>
           <TouchableOpacity
-            style={[styles.feel, styles.itemIcon]}
+            style={styles.itemIcon}
             onPress={() => handleOnLove()}>
             <Icon
               name={
                 item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
               }
-              size={26}
-              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+              size={22}
+              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
             />
+            {item.love.length > 0 && (
+              <Text style={styles.textItemReact}>{item.love.length}</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.comment, styles.itemIcon]}
+            style={styles.itemIcon}
             onPress={() => handleOpenComments()}>
-            <Icon name="chatbox-outline" size={26} color={'black'} />
+            <Icon name="chatbox-outline" size={22} color={'#666'} />
+            {totalComment > 0 && (
+              <Text style={styles.textItemReact}>{totalComment}</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.share, styles.itemIcon]}>
-            <Icon name="share-social-outline" size={26} color={'black'} />
+          <TouchableOpacity style={styles.itemIcon}>
+            <Icon name="share-social-outline" size={22} color={'#666'} />
           </TouchableOpacity>
-        </View>
-        <View style={styles.reactQuantity}>
-          {item.love.length > 0 && (
-            <View style={[styles.quantityLove]}>
-              <Text style={styles.textQuantityLove}>
-                {item.love.length} lượt thích
-              </Text>
-            </View>
-          )}
-          {totalComment > 0 && (
-            <View style={styles.quantityComment}>
-              <Text style={styles.textQuantityComment}>
-                {totalComment} bình luận
-              </Text>
-            </View>
-          )}
         </View>
       </View>
       <Modal
-        // animationType="slide"
         transparent={true}
         visible={modalVisible}>
         <Pressable
@@ -241,6 +225,8 @@ const styles = StyleSheet.create({
   itemPost: {
     paddingTop: 10,
     backgroundColor: 'white',
+    borderBottomWidth: 6,
+    borderBottomColor: '#e3e3e3',
   },
   headerItemPost: {
     paddingHorizontal: 10,
@@ -289,22 +275,23 @@ const styles = StyleSheet.create({
     height: height / 2,
   },
   react: {
-    paddingVertical: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 10,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   itemIcon: {
-    marginLeft: 10,
+    flex: 1,
+    flexDirection: 'row',
+    marginHorizontal: 5,
+    paddingVertical: 4,
+    justifyContent: 'center',
+    backgroundColor: '#f1f2f6',
+    borderRadius: 20,
   },
-  reactQuantity: {
-    marginLeft: 10,
-    paddingBottom: 10,
-  },
-  textQuantityLove: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  textQuantityComment: {
-    fontSize: 14,
-    color: 'gray',
+  textItemReact: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: '#666',
   },
 });

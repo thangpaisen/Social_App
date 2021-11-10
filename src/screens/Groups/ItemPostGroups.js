@@ -30,43 +30,46 @@ const ItemPostGroups = ({item}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [dataGroupPost, setDataGroupPost] = useState({});
   const [dataPost, setDataPost] = useState(item);
-  const ref = firestore().collection('groups').doc(item.idGroup).collection('posts').doc(item.id);
+  const ref = firestore()
+    .collection('groups')
+    .doc(item.idGroup)
+    .collection('posts')
+    .doc(item.id);
   useEffect(() => {
     const sub = firestore()
       .collection('groups')
-      .doc(`${item.idGroup}`)
+      .doc(item.idGroup)
       .onSnapshot(doc => {
         setDataGroupPost(doc.data());
       });
     const sub2 = firestore()
       .collection('users')
-      .doc(`${item.uidUser}`)
+      .doc(item.uidUser)
       .onSnapshot(doc => {
         setUserItemPost(doc.data());
       });
     const sub3 = firestore()
       .collection('users')
-      .doc(`${auth().currentUser.uid}`)
+      .doc(auth().currentUser.uid)
       .onSnapshot(doc => {
         setUser(doc.data());
       });
     const sub4 = ref.onSnapshot(doc => {
-        if(doc.exists){
-            setDataPost(doc.data());
-        ref.collection('comments')
-        .onSnapshot(querySnapshot => {
-            setTotalComment(querySnapshot.size);
-        });
-        }
-        else {
-            setDataPost(null);
-        }
+      if (doc.exists) {
+        setDataPost(doc.data());
+      } else {
+        setDataPost(null);
+      }
     });
+    const sub5 = ref.collection('comments').onSnapshot(querySnapshot => {
+        setTotalComment(querySnapshot.size);
+      });
     return () => {
       sub();
       sub2();
       sub3();
       sub4();
+      sub5();
     };
   }, []);
   const handleOnLove = () => {
@@ -74,21 +77,18 @@ const ItemPostGroups = ({item}) => {
     if (checkLove > -1) {
       var newArr = [...dataPost.love];
       newArr.splice(checkLove, 1);
-      ref
-        .update({
-            love: [...newArr],
-          });
+      ref.update({
+        love: [...newArr],
+      });
     } else {
-      ref
-        .update(
-          {
-            love: [userNow.uid, ...dataPost.love],
-          });
+      ref.update({
+        love: [userNow.uid, ...dataPost.love],
+      });
     }
   };
   const handleClickButtonUpDatePost = () => {
     setModalVisible(false);
-    navigation.navigate('UpDatePost', {dataPost: dataPost,ref:ref});
+    navigation.navigate('UpDatePost', {dataPost: dataPost, ref: ref});
   };
   const handleClickButtonDeletePost = () => {
     Alert.alert('Thông báo', 'Bạn muốn xóa bài viết', [
@@ -100,20 +100,23 @@ const ItemPostGroups = ({item}) => {
       {text: 'OK', onPress: () => deletePost()},
     ]);
   };
-  
-  const deletePost = () => {
-    ref
-      .delete()
-      .then(() => {
-        setModalVisible(false);
-        Toast.show({
-          text1: 'Đã xóa bài viết',
-          visibilityTime: 100,
-        });
-      });
+    const handleOpenComments = () => {
+    navigation.navigate('Comments', {
+      dataPost: item,
+      userItemPost: userItemPost,
+      ref: ref.collection('comments'),
+    });
   };
-  if(!dataPost)
-    return null;
+  const deletePost = () => {
+    ref.delete().then(() => {
+      setModalVisible(false);
+      Toast.show({
+        text1: 'Đã xóa bài viết',
+        visibilityTime: 100,
+      });
+    });
+  };
+  if (!dataPost) return null;
   return (
     <>
       <View style={styles.itemPost}>
@@ -132,8 +135,8 @@ const ItemPostGroups = ({item}) => {
               containerStyle={{position: 'absolute', bottom: 0, right: -6}}
               source={{
                 uri:
-                  userItemPost?.imageAvatar ||
-                  'https://images6.alphacoders.com/740/thumb-1920-740310.jpg',
+                  userItemPost?.imageAvatar 
+                  || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
               }}
             />
           </Avatar>
@@ -152,7 +155,9 @@ const ItemPostGroups = ({item}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('ProfileUser', {uidUser: dataPost?.uidUser});
+                  navigation.navigate('ProfileUser', {
+                    uidUser: dataPost?.uidUser,
+                  });
                 }}>
                 <Text style={{marginRight: 6}}>
                   {userItemPost?.displayName}
@@ -206,46 +211,33 @@ const ItemPostGroups = ({item}) => {
         </View>
         <View style={styles.react}>
           <TouchableOpacity
-            style={[styles.feel, styles.itemIcon]}
-            onPress={() => handleOnLove()}
-          >
+            style={styles.itemIcon}
+            onPress={() => handleOnLove()}>
             <Icon
               name={
-                dataPost?.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
+                dataPost.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
               }
-              size={26}
-              color={dataPost?.love.indexOf(userNow.uid) > -1 ? 'red' : 'black'}
+              size={22}
+              color={dataPost.love.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
             />
+            {item.love.length > 0 && (
+              <Text style={styles.textItemReact}>{dataPost.love.length}</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.comment, styles.itemIcon]}
-            // onPress={() => handleOpenComments()}
-          >
-            <Icon name="chatbox-outline" size={26} color={'black'} />
+            style={styles.itemIcon}
+            onPress={() => handleOpenComments()}>
+            <Icon name="chatbox-outline" size={22} color={'#666'} />
+            {totalComment > 0 && (
+              <Text style={styles.textItemReact}>{totalComment}</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.share, styles.itemIcon]}>
-            <Icon name="share-social-outline" size={26} color={'black'} />
+          <TouchableOpacity style={styles.itemIcon}>
+            <Icon name="share-social-outline" size={22} color={'#666'} />
           </TouchableOpacity>
-        </View>
-        <View style={styles.reactQuantity}>
-          {dataPost?.love.length > 0 && (
-            <View style={[styles.quantityLove]}>
-              <Text style={styles.textQuantityLove}>
-                {dataPost?.love.length} lượt thích
-              </Text>
-            </View>
-          )}
-          {totalComment > 0 && (
-            <View style={styles.quantityComment}>
-              <Text style={styles.textQuantityComment}>
-                {totalComment} bình luận
-              </Text>
-            </View>
-          )}
         </View>
       </View>
       <Modal
-        // animationType="slide"
         transparent={true}
         visible={modalVisible}>
         <Pressable
@@ -254,8 +246,7 @@ const ItemPostGroups = ({item}) => {
         <View style={styles.morePostContent}>
           <TouchableOpacity
             style={styles.morePostItem}
-            onPress={() => handleClickButtonUpDatePost()}
-          >
+            onPress={() => handleClickButtonUpDatePost()}>
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>
               Chỉnh sửa bài viết
@@ -263,8 +254,7 @@ const ItemPostGroups = ({item}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.morePostItem}
-            onPress={() => handleClickButtonDeletePost()}
-          >
+            onPress={() => handleClickButtonDeletePost()}>
             <Icon name="trash-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>
           </TouchableOpacity>
@@ -281,6 +271,8 @@ const styles = StyleSheet.create({
   itemPost: {
     paddingTop: 10,
     backgroundColor: 'white',
+    borderBottomWidth: 6,
+    borderBottomColor: '#e3e3e3',
   },
   headerItemPost: {
     paddingHorizontal: 10,
@@ -293,9 +285,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '700',
-    paddingRight: 10,
   },
   lastTime: {
     fontSize: 12,
@@ -330,22 +321,23 @@ const styles = StyleSheet.create({
     height: height / 2,
   },
   react: {
-    paddingVertical: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 10,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   itemIcon: {
-    marginLeft: 10,
+    flex: 1,
+    flexDirection: 'row',
+    marginHorizontal: 5,
+    paddingVertical: 4,
+    justifyContent: 'center',
+    backgroundColor: '#f1f2f6',
+    borderRadius: 20,
   },
-  reactQuantity: {
-    marginLeft: 10,
-    paddingBottom: 10,
-  },
-  textQuantityLove: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  textQuantityComment: {
-    fontSize: 14,
-    color: 'gray',
+  textItemReact: {
+    marginLeft: 5,
+    fontSize: 16,
+    color: '#666',
   },
 });

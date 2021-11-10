@@ -6,30 +6,42 @@ import {Avatar} from 'react-native-elements';
 import Loading from './../../components/Loading';
 import {useNavigation} from '@react-navigation/native';
 
-const Search = () => {
+const Search = ({route}) => {
+    const type = route?.params?.type|| 'group';
   const navigation = useNavigation();
   const [valueSearch, setValueSearch] = useState('');
-  const [listUserSearch, setListUserSearch] = useState([]);
+  const [listDataSearch, setListDataSearch] = useState([]);
   const [showData, setShowData] = useState(false);
   const [loading, setLoading] = useState(false);
   const handleOnSearch = value => {
     setShowData(true);
     setLoading(true);
+    if(type==='group')
+    firestore()
+    .collection('groups').get()
+    .then(snapshot => {
+        let list = [];
+        snapshot.forEach(doc => {
+            if(doc.data().name.toUpperCase().includes(value.toUpperCase()))
+                list.push({...doc.data(),id:doc.id});
+        });
+        setListDataSearch(list);
+        setLoading(false);
+    })
+    if(type!=='group')
     firestore()
       .collection('users').get()
       .then(querySnapshot => {
         var listUser = [];
         querySnapshot.forEach(doc => {
           if (value.toUpperCase() === doc.data().email.toUpperCase())
-            listUser.unshift()({...doc.data()});
-          else if (value.toUpperCase() === doc.data().displayName.toUpperCase())
-            listUser.unshift()({...doc.data()});
+            listUser.unshift({...doc.data(),id:doc.id});
           else if (
             doc.data().displayName.toUpperCase().includes(value.toUpperCase())
           )
-            listUser.push({...doc.data()});
+            listUser.push({...doc.data(),id:doc.id});
         });
-        setListUserSearch(listUser);
+        setListDataSearch(listUser);
         setLoading(false);
       });
   };
@@ -41,6 +53,7 @@ const Search = () => {
   return (
     <View style={styles.container}>
       <Header
+        type={type}
         handleOnSearch={handleOnSearch}
         handleOnHideData={handleOnHideData}
         valueSearch={valueSearch}
@@ -49,23 +62,31 @@ const Search = () => {
       {showData ? (
         loading ? (
           <Loading />
-        ) : listUserSearch.length === 0 ? (
+        ) : listDataSearch.length === 0 ? (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{}}>Không tìm thấy người dùng nào họp lệ</Text>
+            <Text style={{}}>Không tìm thấy dữ liệu nào họp lệ</Text>
           </View>
         ) : (
-          listUserSearch.map(user => (
+          listDataSearch.map(data => (
             <TouchableOpacity
               style={styles.itemUser}
-              key={user.uid}
+              key={data.id}
               onPress={() => {
-                navigation.navigate('ProfileUser', {uidUser: user.uid});
+                if(type=='user')
+                    navigation.navigate('ProfileUser', {uidUser: data.uid});
+                if(type=='group')
+                    navigation.navigate('StackGroups', {
+                  screen: 'DetailGroup',
+                  params: {
+                    id: data.id,
+                  },
+                })
               }}>
               <Avatar
                 source={{
                   uri:
-                    user.imageAvatar ||
+                    data.imageAvatar || data.imageCover||
                     'https://image.flaticon.com/icons/png/512/149/149071.png',
                 }}
                 size={45}
@@ -74,9 +95,9 @@ const Search = () => {
               />
               <View style={{marginLeft: 10}}>
                 <Text style={{fontSize: 16, fontWeight: 'bold'}}>
-                  {user.displayName}
+                  {data.displayName || data.name}
                 </Text>
-                <Text style={{fontSize: 14}}>{user.email}</Text>
+                <Text style={{fontSize: 14}}>{data.email || data.description}</Text>
               </View>
             </TouchableOpacity>
           ))
@@ -99,4 +120,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+//   tabChoices: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-around',
+//     // marginTop: 10,
+//     },
+//     tabChoice: {
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         borderWidth: 1,
+//         borderColor: '#E5E5E5',
+//         borderRadius: 10,
+//         paddingVertical: 4,
+//         paddingHorizontal: 12,
+//     },
+//     textTabChoice: {
+//         fontSize: 16,
+//         fontWeight: 'bold',
+    // }
+    
 });

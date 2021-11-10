@@ -9,6 +9,7 @@ import {
   FlatList,
   ScrollView,
   Pressable,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ItemPostGroups from './ItemPostGroups';
@@ -16,44 +17,85 @@ import Header from './Header';
 import {useNavigation} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import Loading from "./../../components/Loading";
 
 const Groups = () => {
   const navigation = useNavigation();
   const [myGroups, setMyGroups] = React.useState([]);
   const [postsGroups, setPostsGroups] = React.useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('groups')
+      .where('members', 'array-contains', auth().currentUser.uid)
+      .onSnapshot(querySnapshot => {
+        setMyGroups(querySnapshot.docs.map(item => ({...item.data(),id: item.id})));
+      });
     firestore()
       .collection('groups')
       .where('members', 'array-contains', auth().currentUser.uid)
-      .get().then(async querySnapshot => {
-        setMyGroups(
-          querySnapshot.docs.map(item => {
-            return {
-              ...item.data(),
-              id: item.id,
-            };
-          }),
-        );
+      .get()
+      .then(async querySnapshot => {
         const postsGroups = [];
         for (const doc of querySnapshot.docs) {
-            await firestore().collection(`groups/${doc.id}/posts`).get().then(querySnapshot => {
-              querySnapshot.docs.forEach(doc2 => {
-                postsGroups.push({
-                  ...doc2.data(),
-                  id: doc2.id,
-                  idGroup: doc.id,
-                });
+          await firestore().collection(`groups/${doc.id}/posts`).orderBy('createdAt', 'desc').get().then(querySnapshot => {
+            querySnapshot.docs.forEach(doc2 => {
+              postsGroups.push({
+                ...doc2.data(),
+                id: doc2.id,
+                idGroup: doc.id,
               });
             });
+          });
         }
-        setPostsGroups(postsGroups);
+        setPostsGroups(postsGroups.sort((a, b) => b.createdAt - a.createdAt));
       });
-  }, []);
+    setRefreshing(false);
+    return () => unsubscribe();
+  }, [refreshing]);
   return (
     <View style={styles.container}>
       <Header />
-      <ScrollView>
-        <View style={{marginVertical: 10}}>
+      <View style={styles.listTab}>
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() =>
+            navigation.navigate('StackGroups', {screen: 'CreateGroup'})
+          }>
+          <Icon name="add-circle-outline" size={22} color="#000" />
+          <Text style={styles.textTab}>Tạo nhóm</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.tab}
+        >
+          <Icon name="mail-outline" size={22} color="#000" />
+          <Text style={styles.textTab}>Lời mời</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => setRefreshing(true)}
+          />
+        }>
+        <View style={styles.listGroup}>
+          <View style={styles.headerListGroup}>
+            <Text style={styles.textHeaderListGroup}>Nhóm của tôi</Text>
+            <TouchableOpacity
+              style={styles.buttonMoreListGroup}
+              onPress={() =>
+                navigation.navigate('StackGroups', {
+                  screen: 'MyGroups',
+                  params: {
+                    myGroups: myGroups,
+                  },
+                })
+              }>
+              <Text style={styles.textButtonMoreListGroup}>Xem thêm</Text>
+            </TouchableOpacity>
+          </View>
+          {!refreshing?
           <FlatList
             data={myGroups}
             horizontal
@@ -81,10 +123,12 @@ const Groups = () => {
             )}
             keyExtractor={(item, index) => item.id}
           />
+        :<Loading />}
         </View>
-        {postsGroups.map(item => (
+        {!refreshing?postsGroups.map(item => (
           <ItemPostGroups key={item.id} item={item} />
-        ))}
+        ))
+        :<Loading />}
       </ScrollView>
     </View>
   );
@@ -111,5 +155,46 @@ const styles = StyleSheet.create({
   nameGroup: {
     padding: 4,
     fontSize: 14,
+  },
+  listTab: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  tab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: '#e3e3e3',
+  },
+  textTab: {
+    paddingLeft: 4,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  listGroup: {
+    marginVertical: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 6,
+    borderBottomColor: '#e3e3e3',
+  },
+  headerListGroup: {
+    padding: 10,
+    paddingTop: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textHeaderListGroup: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonMoreListGroup: {
+    padding: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: '#e3e3e3',
   },
 });
