@@ -17,13 +17,10 @@ import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
-import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import {LogBox} from 'react-native';
 
 const UploadPost = ({route}) => {
   const {ref} = route.params;
@@ -38,9 +35,6 @@ const UploadPost = ({route}) => {
       });
     return () => subscriber();
   }, []);
-  LogBox.ignoreLogs([
-    'Non-serializable values were found in the navigation state',
-  ]);
   const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState('');
   const [imageUpImp, setImageUpImp] = useState({

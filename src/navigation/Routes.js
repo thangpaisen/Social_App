@@ -4,6 +4,10 @@ import AppStack from "./AppStack";
 import {NavigationContainer} from '@react-navigation/native';
 import AuthStack from "./AuthStack";
 import auth from '@react-native-firebase/auth';
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 const Routes = () => {
     const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();

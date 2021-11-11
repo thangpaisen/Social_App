@@ -5,6 +5,10 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Pressable,
+  Image,
+  Dimensions,
+  Modal,ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -13,12 +17,17 @@ import dateFormat from 'dateformat';
 import ItemComment from './ItemComment';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {useSelector} from 'react-redux';
-
+import storage from '@react-native-firebase/storage';
+import ImagePicker from 'react-native-image-crop-picker';
 const Comments = ({route}) => {
   const {dataPost, userItemPost,ref} = route.params;
   const navigation = useNavigation();
   const [textComment, setTextComment] = useState('');
+  const [imageComment, setImageComment] = useState({
+    uri: '',
+    fileName: '',
+  });
+  const [lockUpComment, setLockUpComment] = useState(false);
   const [listComments, setListComments] = useState([]);
   const [reply, setReply] = useState('');
   useEffect(() => {
@@ -31,24 +40,51 @@ const Comments = ({route}) => {
       sub();
     };
   }, []);
-  const handleSendComment = () => {
+  const handleSendComment = async () => {
     console.log('send comment');
-    if (textComment.trim().length > 0) {
-      ref.add({
+    setLockUpComment(true);
+    let uriImageComment = '';
+    if (imageComment.uri) {
+        const reference = storage().ref(imageComment.fileName);
+        await reference.putFile(imageComment?.uri);
+        uriImageComment = await storage().ref(imageComment.fileName).getDownloadURL();
+    }
+    ref.add({
         love: [],
         textComment,
+        imageComment: uriImageComment,
         uidUserComment: auth().currentUser.uid,
         createdAt: new Date().getTime(),
         idPost: dataPost.id,
       });
       setTextComment('');
-    }
+      handleOnPressRemoveImageComment();
+      setLockUpComment(false);
   };
-  const handleSendReComment = (text, refFb) => {};
-  const handleOnClickReComment = (nameUserReply, text, refFb) => {
-    setReply(nameUserReply);
+  
+  const openLibrary = () => {
+    ImagePicker.openPicker({}).then(image => {
+      setImageComment({uri: image.path, fileName: image.modificationDate});
+    });
   };
+  const openCamera = () => {
+    ImagePicker.openCamera({}).then(image => {
+      setImageComment({uri: image.path, fileName: image.modificationDate});
+    });
+  };
+  const handleOnPressRemoveImageComment = () => {
+    setImageComment({
+      uri: '',
+      fileName: '',
+    });
+    ImagePicker.clean();
+  };
+//   const handleSendReComment = (text, refFb) => {};
+//   const handleOnClickReComment = (nameUserReply, text, refFb) => {
+//     setReply(nameUserReply);
+//   };
   return (
+      <>
     <View style={styles.commentsContainer}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -63,12 +99,12 @@ const Comments = ({route}) => {
             rounded
             source={{
               uri:
-                userItemPost.imageAvatar ||
+                userItemPost?.imageAvatar ||
                 'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
           />
           <View style={styles.title}>
-            <Text style={styles.name}>{userItemPost?.displayName}</Text>
+            <Text style={styles.name}>{userItemPost?.displayName || 'Người dùng '}</Text>
             <Text style={styles.lastTime}>
               {dateFormat(dataPost?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
                 '5 phút tr'}
@@ -85,31 +121,64 @@ const Comments = ({route}) => {
         </>
       )}
       <View style={styles.inputTextComment}>
+        {!imageComment?.uri&&
+        <View style={styles.choiceImage}>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openCamera()}>
+            <Icon name="camera-outline" size={24} color={'black'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.itemChoice}
+            onPress={() => openLibrary()}>
+            <Icon name="image-outline" size={24} color={'black'} />
+          </TouchableOpacity>
+        </View>}
+        <View style={{flex: 1}}>
+            {imageComment?.uri?.length ? (
+            <View style={styles.imageComment}>
+              <Image source={{uri: imageComment?.uri}} style={styles.image} />
+              <Pressable
+                style={styles.removeImageComment}
+                onPress={() => {
+                  handleOnPressRemoveImageComment();
+                }}>
+                <Icon name="close" size={20} color={'white'} />
+              </Pressable>
+            </View>
+          ) : null}
         <TextInput
           style={styles.inputText}
           value={textComment}
+          multiline
           onChangeText={setTextComment}
-          placeholder={'Thêm bình luận'}
+          placeholder={'Viết bình luận'}
         />
-        <TouchableOpacity
+        </View>
+        {!textComment.trim().length && !imageComment?.uri?.length ?null
+          :<TouchableOpacity
           onPress={() => handleSendComment()}
-          style={styles.send}
-          disabled={textComment.trim().length > 0 ? false : true}>
-          <Text
-            style={[
-              styles.textSend,
-              textComment.trim() == 0 && {opacity: 0.5},
-            ]}>
-            Send
-          </Text>
-        </TouchableOpacity>
+          style={styles.send}>
+            <Text
+                style={[
+                styles.textSend
+                ]}>
+                Send
+            </Text>
+        </TouchableOpacity>}
       </View>
     </View>
+    <Modal transparent={true} visible={lockUpComment}>
+        <View style={styles.model}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </Modal>
+      </>
   );
 };
 
 export default Comments;
-
+const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   commentsContainer: {
     flex: 1,
@@ -170,12 +239,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   send: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+    marginRight: 10,
   },
   textSend: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#00a6ff',
+  },
+  choiceImage: {
+    flexDirection: 'row',
+  },
+  itemChoice: {
+    marginRight: 4,
+    justifyContent: 'center',
+  },
+  imageComment: {
+    marginLeft: 10,
+    marginTop:10,
+  },
+  image: {
+    borderRadius: 5,
+    width: height / 4,
+    height: height / 8,
+  },
+  removeImageComment: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  model: {
+    flex: 1,
+    backgroundColor: 'white',
+    opacity: 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -6,6 +6,8 @@ import {
   Pressable,
   TouchableOpacity,
   Alert,
+  Image,
+  Dimensions,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {Avatar} from 'react-native-elements';
@@ -15,7 +17,10 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {useSelector} from 'react-redux';
 import ItemReComment from './ItemReComment';
-const ItemComment = ({item,refItem}) => {
+import Lightbox from 'react-native-lightbox-v2';
+import {useNavigation} from '@react-navigation/native';
+const ItemComment = ({item, refItem}) => {
+  const navigation = useNavigation();
   const userNow = useSelector(state => state.user.data);
   const [userComment, setUserComment] = useState({});
   const [hideReComments, setHideReComments] = useState(true);
@@ -45,7 +50,7 @@ const ItemComment = ({item,refItem}) => {
     return () => sub();
   }, []);
   const handleOnLove = () => {
-      console.log('love')
+    console.log('love');
     const checkLove = item.love.indexOf(auth().currentUser.uid);
     if (checkLove > -1) {
       var newArr = [...item.love];
@@ -91,7 +96,7 @@ const ItemComment = ({item,refItem}) => {
           rounded
           source={{
             uri:
-              userComment.imageAvatar ||
+              userComment?.imageAvatar ||
               'https://image.flaticon.com/icons/png/512/149/149071.png',
           }}
         />
@@ -99,12 +104,28 @@ const ItemComment = ({item,refItem}) => {
       <View style={{flex: 1, marginLeft: 10}}>
         <View style={{flexDirection: 'row'}}>
           <View style={styles.title}>
-            <Text style={styles.name}>{userComment.displayName}</Text>
+            <Text style={styles.name}>{userComment?.displayName}</Text>
             <Pressable
               onLongPress={() => {
                 HandleOnLongPressTextComment();
               }}>
               <Text style={styles.textContent}>{item?.textComment}</Text>
+              {item?.imageComment ? (
+                <Lightbox
+                  activeProps={{
+                    style: {
+                      flex: 1,
+                      width: width,
+                      height: height,
+                      resizeMode: 'contain',
+                    },
+                  }}>
+                  <Image
+                    source={{uri: item?.imageComment}}
+                    style={styles.image}
+                  />
+                </Lightbox>
+              ) : null}
             </Pressable>
             <View style={styles.react}>
               <Text style={styles.itemReact}>
@@ -160,7 +181,7 @@ const ItemComment = ({item,refItem}) => {
 };
 
 export default ItemComment;
-
+const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   itemCommentContainer: {
     flexDirection: 'row',
@@ -174,7 +195,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-
   textContent: {
     paddingVertical: 6,
     fontSize: 16,
@@ -200,5 +220,10 @@ const styles = StyleSheet.create({
   textShowReComment: {
     fontSize: 14,
     color: 'gray',
+  },
+  image: {
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 10,
   },
 });
