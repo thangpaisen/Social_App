@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
         color: '#000',
     },
   item: {
-    //   backgroundColor: 'red',
       paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',

@@ -21,6 +21,8 @@ import DetailGroup from "./../screens/Groups/DetailGroup";
 import MyGroups from "./../screens/Groups/MyGroups/MyGroups";
 import DescGroup from "./../screens/Groups/DetailGroup/DescGroup";
 import MembersGroup from "./../screens/Groups/DetailGroup/MembersGroup";
+import Invites from "./../screens/Groups/Invites/Invites";
+import Membership from "./../screens/Groups/Membership/Membership";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -175,6 +177,20 @@ const StackGroups = () => {
       <Stack.Screen
         name="MyGroups"
         component={MyGroups}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Invites"
+        component={Invites}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Membership"
+        component={Membership}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}

@@ -43,7 +43,7 @@ const ItemComment = ({item, refItem}) => {
   useEffect(() => {
     const sub = firestore()
       .collection('users')
-      .doc(auth().currentUser.uid)
+      .doc(item.uidUserComment)
       .onSnapshot(doc => {
         setUserComment(doc.data());
       });

@@ -59,7 +59,9 @@ const [loading, setLoading] = useState(true);
   return (
     <View style={styles.container}>
       <Header />
-      <View style={styles.listTab}>
+      <View style={styles.listTab}
+        
+      >
         <TouchableOpacity
           style={styles.tab}
           onPress={() =>
@@ -70,9 +72,19 @@ const [loading, setLoading] = useState(true);
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tab}
+          onPress={() =>
+                navigation.navigate('StackGroups', {screen: 'Invites'})}
         >
           <Icon name="mail-outline" size={22} color="#000" />
           <Text style={styles.textTab}>Lời mời</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() =>
+                navigation.navigate('StackGroups', {screen: 'Membership'})}
+        >
+          <Icon name="log-out-outline" size={22} color="#000" />
+          <Text style={styles.textTab}>Thành viên</Text>
         </TouchableOpacity>
       </View>
       <ScrollView
@@ -174,7 +186,6 @@ const styles = StyleSheet.create({
   },
   textTab: {
     paddingLeft: 4,
-    fontSize: 16,
     fontWeight: 'bold',
   },
   listGroup: {
