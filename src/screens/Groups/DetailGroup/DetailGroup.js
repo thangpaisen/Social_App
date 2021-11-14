@@ -81,7 +81,9 @@ const DetailGroup = ({route}) => {
                     <ItemMember key={index} data={item} index={index} />
                 )
             })}
-            <TouchableOpacity style={styles.addMember}>
+            <TouchableOpacity style={styles.addMember}
+                 onPress={() =>navigation.navigate('InvitesFriends',{idGroup:id}) }
+            >
                 <Icon name="add-outline" size={20} color="#fff" />
                 <Text style={styles.textAddMember}>Mời</Text>
             </TouchableOpacity>

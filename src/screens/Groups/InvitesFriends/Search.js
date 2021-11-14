@@ -25,7 +25,7 @@ const Search = ({handleOnSearch,handleOnHideData}) => {
                         if(value.trim()) handleOnSearch(value)
                     }}
                     value={value}
-                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold', }} placeholder={'Nhập Tên hoặc Email'}></TextInput>
+                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold', }} placeholder={'Nhập Tên'}></TextInput>
                 {
                     value !== '' ? (
                         <TouchableOpacity
@@ -48,6 +48,7 @@ export default Search;
 const styles = StyleSheet.create({
     container: {
         margin:10,
+        marginHorizontal: 20,
         marginBottom:0,
         flexDirection: 'row',
         alignItems: 'center',

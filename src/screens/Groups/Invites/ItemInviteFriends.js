@@ -9,8 +9,10 @@ import {
   TouchableOpacity
 } from 'react-native';
 import Icon from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ItemInviteFriends({item}) {
+    const navigation = useNavigation();
   return (
     <View style={styles.inviteFriends}>
       <View style={styles.group}>
@@ -28,7 +30,9 @@ export default function ItemInviteFriends({item}) {
               {'Bạn đã tham gia khi nào đó'}
             </Text>
         </View>
-        <TouchableOpacity style={styles.btnInvite}>
+        <TouchableOpacity style={styles.btnInvite}
+            onPress={() =>navigation.navigate('InvitesFriends',{idGroup:item.id}) }
+        >
             <Icon name="add" size={24} color="blue" />
             <Text style={styles.textBtnInvite}>Mời</Text>
         </TouchableOpacity>

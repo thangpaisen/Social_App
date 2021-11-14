@@ -23,6 +23,8 @@ import DescGroup from "./../screens/Groups/DetailGroup/DescGroup";
 import MembersGroup from "./../screens/Groups/DetailGroup/MembersGroup";
 import Invites from "./../screens/Groups/Invites/Invites";
 import Membership from "./../screens/Groups/Membership/Membership";
+import InvitesFriends from "./../screens/Groups/InvitesFriends/InvitesFriends";
+import Notification from "./../screens/Notification/Notification";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
@@ -54,10 +56,20 @@ function MyTabs() {
         }}
       />
       <Tab.Screen
+        name="Notification"
+        component={Notification}
+        options={{
+          tabBarLabel: 'Thông báo',
+          tabBarIcon: ({color}) => (
+            <Icon name="notifications" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Chat"
         component={Chat}
         options={{
-          tabBarLabel: 'Chat',
+          tabBarLabel: 'Tin nhắn',
           tabBarIcon: ({color}) => (
             <Icon name="chatbox" size={24} color={color} />
           ),
@@ -212,6 +224,13 @@ const StackGroups = () => {
       <Stack.Screen
         name="MembersGroup"
         component={MembersGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="InvitesFriends"
+        component={InvitesFriends}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}

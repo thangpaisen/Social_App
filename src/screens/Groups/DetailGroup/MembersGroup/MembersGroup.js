@@ -13,7 +13,6 @@ import Body from "./Body";
 const MembersGroup = ({route}) => {
     const {dataGroup} = route.params;
     const navigation = useNavigation();
-    const [valueSearch, setValueSearch] = useState('')
     const [loading, setLoading] = useState(false)
     const [showData, setShowData] = useState(false);
     const [listDataSearch, setListDataSearch] = useState([]); 
@@ -45,8 +44,6 @@ const MembersGroup = ({route}) => {
             <Search
                 handleOnSearch={handleOnSearch}
                 handleOnHideData={handleOnHideData}
-                valueSearch={valueSearch}
-                setValueSearch={setValueSearch}
             />
             <View style={styles.content}>
             {showData ? (
@@ -75,10 +72,4 @@ const styles = StyleSheet.create({
     content: {
         flex:1,
     },
-        itemUser: {
-        paddingHorizontal: 20,
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },  
 })

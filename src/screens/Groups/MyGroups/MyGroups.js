@@ -46,7 +46,9 @@ const MyGroups = ({route}) => {
             {
                 myGroups.map((item, index) => {
                     return (
-                        <TouchableOpacity style={styles.item} key={item.id}>
+                        <TouchableOpacity style={styles.item} key={item.id}
+                            onPress={() => {navigation.navigate('DetailGroup',{id:item.id})} }
+                        >
                             <Image
                                 source={{
                                     uri:
