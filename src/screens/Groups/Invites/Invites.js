@@ -9,6 +9,7 @@ import auth from '@react-native-firebase/auth';
 import {useNavigation} from '@react-navigation/native';
 const Invites = () => {
   const [myGroups, setMyGroups] = useState([]);
+  const [listInviteGroups, setListInviteGroups] = useState([]);
   useEffect(() => {
     const sub = firestore()
       .collection('groups')
@@ -18,21 +19,32 @@ const Invites = () => {
           querySnapshot.docs.map(item => ({...item.data(), id: item.id})),
         );
       });
+    const sub2 = firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .collection('inviteGroup')
+      .onSnapshot(querySnapshot => {
+        setListInviteGroups(
+          querySnapshot.docs.map(item => ({...item.data(), id: item.id})),
+        );
+      });
     return () => {
       sub();
+      sub2();
     };
   }, []);
+  console.log('listInviteGroups',listInviteGroups)
   return (
     <View style={styles.container}>
       <Header />
       <View style={styles.content}>
-        <View style={styles.yourInvites}>
+        {listInviteGroups.length > 0 &&<View style={styles.yourInvites}>
           <Text style={styles.headerYourInvites}>Lời mời tham gia nhóm</Text>
           <View style={styles.listYourInvites}>
-            <ItemYourInvites />
-            <ItemYourInvites />
+            {listInviteGroups.map((item, index) => 
+                <ItemYourInvites key={item.id} item={item} />)}
           </View>
-        </View>
+        </View>}
         <View style={styles.yourInvites}>
           <Text style={styles.headerYourInvites}>Mời bạn bè tham gia nhóm</Text>
           <View style={styles.listYourInvites}>

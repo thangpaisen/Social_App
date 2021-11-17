@@ -7,7 +7,8 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Loading from "./../../../components/Loading";
 import Nodata from "./../../../components/Nodata";
-const InvitesFriends = ({idGroup}) => {
+const InvitesFriends = ({route}) => {
+    const {idGroup} = route.params;
     const [showData, setShowData] = useState(false);
     const [loading, setLoading] = useState(false);
     const [listUsers, setListUsers] = useState([]);
@@ -27,8 +28,9 @@ const InvitesFriends = ({idGroup}) => {
       .then(querySnapshot => {
         var listUsersSearch = [];
         querySnapshot.docs.forEach(doc => {
-          if (doc.data().displayName.toUpperCase().includes(value.toUpperCase()))
-            listUsersSearch.push(doc.data().uid);
+            if(listUsers.includes(doc.id))
+                if (doc.data().displayName.toUpperCase().includes(value.toUpperCase()))
+                listUsersSearch.push(doc.data().uid);
         })
         setListUsersSearch(listUsersSearch);
         setLoading(false);
@@ -50,12 +52,12 @@ const InvitesFriends = ({idGroup}) => {
             <ScrollView>
                 {listUsers.length > 0 &&
                     listUsers.map((item, index) =>
-                        <ItemUserInvite data={item} key={item}/>
+                        <ItemUserInvite idUser={item} idGroup={idGroup} key={item}/>
                     )}
             </ScrollView>:
             listUsersSearch.length > 0?
             listUsersSearch.map((item, index) =>
-                        <ItemUserInvite data={item} key={item}/>
+                        <ItemUserInvite idUser={item} idGroup={idGroup} key={item}/>
                     )
             :<Nodata />
         }

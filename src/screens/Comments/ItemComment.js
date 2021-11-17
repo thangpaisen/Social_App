@@ -19,6 +19,7 @@ import {useSelector} from 'react-redux';
 import ItemReComment from './ItemReComment';
 import Lightbox from 'react-native-lightbox-v2';
 import {useNavigation} from '@react-navigation/native';
+import { timeSinceComment } from "./../../utils/fomattime";
 const ItemComment = ({item, refItem}) => {
   const navigation = useNavigation();
   const userNow = useSelector(state => state.user.data);
@@ -129,7 +130,7 @@ const ItemComment = ({item, refItem}) => {
             </Pressable>
             <View style={styles.react}>
               <Text style={styles.itemReact}>
-                {dateFormat(item?.createdAt, 'HH:MM, mm/dd ') || '?h'}
+                {timeSinceComment(item?.createdAt)}
               </Text>
               <Pressable>
                 {item.love.length > 0 && (

@@ -23,6 +23,7 @@ import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
 import Colors from './../../assets/themes/Colors';
+import { timeSince } from "./../../utils/fomattime";
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
   const [userNow, setUser] = useState({});
@@ -130,8 +131,7 @@ const ItemPost = ({item}) => {
               <Text style={styles.name}>{userItemPost.displayName}</Text>
             </TouchableOpacity>
             <Text style={styles.lastTime}>
-              {dateFormat(item.createdAt, 'HH:MM, mmmm dS yyyy ') ||
-                '5 phút tr'}
+              {timeSince(item?.createdAt)}
             </Text>
           </View>
           {userNow.uid === item.uidUser && (

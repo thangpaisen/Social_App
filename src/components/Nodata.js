@@ -1,11 +1,11 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-const Nodata = () => {
+const Nodata = ({title}) => {
     return (
         <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{}}>Không tìm thấy dữ liệu nào họp lệ</Text>
+            <Text style={{}}>{ title || 'Không có dữ liệu'}</Text>
           </View>
     )
 }

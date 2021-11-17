@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 import {Avatar} from 'react-native-elements';
 import Loading from './../../components/Loading';
 import {useNavigation} from '@react-navigation/native';
+import Nodata from "./../../components/Nodata";
 
 const Search = ({route}) => {
     const type = route?.params?.type|| 'group';
@@ -63,10 +64,7 @@ const Search = ({route}) => {
         loading ? (
           <Loading />
         ) : listDataSearch.length === 0 ? (
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{}}>Không tìm thấy dữ liệu nào họp lệ</Text>
-          </View>
+          <Nodata/>
         ) : (
           listDataSearch.map(data => (
             <TouchableOpacity

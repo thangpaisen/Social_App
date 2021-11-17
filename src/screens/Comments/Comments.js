@@ -19,6 +19,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import ImagePicker from 'react-native-image-crop-picker';
+import { timeSince } from "./../../utils/fomattime";
 const Comments = ({route}) => {
   const {dataPost, userItemPost,ref} = route.params;
   const navigation = useNavigation();
@@ -106,8 +107,7 @@ const Comments = ({route}) => {
           <View style={styles.title}>
             <Text style={styles.name}>{userItemPost?.displayName || 'Người dùng '}</Text>
             <Text style={styles.lastTime}>
-              {dateFormat(dataPost?.createdAt, 'HH:MM, mmmm dS yyyy ') ||
-                '5 phút tr'}
+              {timeSince(dataPost?.createdAt)}
             </Text>
             <Text style={styles.textContent}>{dataPost?.message.text}</Text>
           </View>

@@ -25,9 +25,10 @@ const Search = ({handleOnSearch,handleOnHideData}) => {
                         if(value.trim()) handleOnSearch(value)
                     }}
                     value={value}
-                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold', }} placeholder={'Nhập Tên'}></TextInput>
+                    style={{ flex: 1, paddingVertical: 4, fontFamily: 'Nunito-Bold'}} placeholder={'Nhập Tên'}>
+                </TextInput>
                 {
-                    value !== '' ? (
+                    value.trim()?(
                         <TouchableOpacity
                             onPress={() => {
                                 onChangeText('')

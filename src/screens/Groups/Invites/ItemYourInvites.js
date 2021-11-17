@@ -6,18 +6,64 @@ import {
   Image,
   Dimensions,
   Pressable,
+  TouchableOpacity,
+  ToastAndroid
 } from 'react-native';
 import Colors from "./../../../assets/themes/Colors";
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 const ItemYourInvites = ({item}) => {
-    const [group, setGroup] = useState({});
-
+    const [group, setGroup] = React.useState({});
+    const [user, setUser] = React.useState({});
+    useEffect(() => {
+        firestore().collection('users').doc(item.idUserInvite).get().then(doc => {
+            setUser(doc.data());
+        })
+        firestore().collection('groups').doc(item.idGroup).get().then(doc => {
+            setGroup(doc.data());
+        })
+    }, [])
+    console.log('item.id',item.id)
+    const handleOnJoin = () => {
+        console.log('join')
+        if(!group.members.includes(auth().currentUser.uid)){
+            firestore().collection('groups').doc(item.idGroup).update({
+                members: firestore.FieldValue.arrayUnion(item.idUserInvite)
+            })
+            firestore().collection('groups').doc(item.idGroup).doc(auth().currentUser.uid).set({
+                uid: auth().currentUser.uid,
+                role:'member',
+                createdAt: new Date().getTime(),
+            })
+        }
+        firestore().collection('groups').doc(item.idGroup).update({
+            members: firestore.FieldValue.arrayUnion(item.idUserInvite)
+        })
+        firestore().collection('users').doc(auth().currentUser.uid).collection('inviteGroup').doc(item.id).delete();
+        ToastAndroid.show('Đã tham gia nhóm', ToastAndroid.SHORT);
+    }
+    const handleOnRemove = () => {
+        firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .collection('inviteGroup')
+      .doc(item?.id)
+      .delete();
+    firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .collection('notifications')
+      .doc(item?.id)
+      .delete();
+        ToastAndroid.show('Đã xoá lời mời', ToastAndroid.SHORT);
+    }
   return (
     <View style={styles.itemYourInvites}>
       <View style={styles.group}>
         <Image
           source={{
             uri:
-              item?.imageCover ||
+              group?.imageCover ||
               'https://images6.alphacoders.com/102/1029037.jpg',
           }}
           style={styles.imageCover}
@@ -28,15 +74,19 @@ const ItemYourInvites = ({item}) => {
         }}>
         <View style={styles.descriptionGroup}>
           <Text style={styles.nameGroup}>{group?.name || 'Nhóm nào đó'}</Text>
-          <Text style={styles.nameUserInvite}>{item?.UserInvite?.name || 'Ai đó'} đã mời bạn tham gia</Text>
+          <Text style={styles.nameUserInvite}>{user?.displayName || 'Ai đó'} đã mời bạn tham gia</Text>
         </View>
         <View style={styles.btnChoice}>
-          <Pressable style={styles.itemBtnChoice}>
+          <TouchableOpacity style={styles.itemBtnChoice}
+            onPress={() => handleOnJoin() }
+          >
             <Text style={styles.textBtnChoice}>Tham gia nhóm</Text>
-          </Pressable>
-          <Pressable style={[styles.itemBtnChoice,{backgroundColor:Colors.border}]}>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.itemBtnChoice,{backgroundColor:Colors.border}]}
+            onPress={() => handleOnRemove() }
+          >
             <Text style={[styles.textBtnChoice,{color:'black'},]}>Xoá lời mời</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
         </View>
       </View>
