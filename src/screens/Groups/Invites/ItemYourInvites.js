@@ -23,24 +23,25 @@ const ItemYourInvites = ({item}) => {
             setGroup(doc.data());
         })
     }, [])
-    console.log('item.id',item.id)
+    // console.log('item.id',item.id)
     const handleOnJoin = () => {
-        console.log('join')
-        if(!group.members.includes(auth().currentUser.uid)){
+        if(!(group.members.includes(auth().currentUser.uid))){
             firestore().collection('groups').doc(item.idGroup).update({
-                members: firestore.FieldValue.arrayUnion(item.idUserInvite)
+                members: firestore.FieldValue.arrayUnion(auth().currentUser.uid)
             })
-            firestore().collection('groups').doc(item.idGroup).doc(auth().currentUser.uid).set({
+            firestore().collection('groups').doc(item?.idGroup).collection('member')
+            .doc(auth().currentUser.uid).set({
                 uid: auth().currentUser.uid,
                 role:'member',
                 createdAt: new Date().getTime(),
             })
+            .then(() => {
+            ToastAndroid.show('Bạn đã tham gia nhóm', ToastAndroid.SHORT);
+          });
+            console.log('jjj')
         }
-        firestore().collection('groups').doc(item.idGroup).update({
-            members: firestore.FieldValue.arrayUnion(item.idUserInvite)
-        })
-        firestore().collection('users').doc(auth().currentUser.uid).collection('inviteGroup').doc(item.id).delete();
-        ToastAndroid.show('Đã tham gia nhóm', ToastAndroid.SHORT);
+        else ToastAndroid.show('Bạn Đã tham gia nhóm này', ToastAndroid.SHORT);
+        firestore().collection('users').doc(auth().currentUser.uid).collection('inviteGroup').doc(item.id).delete();  
     }
     const handleOnRemove = () => {
         firestore()

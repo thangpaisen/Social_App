@@ -34,39 +34,35 @@ const ItemYourInvites = ({item}) => {
         setGroup(doc.data());
       });
   }, []);
-  console.log('item.id', item?.id,auth().currentUser.uid);
+  console.log('item.id', item?.id,item?.idGroup,item?.idUserInvite,auth().currentUser.uid);
   const handleOnJoin = () => {
     console.log('join');
-    if (!group.members.includes(auth().currentUser.uid)) {
+    if (!group?.members.includes(auth().currentUser.uid)) {
       firestore()
         .collection('groups')
         .doc(item?.idGroup)
         .update({
-          members: firestore.FieldValue.arrayUnion(item?.idUserInvite),
+          members: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
         });
       firestore()
         .collection('groups')
         .doc(item?.idGroup)
+        .collection('member')
         .doc(auth().currentUser.uid)
         .set({
           uid: auth().currentUser.uid,
           role: 'member',
           createdAt: new Date().getTime(),
         });
+        ToastAndroid.show('Bạn Đã tham gia nhóm', ToastAndroid.SHORT);
     }
-    firestore()
-      .collection('groups')
-      .doc(item?.idGroup)
-      .update({
-        members: firestore.FieldValue.arrayUnion(item?.idUserInvite),
-      });
+    else ToastAndroid.show('Bạn Đã tham gia nhóm này ', ToastAndroid.SHORT);
     firestore()
       .collection('users')
       .doc(auth().currentUser.uid)
-      .collection('inviteGroup')
+      .collection('notifications')
       .doc(item?.id)
       .delete();
-    ToastAndroid.show('Đã tham gia nhóm', ToastAndroid.SHORT);
   };
   const handleOnRemove = () => {
     firestore()
