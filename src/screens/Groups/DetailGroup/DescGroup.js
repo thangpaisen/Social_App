@@ -48,7 +48,7 @@ const DescGroup = ({route}) => {
             </View>
             <View style={styles.itemActivity}>
                 <Icon name="md-create" size={20} color={'#333'} />
-                <Text style={styles.textItemActivity}>Đã tạo {dateFormat(dataGroup?.createdAt, 'mm-dd-yyyy ')}</Text>
+                <Text style={styles.textItemActivity}>Đã tạo {dateFormat(dataGroup?.createdAt, 'dd-mm-yyyy ')}</Text>
             </View>
         </View>
       </View>

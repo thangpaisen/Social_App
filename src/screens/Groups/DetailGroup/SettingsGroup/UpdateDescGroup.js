@@ -15,38 +15,34 @@ import {Button} from 'react-native-elements';
 import {useNavigation} from '@react-navigation/native';
 import auth from "@react-native-firebase/auth";
 
-const CreateGroup = () => {
+const UpdateDescGroup = ({route}) => {
+    const {group} = route?.params;
+    console.log(group);
     const navigation = useNavigation();
   const [dataGroup, setDataGroup] = useState({
-    name: '',
-    description: '',
+    name: group.name,
+    description: group.description,
   });
   const [disabledButton, setDisabledButton] = useState(true);
   const [loadingCreateGroup, setLoadingCreateGroup] = useState(false);
   const handleCreateGroup =()=>{
+    if(dataGroup.name !== group.name || dataGroup.description !== group.description){
+
     setLoadingCreateGroup(true);
-    firestore().collection('groups').add({
+    firestore().collection('groups').doc(group.id).update({
         name: dataGroup.name,
         description: dataGroup.description,
-        imageCover:'https://2.pik.vn/2021e887e2af-5499-49b8-9bfa-ba980086e4bd.png',
-        members: [auth().currentUser.uid],
-        createdAt: new Date().getTime(),
-        author: auth().currentUser.uid,
-        managers: [auth().currentUser.uid],
+        updateAt: new Date().getTime(),
     }).then((res)=>{
-        firestore().collection('groups').doc(res._documentPath._parts[1]).collection('member').doc(auth().currentUser.uid).set({
-            uid: auth().currentUser.uid,
-            role: 'admin',
-            createdAt: new Date().getTime(),
-        }).then(()=>{
-            setLoadingCreateGroup(false);
-            navigation.replace('DetailGroup', {id: res._documentPath._parts[1]});
-        })
+        setLoadingCreateGroup(false);
+        navigation.replace('DetailGroup', {id: group.id});
+        ToastAndroid.show('Cập nhật thành công', ToastAndroid.SHORT);
     })
     .catch((err)=>{
             ToastAndroid.show('Có lỗi xảy ra', ToastAndroid.SHORT);
             setLoadingCreateGroup(false);
         })
+    }
   }
   return (
       <>
@@ -59,7 +55,7 @@ const CreateGroup = () => {
         >
           <Icon name="close" size={30} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Tạo nhóm</Text>
+        <Text style={styles.headerText}>Cập nhật thông tin nhóm</Text>
         <Icon name="close" size={30} color="transparent" />
       </View>
       <View style={styles.body}>
@@ -69,7 +65,9 @@ const CreateGroup = () => {
             style={styles.input}
             onChangeText={text => {
               setDataGroup({...dataGroup, name: text});
-              if (dataGroup.description.length > 0 && text.trim().length > 0)
+              if(text.trim() == group.name && dataGroup.description == group.description) 
+                setDisabledButton(true);
+              else if(dataGroup.description.length > 0 && text.trim().length > 0)
                 setDisabledButton(false);
               else setDisabledButton(true);
             }}
@@ -83,7 +81,9 @@ const CreateGroup = () => {
             multiline={true}
             onChangeText={text => {
               setDataGroup({...dataGroup, description: text});
-              if (text.trim().length > 0 && dataGroup.name.length > 0)
+              if(text.trim() == group.description && dataGroup.name == group.name) 
+                setDisabledButton(true);
+              else if(text.trim().length > 0 && dataGroup.name.length > 0)
                 setDisabledButton(false);
               else setDisabledButton(true);
             }}
@@ -96,7 +96,7 @@ const CreateGroup = () => {
         titleStyle={styles.buttonCreateTitle}
         disabled={disabledButton}
         onPress={() => handleCreateGroup()}
-        title={'Tạo'}
+        title={'Cập nhật'}
       />
     </View>
     <Modal
@@ -112,7 +112,7 @@ const CreateGroup = () => {
   );
 };
 
-export default CreateGroup;
+export default UpdateDescGroup;
 
 const styles = StyleSheet.create({
   container: {

@@ -24,11 +24,14 @@ const Membership = () => {
     return (
         <View style={styles.container}>
             <Header/>
-            <View style={styles.content}>
+            {myGroups.length?<View style={styles.content}>
                 {myGroups.map(item => (
                     <ItemGroupLeave key={item.id} item={item}/>
                 ))}
             </View>
+            :<View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <Text>Bạn chưa tham gia nhóm nào</Text>
+            </View>}
         </View>
     )
 }

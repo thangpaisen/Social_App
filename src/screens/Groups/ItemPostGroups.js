@@ -247,7 +247,7 @@ const ItemPostGroups = ({item}) => {
           <TouchableOpacity
             style={styles.morePostItem}
             onPress={() => handleClickButtonUpDatePost()}>
-            <Icon name="trash-outline" size={24} color="black" />
+            <Icon name="eyedrop-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>
               Chỉnh sửa bài viết
             </Text>

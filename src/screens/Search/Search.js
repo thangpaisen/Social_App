@@ -6,6 +6,8 @@ import {Avatar} from 'react-native-elements';
 import Loading from './../../components/Loading';
 import {useNavigation} from '@react-navigation/native';
 import Nodata from "./../../components/Nodata";
+import ItemDataMember from "./ItemDataMember";
+import ItemDataGroup from "./ItemDataGroup";
 
 const Search = ({route}) => {
     const type = route?.params?.type|| 'group';
@@ -66,39 +68,14 @@ const Search = ({route}) => {
         ) : listDataSearch.length === 0 ? (
           <Nodata/>
         ) : (
-          listDataSearch.map(data => (
-            <TouchableOpacity
-              style={styles.itemUser}
-              key={data.id}
-              onPress={() => {
+          listDataSearch.map(data => 
+            {
                 if(type=='user')
-                    navigation.navigate('ProfileUser', {uidUser: data.uid});
-                if(type=='group')
-                    navigation.navigate('StackGroups', {
-                  screen: 'DetailGroup',
-                  params: {
-                    id: data.id,
-                  },
-                })
-              }}>
-              <Avatar
-                source={{
-                  uri:
-                    data.imageAvatar || data.imageCover||
-                    'https://image.flaticon.com/icons/png/512/149/149071.png',
-                }}
-                size={45}
-                rounded
-                containerStyle={{}}
-              />
-              <View style={{marginLeft: 10}}>
-                <Text style={{fontSize: 16, fontWeight: 'bold'}}>
-                  {data.displayName || data.name}
-                </Text>
-                <Text style={{fontSize: 14}}>{data.email || data.description}</Text>
-              </View>
-            </TouchableOpacity>
-          ))
+                    return <ItemDataMember key={data.id} data={data}/>
+                else if(type =='group')
+                    return <ItemDataGroup key={data.id} data={data}/>
+            }      
+          )
         )
       ) : null}
     </View>

@@ -25,12 +25,14 @@ import Invites from "./../screens/Groups/Invites/Invites";
 import Membership from "./../screens/Groups/Membership/Membership";
 import InvitesFriends from "./../screens/Groups/InvitesFriends/InvitesFriends";
 import Notification from "./../screens/Notification/Notification";
+import SettingsGroup from "./../screens/Groups/DetailGroup/SettingsGroup/SettingsGroup";
+import UpdateDescGroup from "./../screens/Groups/DetailGroup/SettingsGroup/UpdateDescGroup";
 const Tab = createMaterialBottomTabNavigator();
 
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Notification"
+      initialRouteName="Groups"
       activeColor="#09bff2"
       inactiveColor="gray"
       barStyle={{backgroundColor: 'white'}}
@@ -231,6 +233,20 @@ const StackGroups = () => {
       <Stack.Screen
         name="InvitesFriends"
         component={InvitesFriends}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="SettingsGroup"
+        component={SettingsGroup}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="UpdateDescGroup"
+        component={UpdateDescGroup}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}

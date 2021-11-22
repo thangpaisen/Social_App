@@ -22,6 +22,7 @@ const ItemUserInvite = ({idUser,idGroup}) => {
         //     idUserInvite: auth().currentUser.uid,
         //     createdAt: new Date().getTime(),
         // })
+        
         firestore().collection('users').doc(user.id).collection('notifications').add({
             type: 'inviteGroup',
             idGroup: idGroup,

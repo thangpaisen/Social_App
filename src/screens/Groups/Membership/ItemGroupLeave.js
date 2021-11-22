@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,14 +6,41 @@ import {
   Image,
   Dimensions,
   Pressable,
-  TouchableOpacity
+  TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
-import Colors from "./../../../assets/themes/Colors";
-import Icon from 'react-native-vector-icons/Ionicons'
+import Colors from './../../../assets/themes/Colors';
+import Icon from 'react-native-vector-icons/Ionicons';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import {useNavigation} from '@react-navigation/native';
 const ItemGroupLeave = ({item}) => {
-    return (
-        <View style={styles.container}>
-         <View style={styles.group}>
+  const navigation = useNavigation();
+  const handleOnLeaveGroup = () => {
+    firestore()
+      .collection('groups')
+      .doc(item.id)
+      .update({
+        members: firestore.FieldValue.arrayRemove(auth().currentUser.uid),
+      })
+      .then(() => {
+        firestore()
+          .collection('groups')
+          .doc(item.id)
+          .collection('member')
+          .doc(auth().currentUser.uid)
+          .delete()
+          .then(() => {
+            ToastAndroid.show('Bạn đã rời khỏi nhóm', ToastAndroid.SHORT);
+          });
+      })
+      .catch(err => {
+        ToastAndroid.show('Lỗi', ToastAndroid.SHORT);
+      });
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.group}>
         <Image
           source={{
             uri:
@@ -23,26 +50,30 @@ const ItemGroupLeave = ({item}) => {
           style={styles.imageCover}
         />
         <View style={styles.descriptionGroup}>
-            <Text style={styles.nameGroup} numberOfLines={2}>{item?.name || 'Nhóm nào đó '}</Text>
-            <Text style={styles.nameUserInvite} numberOfLines={1}>
-              {'Bạn đã tham gia khi nào đó'}
-            </Text>
+          <Text style={styles.nameGroup} numberOfLines={2}>
+            {item?.name || 'Nhóm nào đó '}
+          </Text>
+          <Text style={styles.nameUserInvite} numberOfLines={1}>
+            {'Bạn đã tham gia khi nào đó'}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.btnInvite}>
-            <Text style={styles.textBtnInvite}>Rời khỏi</Text>
+        <TouchableOpacity
+          style={styles.btnInvite}
+          onPress={() => handleOnLeaveGroup()}>
+          <Text style={styles.textBtnInvite}>Rời khỏi</Text>
         </TouchableOpacity>
       </View>
-        </View>
-    )
-}
+    </View>
+  );
+};
 
-export default ItemGroupLeave
+export default ItemGroupLeave;
 
 const styles = StyleSheet.create({
-    container:{
-        marginTop:20,
-    },
-    imageCover: {
+  container: {
+    marginTop: 20,
+  },
+  imageCover: {
     width: 45,
     height: 45,
     borderRadius: 10,
@@ -52,8 +83,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   descriptionGroup: {
-      paddingHorizontal: 10,
-            flex: 1,
+    paddingHorizontal: 10,
+    flex: 1,
   },
   nameGroup: {
     fontSize: 16,
@@ -63,17 +94,17 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginTop: 4,
   },
-  btnInvite:{
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      borderRadius: 10,
-      backgroundColor:Colors.border
+  btnInvite: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: Colors.border,
   },
-  textBtnInvite:{
-        fontSize: 16,
-        color: 'black',
-        fontWeight: 'bold'
-  }
-})
+  textBtnInvite: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: 'bold',
+  },
+});

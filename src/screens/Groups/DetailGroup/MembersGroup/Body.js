@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native'
 import ItemUser from "./ItemUser";
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-const Body = ({idGroup}) => {
+const Body = ({idGroup,isAdmin,handleOnDeleteUser}) => {
+    console.log('isAdmin1',isAdmin)
     const [listMember, setListMember] = useState([]);
     const [listManager, setListManager] = useState([]);
     const ref =firestore().collection('groups').doc(idGroup).collection('member')
@@ -21,19 +22,19 @@ const Body = ({idGroup}) => {
     }, [])
     return (
         <View style={styles.body}>
-            <View style={styles.listManager}>
+            {/* <View style={styles.listManager}>
               <ItemUser data={{id:auth().currentUser.uid}}/>
-            </View>
+            </View> */}
             <View style={styles.listManager}>
                 <Text style={styles.title}>Quản trị viên nhóm</Text>
                 {listManager.map((item, index)=>
-                    <ItemUser data={item} key={item.id}/>
+                    <ItemUser data={item} key={item.id} isAdmin={false}/>
                 )}
             </View>
             <View style={styles.listManager}>
                 <Text style={styles.title}>Thành viên khác</Text>
                 {listMember.map((item, index)=>
-                    <ItemUser data={item} key={item.id}/>
+                    <ItemUser data={item} key={item.id} isAdmin={isAdmin} handleOnDeleteUser={handleOnDeleteUser}/>
                 )}
             </View>
         </View>

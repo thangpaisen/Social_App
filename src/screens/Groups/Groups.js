@@ -59,9 +59,7 @@ const [loading, setLoading] = useState(true);
   return (
     <View style={styles.container}>
       <Header />
-      <View style={styles.listTab}
-        
-      >
+      <View style={styles.listTab}>
         <TouchableOpacity
           style={styles.tab}
           onPress={() =>
@@ -87,6 +85,7 @@ const [loading, setLoading] = useState(true);
           <Text style={styles.textTab}>Thành viên</Text>
         </TouchableOpacity>
       </View>
+      {myGroups.length?
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -145,6 +144,9 @@ const [loading, setLoading] = useState(true);
         ))
         :<Loading />}
       </ScrollView>
+      :<View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <Text>Bạn chưa tham gia nhóm nào</Text>
+        </View>}
     </View>
   );
 };

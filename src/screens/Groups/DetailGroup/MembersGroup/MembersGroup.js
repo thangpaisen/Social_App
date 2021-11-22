@@ -1,9 +1,10 @@
 import React,{useState, useEffect} from 'react'
-import { StyleSheet, Text, View,TouchableOpacity} from 'react-native'
+import { StyleSheet, Text, View,TouchableOpacity,ToastAndroid, Alert} from 'react-native'
 import Colors from "./../../../../assets/themes/Colors";
 import Header from "./Header";
 import Search from "./Search";
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import Loading from "./../../../../components/Loading";
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
@@ -16,6 +17,10 @@ const MembersGroup = ({route}) => {
     const [loading, setLoading] = useState(false)
     const [showData, setShowData] = useState(false);
     const [listDataSearch, setListDataSearch] = useState([]); 
+    const [isAdmin, setIsAdmin] = useState(false);
+    useEffect(() => {
+        setIsAdmin(dataGroup.managers.includes(auth().currentUser.uid))
+    }, [])
   const handleOnSearch = value => {
     setShowData(true);
     setLoading(true);
@@ -24,12 +29,12 @@ const MembersGroup = ({route}) => {
       .then(querySnapshot => {
         var listUser = [];
         querySnapshot.forEach(doc => {
-          if (value.toUpperCase() === doc.data().email.toUpperCase())
-            listUser.unshift({...doc.data(),id:doc.id});
-          else if (
-            doc.data().displayName.toUpperCase().includes(value.toUpperCase())
-          )
-            listUser.push({...doc.data(),id:doc.id});
+            if(dataGroup.members.includes(doc.id)){
+                if (
+                doc.data().displayName.toUpperCase().includes(value.toUpperCase())
+                )
+                listUser.push({...doc.data(),id:doc.id});
+            }
         });
         setListDataSearch(listUser);
         setLoading(false);
@@ -38,6 +43,30 @@ const MembersGroup = ({route}) => {
   const handleOnHideData = value => {
     setShowData(false);
   };
+  const handleOnDeleteUser =(idUser)=>{
+      console.log('dle ok')
+      firestore()
+      .collection('groups')
+      .doc(dataGroup.id)
+      .update({
+        members: firestore.FieldValue.arrayRemove(idUser),
+      })
+      .then(() => {
+        firestore()
+          .collection('groups')
+          .doc(dataGroup.id)
+          .collection('member')
+          .doc(idUser)
+          .delete()
+          .then(() => {
+            ToastAndroid.show('Đã xoá người dùng ra khỏi nhóm', ToastAndroid.SHORT);
+          });
+      })
+      .catch(err => {
+        ToastAndroid.show('Lỗi', ToastAndroid.SHORT);
+      });
+  }
+//   console.log('checkAdmin',isAdmin)
     return (
         <View style={styles.container}>
             <Header/>
@@ -53,10 +82,10 @@ const MembersGroup = ({route}) => {
           <Nodata/>
         ) : (
           listDataSearch.map(data => (
-            <ItemUser key={data.id} data={data}/>
+            <ItemUser key={data.id} data={data} isAdmin={isAdmin} handleOnDeleteUser={handleOnDeleteUser}/>
           ))
         )
-      ) : <Body idGroup={dataGroup.id}/>}
+      ) : <Body idGroup={dataGroup.id} isAdmin={isAdmin} handleOnDeleteUser={handleOnDeleteUser}/>}
             </View>
         </View>
     )
