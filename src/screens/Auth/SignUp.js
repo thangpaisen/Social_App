@@ -66,11 +66,11 @@ export default function SignUp({navigation}) {
                         uid:auth().currentUser.uid,
                         displayName:name,
                         description:'',
-                        imageAvatar: '',
-                        imageCover:'',
+                        imageAvatar: 'https://image.flaticon.com/icons/png/512/149/149071.png',
+                        imageCover:'https://image.flaticon.com/icons/png/512/149/149071.png',
                         email: auth().currentUser.email,
                         follow:[],
-                        follower:[],
+                        follower:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
                 })
                 .then(() => {
                     console.log('User added!');

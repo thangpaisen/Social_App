@@ -5,6 +5,7 @@ import ItemYourInvites from "./ItemYourInvites";
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Nodata from "./../../components/Nodata";
+import ItemUserFollower from "./ItemUserFollower";
 const Notification = () => {
     const [data, setData] = useState([])
     useEffect(() => {
@@ -16,13 +17,20 @@ const Notification = () => {
             sub()
         }
     }, [])
-    console.log('data',data)
     return (
         <View style={styles.container}>
             <Header/>
             {data.length > 0 ?
             <View style={styles.content}>
-                {data.map(item => <ItemYourInvites key={item.id} item={item}/>)}
+                {data.map(item => 
+                    {
+                        if(item.type === 'inviteGroup'){
+                            return <ItemYourInvites key={item.id} item={item}/>
+                        }
+                        else if(item.type === 'Follower'){
+                            return <ItemUserFollower key={item.id} item={item}/>
+                        }
+                    })}
             </View>
             :<Nodata title={'Không có thông báo nào'}/>}
         </View>

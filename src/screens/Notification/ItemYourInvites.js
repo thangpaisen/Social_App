@@ -14,10 +14,11 @@ import auth from '@react-native-firebase/auth';
 import Colors from './../../assets/themes/Colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
+import {useNavigation} from '@react-navigation/native';
 const ItemYourInvites = ({item}) => {
+    const navigation = useNavigation();
   const [group, setGroup] = React.useState({});
   const [user, setUser] = React.useState({});
-  console.log('a',item?.idUserInvite,item?.idGroup)
   useEffect(() => {
     firestore()
       .collection('users')
@@ -34,9 +35,8 @@ const ItemYourInvites = ({item}) => {
         setGroup(doc.data());
       });
   }, []);
-  console.log('item.id', item?.id,item?.idGroup,item?.idUserInvite,auth().currentUser.uid);
   const handleOnJoin = () => {
-    console.log('join');
+    // console.log('join');
     if (!group?.members.includes(auth().currentUser.uid)) {
       firestore()
         .collection('groups')
@@ -73,20 +73,31 @@ const ItemYourInvites = ({item}) => {
       .delete();
     ToastAndroid.show('Đã xoá', ToastAndroid.SHORT);
   };
+  const handleOnWatch = () => {
+      navigation.navigate('StackGroups', {screen: 'Invites'})
+      firestore().collection('users').doc(auth().currentUser.uid).collection('notifications')
+        .doc(item.id).update({
+            watched: true
+        })
+  };
   return (
-    <View style={[styles.itemYourInvites,styles.unread]}>
+    <TouchableOpacity style={[styles.itemYourInvites,!item.watched?styles.unread:null]}
+    onPress={() => {
+            handleOnWatch();
+        }}
+    >
       <View style={styles.group}>
         <View style={{alignSelf: 'flex-start'}}>
           <Image
             source={{
               uri:
                 user?.imageAvatar ||
-                'https://images6.alphacoders.com/102/1029037.jpg',
+                'https://image.flaticon.com/icons/png/512/149/149071.png',
             }}
             style={styles.imageAvatar}
           />
           <View style={{position: 'absolute', bottom: 0, right: -4}}>
-            <Icon2 name="users" size={24} color={'#158dcf'} />
+            <Icon2 name="users" size={24} color={'gray'} />
           </View>
         </View>
         <View
@@ -117,7 +128,10 @@ const ItemYourInvites = ({item}) => {
           </View>
         </View>
       </View>
-    </View>
+      <TouchableOpacity style={styles.btnChoice}>
+        <Icon name="ellipsis-horizontal" size={24} color={'black'} />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 };
 
@@ -125,9 +139,10 @@ export default ItemYourInvites;
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   itemYourInvites: {
-    marginTop: 10,
+    // marginTop: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
+    flexDirection: 'row',
   },
   unread: {
     backgroundColor: '#e7f3ff',
@@ -139,6 +154,7 @@ const styles = StyleSheet.create({
   },
   group: {
     flexDirection: 'row',
+    flex:1,
   },
   descriptionGroup: {},
   nameGroup: {

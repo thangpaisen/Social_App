@@ -36,6 +36,7 @@ const ItemUserInvite = ({idUser, idGroup}) => {
         idGroup: idGroup,
         idUserInvite: auth().currentUser.uid,
         createdAt: new Date().getTime(),
+        watched: false
       })
       .then(() => {
         console.log('notifications added!');

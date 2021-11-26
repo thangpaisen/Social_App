@@ -33,7 +33,6 @@ const Invites = () => {
       sub2();
     };
   }, []);
-  console.log('listInviteGroups',listInviteGroups)
   return (
     <View style={styles.container}>
       <Header />
