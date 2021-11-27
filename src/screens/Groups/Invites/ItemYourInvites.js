@@ -23,7 +23,6 @@ const ItemYourInvites = ({item}) => {
             setGroup(doc.data());
         })
     }, [])
-    // console.log('item.id',item.id)
     const handleOnJoin = () => {
         if(!(group.members.includes(auth().currentUser.uid))){
             firestore().collection('groups').doc(item.idGroup).update({
@@ -38,7 +37,6 @@ const ItemYourInvites = ({item}) => {
             .then(() => {
             ToastAndroid.show('Bạn đã tham gia nhóm', ToastAndroid.SHORT);
           });
-            console.log('jjj')
         }
         else ToastAndroid.show('Bạn Đã tham gia nhóm này', ToastAndroid.SHORT);
         firestore().collection('users').doc(auth().currentUser.uid).collection('inviteGroup').doc(item.id).delete();  

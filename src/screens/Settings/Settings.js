@@ -44,7 +44,7 @@ export default function Settings() {
       });
       return () => sub2();
   }, []);
-    const logoutUser = async ()=> {
+const logoutUser = async ()=> {
     try {
         await auth().signOut();
     } catch (e) {
@@ -68,10 +68,12 @@ export default function Settings() {
           <View style={styles.follower}>
             <Text style={{fontSize: 14, marginRight:10}}>
                 <Text style={{fontWeight: 'bold'}}>{user?.follow?.length} </Text>
-                 đang Follow</Text>
+                 đang Follow
+            </Text>
             <Text style={{fontSize: 14, marginRight:10}}>
                 <Text style={{fontWeight: 'bold'}}>{user?.follower?.length} </Text>
-                 Follower</Text>
+                 Follower
+            </Text>
           </View>
         </View>
       </View>

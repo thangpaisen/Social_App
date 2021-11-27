@@ -44,7 +44,6 @@ const MembersGroup = ({route}) => {
     setShowData(false);
   };
   const handleOnDeleteUser =(idUser)=>{
-      console.log('dle ok')
       firestore()
       .collection('groups')
       .doc(dataGroup.id)

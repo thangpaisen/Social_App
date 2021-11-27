@@ -9,12 +9,12 @@ export const setUser = data => {
 };
 
 export const getUser = () => dispatch => {
-    firestore()
-    .collection('users')
-    .doc(auth().currentUser.uid)
-    .onSnapshot(doc => {
-      dispatch(setUser(doc.data()));
-    });
+    // firestore()
+    // .collection('users')
+    // .doc(auth().currentUser.uid)
+    // .onSnapshot(doc => {
+    //   dispatch(setUser(doc.data()));
+    // });
 };
 
 

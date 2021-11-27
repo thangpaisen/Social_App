@@ -15,6 +15,7 @@ import Colors from './../../assets/themes/Colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
+import { timeSince } from "./../../utils/fomattime";
 const ItemYourInvites = ({item}) => {
     const navigation = useNavigation();
   const [group, setGroup] = React.useState({});
@@ -36,7 +37,6 @@ const ItemYourInvites = ({item}) => {
       });
   }, []);
   const handleOnJoin = () => {
-    // console.log('join');
     if (!group?.members.includes(auth().currentUser.uid)) {
       firestore()
         .collection('groups')
@@ -114,6 +114,7 @@ const ItemYourInvites = ({item}) => {
               {group?.name || 'nào đó'}
             </Text>
           </View>
+          <Text style={styles.time}>{timeSince(item?.createdAt)}</Text>
           <View style={styles.btnChoice}>
             <TouchableOpacity
               style={styles.itemBtnChoice}
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   btnChoice: {
-    marginTop: 10,
+    marginTop: 6,
     flexDirection: 'row',
   },
   itemBtnChoice: {
@@ -183,4 +184,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  time:{
+    color: 'gray'
+  }
 });

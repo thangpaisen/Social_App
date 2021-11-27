@@ -8,16 +8,16 @@ export const setListPostUser = data => {
   };
 };
 export const getListPostUser = () => dispatch => {
-     firestore().collection('postsUser').orderBy('createdAt', 'desc').get()
-      .then(querySnapshot => {
-      const listPostUser = [];
-      querySnapshot.forEach(doc => {
-          if(doc.data().uidUser === auth().currentUser.uid)
-            listPostUser.push({
-            id: doc.id,
-            ...doc.data(),
-            });
-      });
-      dispatch(setListPostUser(listPostUser))
-    });
+    //  firestore().collection('postsUser').orderBy('createdAt', 'desc').get()
+    //   .then(querySnapshot => {
+    //   const listPostUser = [];
+    //   querySnapshot.forEach(doc => {
+    //       if(doc.data().uidUser === auth().currentUser.uid)
+    //         listPostUser.push({
+    //         id: doc.id,
+    //         ...doc.data(),
+    //         });
+    //   });
+    //   dispatch(setListPostUser(listPostUser))
+    // });
 }

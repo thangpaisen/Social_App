@@ -17,7 +17,6 @@ import auth from "@react-native-firebase/auth";
 
 const UpdateDescGroup = ({route}) => {
     const {group} = route?.params;
-    console.log(group);
     const navigation = useNavigation();
   const [dataGroup, setDataGroup] = useState({
     name: group.name,

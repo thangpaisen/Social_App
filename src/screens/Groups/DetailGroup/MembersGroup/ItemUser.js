@@ -6,7 +6,6 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Ionicons'
 const ItemUser = ({data,isAdmin,handleOnDeleteUser}) => {
-    console.log('isAdmin',isAdmin)
     const navigation = useNavigation();
     const [user,setUser] =useState('')
     const [modalVisible,setModalVisible] = useState(false)

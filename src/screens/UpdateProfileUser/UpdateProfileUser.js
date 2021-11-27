@@ -82,7 +82,6 @@ const UpdateProfileUser = ({route}) => {
           imageCover: uriImageCover,
         })
         .then(() => {
-          console.log('done');
           setLoading(false);
           Toast.show({
             text1: 'Hồ sơ đã được Cập nhật',

@@ -16,10 +16,8 @@ const ItemUserInvite = ({idUser, idGroup}) => {
         setUser({...doc.data(), id: doc.id});
       });
   }, []);
-  console.log('a', idUser, user.id);
 
   const handleOnInvite = () => {
-    console.log('a');
     setIsInvite(true);
     // firestore().collection('groups').doc(idGroup).collection('inviting').doc(user.id).set({
     //     idUser: user.id,
@@ -31,7 +29,8 @@ const ItemUserInvite = ({idUser, idGroup}) => {
       .collection('users')
       .doc(user.id)
       .collection('notifications')
-      .add({
+      .doc(`inviteGroup${auth().currentUser.uid}${idGroup}`)
+      .set({
         type: 'inviteGroup',
         idGroup: idGroup,
         idUserInvite: auth().currentUser.uid,
@@ -45,7 +44,8 @@ const ItemUserInvite = ({idUser, idGroup}) => {
       .collection('users')
       .doc(user.id)
       .collection('inviteGroup')
-      .add({
+      .doc(`inviteGroup${auth().currentUser.uid}${idGroup}`)
+      .set({
         idGroup: idGroup,
         idUserInvite: auth().currentUser.uid,
         createdAt: new Date().getTime(),

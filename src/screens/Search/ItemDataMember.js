@@ -8,7 +8,6 @@ import Colors from "./../../assets/themes/Colors";
 const ItemDataMember = ({data}) => {
     const navigation = useNavigation();
     const [isFollow, setIsFollow] = useState(false);
-    console.log('data',data)
     useEffect(() => {
         const sub = firestore().collection('users').doc(auth().currentUser.uid)
         .onSnapshot(doc => {
@@ -43,7 +42,6 @@ const ItemDataMember = ({data}) => {
                 })
     }
     const handleAddNotificationUser = () => {
-        console.log('handleAddNotificationUser',data.id)
         firestore().collection('users').doc(data.id).collection('notifications')
         .doc(`Follower${auth().currentUser.uid}`).set({
             type: 'Follower',

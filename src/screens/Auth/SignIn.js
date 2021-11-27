@@ -33,7 +33,6 @@ export default function SignIn({navigation}) {
           await auth()
             .signInWithEmailAndPassword(email, password)
             .then((res) => {
-              console.log('Signed ok');
               ToastAndroid.show('Đăng nhập thành công!',ToastAndroid.SHORT);
             })
             .catch(error => {
@@ -51,6 +50,11 @@ export default function SignIn({navigation}) {
                 {
                   ToastAndroid.show('Đăng nhập thất bại! Tài khoản không tồn tại',ToastAndroid.SHORT);
                   setErrorMessageEmail('Tài khoản ko tồn tại')
+                }
+                else if(error.code==='auth/user-disabled')
+                {
+                  ToastAndroid.show('Đăng nhập thất bại! Tài khoản bạn đã bị khoá',ToastAndroid.SHORT);
+                  setErrorMessageEmail('Tài khoản đã bị khoá')
                 }
               else
                 ToastAndroid.show('Đăng nhập thất bại! Lỗi không xác đinh thử lại sau..',ToastAndroid.SHORT);

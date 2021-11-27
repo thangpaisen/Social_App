@@ -37,7 +37,6 @@ export default function SignUp({navigation}) {
   const registerUser = async (name,email, password)=> {
           await auth().createUserWithEmailAndPassword(email, password)
           .then((res) => {
-              console.log('create ok');
               ToastAndroid.show('Đăng kí thành công!',ToastAndroid.SHORT);
             })
             .catch(error => {
@@ -69,8 +68,8 @@ export default function SignUp({navigation}) {
                         imageAvatar: 'https://image.flaticon.com/icons/png/512/149/149071.png',
                         imageCover:'https://image.flaticon.com/icons/png/512/149/149071.png',
                         email: auth().currentUser.email,
-                        follow:[],
-                        follower:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
+                        follow:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
+                        follower:[],
                 })
                 .then(() => {
                     console.log('User added!');

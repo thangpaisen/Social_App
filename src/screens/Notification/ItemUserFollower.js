@@ -15,6 +15,7 @@ import Colors from './../../assets/themes/Colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
+import { timeSince } from "./../../utils/fomattime";
 const ItemUserFollower = ({item}) => {
   const [user, setUser] = React.useState({});
   const navigation = useNavigation();
@@ -43,7 +44,7 @@ const ItemUserFollower = ({item}) => {
             handleOnWatch();
         }}
     >
-      <View style={styles.content}>
+      <View style={styles.body}>
         <View style={{alignSelf: 'flex-start'}}>
           <Image
             source={{
@@ -57,12 +58,15 @@ const ItemUserFollower = ({item}) => {
             <Icon2 name="user" size={24} color={'gray'} />
           </View>
         </View>
-        <Text style={styles.title}>
-              {user?.displayName || 'Ai đó '}
-              <Text style={{fontWeight: '600', color: 'gray'}}>
-                 {' '}đã theo đõi bạn{' '}
-              </Text>
-        </Text>
+        <View style={styles.content}>
+            <Text style={styles.title}>
+                {user?.displayName || 'Ai đó '}
+                <Text style={{fontWeight: '600', color: 'gray'}}>
+                    {' '}đã theo đõi bạn{' '}
+                </Text>
+            </Text>
+            <Text style={styles.time}>{timeSince(item?.createdAt)}</Text>
+        </View>
       </View>
       <TouchableOpacity style={styles.btnChoice}
         >
@@ -90,16 +94,24 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 60,
   },
-  content: {
+  body: {
       flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    // alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+    marginLeft:10,
+    justifyContent: 'center',
+    // backgroundColor: 'red'
   },
   title: {
-    marginLeft:10,
     fontSize: 16,
     lineHeight: 20,
     paddingRight: 10,
     fontWeight: 'bold',
   },
+  time:{
+    color: 'gray'
+  }
 });

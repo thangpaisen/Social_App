@@ -10,7 +10,7 @@ const Notification = () => {
     const [data, setData] = useState([])
     useEffect(() => {
         const sub = firestore().collection('users').doc(auth().currentUser.uid).collection('notifications')
-        .onSnapshot(querySnapshot => {
+        .orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
             setData(querySnapshot.docs.map(doc => ({id: doc.id,...doc.data()})))
             })
         return () => {

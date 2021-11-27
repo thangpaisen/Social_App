@@ -1,42 +1,116 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import {TransitionPresets} from '@react-navigation/stack';
 import Home from './../screens/Home';
 import Settings from './../screens/Settings';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
-import Comments from "./../screens/Comments";
-import UpDatePost from "./../screens/UpDatePost/UpdatePost";
-import UploadPost from "./../screens/UploadPost";
-import ProfileUser from "./../screens/ProfileUser/ProfileUser";
-import UpdateProfileUser from "./../screens/UpdateProfileUser/UpdateProfileUser";
-import Search from "./../screens/Search/Search";
-import Chat from "./../screens/Chat/Chat";
-import Messages from "./../screens/Chat/Messages";
-import Groups from "./../screens/Groups/Groups";
-import CreateGroup from "./../screens/Groups/CreateGroup";
-import DetailGroup from "./../screens/Groups/DetailGroup";
-import MyGroups from "./../screens/Groups/MyGroups/MyGroups";
-import DescGroup from "./../screens/Groups/DetailGroup/DescGroup";
-import MembersGroup from "./../screens/Groups/DetailGroup/MembersGroup";
-import Invites from "./../screens/Groups/Invites/Invites";
-import Membership from "./../screens/Groups/Membership/Membership";
-import InvitesFriends from "./../screens/Groups/InvitesFriends/InvitesFriends";
-import Notification from "./../screens/Notification/Notification";
-import SettingsGroup from "./../screens/Groups/DetailGroup/SettingsGroup/SettingsGroup";
-import UpdateDescGroup from "./../screens/Groups/DetailGroup/SettingsGroup/UpdateDescGroup";
+import Comments from './../screens/Comments';
+import UpDatePost from './../screens/UpDatePost/UpdatePost';
+import UploadPost from './../screens/UploadPost';
+import ProfileUser from './../screens/ProfileUser/ProfileUser';
+import UpdateProfileUser from './../screens/UpdateProfileUser/UpdateProfileUser';
+import Search from './../screens/Search/Search';
+import Chat from './../screens/Chat/Chat';
+import Messages from './../screens/Chat/Messages';
+import Groups from './../screens/Groups/Groups';
+import CreateGroup from './../screens/Groups/CreateGroup';
+import DetailGroup from './../screens/Groups/DetailGroup';
+import MyGroups from './../screens/Groups/MyGroups/MyGroups';
+import DescGroup from './../screens/Groups/DetailGroup/DescGroup';
+import MembersGroup from './../screens/Groups/DetailGroup/MembersGroup';
+import Invites from './../screens/Groups/Invites/Invites';
+import Membership from './../screens/Groups/Membership/Membership';
+import InvitesFriends from './../screens/Groups/InvitesFriends/InvitesFriends';
+import Notification from './../screens/Notification/Notification';
+import SettingsGroup from './../screens/Groups/DetailGroup/SettingsGroup/SettingsGroup';
+import UpdateDescGroup from './../screens/Groups/DetailGroup/SettingsGroup/UpdateDescGroup';
+import DrawerContent from "./../screens/DrawerContent/DrawerContent";
+import UsersManagement from "./../screens/Admin/UsersManagement/UsersManagement";
+import Reports from "./../screens/Admin/Reports/Reports";
+
+const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+const AppStack = () => {
+  return (
+    <Stack.Navigator
+      initialRouteName="MenuDrawer"
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Stack.Screen
+        name="MenuDrawer"
+        component={MenuDrawer}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen name="UploadPost" component={UploadPost} />
+      <Stack.Screen
+        name="UpDatePost"
+        component={UpDatePost}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Comments"
+        component={Comments}
+        options={{
+          ...TransitionPresets.ModalPresentationIOS,
+        }}
+      />
+      <Stack.Screen
+        name="ProfileUser"
+        component={ProfileUser}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="UpdateProfileUser"
+        component={UpdateProfileUser}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Messages"
+        component={Messages}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={Search}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="StackGroups"
+        component={StackGroups}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 function MyTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Groups"
+      initialRouteName="Home"
       activeColor="#09bff2"
       inactiveColor="gray"
-      barStyle={{backgroundColor: 'white'}}
-    >
+      barStyle={{backgroundColor: 'white'}}>
       <Tab.Screen
         name="Home"
         component={Home}
@@ -77,7 +151,7 @@ function MyTabs() {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Settings"
         component={Settings}
         options={{
@@ -86,101 +160,18 @@ function MyTabs() {
             <Icon name="settings" size={24} color={color} />
           ),
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }
-const Stack = createStackNavigator();
-const AppStack = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="MyTabs"
-      screenOptions={{
-        headerShown: false,
-      }}>
-      
-      <Stack.Screen
-        name="MyTabs"
-        component={MyTabs}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS,
-        }}
-      />
-      
-      <Stack.Screen
-        name="UploadPost"
-        component={UploadPost}
-      />
-      <Stack.Screen
-        name="UpDatePost"
-        component={UpDatePost}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS,
-        }}
-      />
-      <Stack.Screen
-        name="Comments"
-        component={Comments}
-        options={{
-          ...TransitionPresets.ModalPresentationIOS  ,
-        }}
-      />
-      <Stack.Screen
-        name="ProfileUser"
-        component={ProfileUser}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS  ,
-        }}
-      />
-      <Stack.Screen
-        name="UpdateProfileUser"
-        component={UpdateProfileUser}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS  ,
-        }}
-      />
-      <Stack.Screen
-        name="Messages"
-        component={Messages}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS  ,
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={Search}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS  ,
-        }}
-      />
-      <Stack.Screen
-        name="StackGroups"
-        component={StackGroups}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS  ,
-        }}
-      />
-      
-    </Stack.Navigator>
-  );
-};
-export default AppStack;
 
 const StackGroups = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Groups"
-      screenOptions={{
+        // initialRouteName="MyGroups"
+        screenOptions={{
         headerShown: false,
       }}>
-
-      <Stack.Screen
-        name="Groups"
-        component={Groups}
-        options={{
-          ...TransitionPresets.SlideFromRightIOS,
-        }}
-      />
       <Stack.Screen
         name="CreateGroup"
         component={CreateGroup}
@@ -254,3 +245,22 @@ const StackGroups = () => {
     </Stack.Navigator>
   );
 };
+
+const MenuDrawer = () => {
+  return (
+    <Drawer.Navigator 
+      initialRouteName="MyTabs" 
+      drawerContent={props =><DrawerContent/>}
+      screenOptions={{
+        headerShown: false,
+      }}
+      >
+      <Drawer.Screen name="MyTabs" component={MyTabs} 
+      />
+      <Drawer.Screen name="Reports" component={Reports} />
+      <Drawer.Screen name="UsersManagement" component={UsersManagement} />
+    </Drawer.Navigator>
+  );
+}
+
+export default AppStack;

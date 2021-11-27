@@ -64,6 +64,7 @@ const [loading, setLoading] = useState(true);
           style={styles.tab}
           onPress={() =>
             navigation.navigate('StackGroups', {screen: 'CreateGroup'})
+            // navigation.navigate('CreateGroup')
           }>
           <Icon name="add-circle-outline" size={22} color="#000" />
           <Text style={styles.textTab}>Tạo nhóm</Text>
@@ -72,6 +73,7 @@ const [loading, setLoading] = useState(true);
           style={styles.tab}
           onPress={() =>
                 navigation.navigate('StackGroups', {screen: 'Invites'})}
+                // navigation.navigate('Invites')}
         >
           <Icon name="mail-outline" size={22} color="#000" />
           <Text style={styles.textTab}>Lời mời</Text>
