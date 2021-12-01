@@ -65,7 +65,6 @@ const MembersGroup = ({route}) => {
         ToastAndroid.show('Lỗi', ToastAndroid.SHORT);
       });
   }
-//   console.log('checkAdmin',isAdmin)
     return (
         <View style={styles.container}>
             <Header/>

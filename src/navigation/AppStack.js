@@ -151,16 +151,6 @@ function MyTabs() {
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="Settings"
-        component={Settings}
-        options={{
-          tabBarLabel: 'Cá nhân',
-          tabBarIcon: ({color}) => (
-            <Icon name="settings" size={24} color={color} />
-          ),
-        }}
-      /> */}
     </Tab.Navigator>
   );
 }
@@ -249,7 +239,7 @@ const StackGroups = () => {
 const MenuDrawer = () => {
   return (
     <Drawer.Navigator 
-      initialRouteName="MyTabs" 
+      initialRouteName="UsersManagement" 
       drawerContent={props =><DrawerContent/>}
       screenOptions={{
         headerShown: false,

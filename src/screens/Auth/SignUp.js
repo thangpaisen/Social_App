@@ -70,6 +70,7 @@ export default function SignUp({navigation}) {
                         email: auth().currentUser.email,
                         follow:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
                         follower:[],
+                        role:'User',
                 })
                 .then(() => {
                     console.log('User added!');
