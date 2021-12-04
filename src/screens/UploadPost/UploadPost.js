@@ -76,6 +76,7 @@ const UploadPost = ({route}) => {
         uidUser: auth().currentUser.uid,
         createdAt: new Date().getTime(),
         UpDateAt: new Date().getTime(),
+        report:[],
       });
       setLockUpPosts(false);
       handleOnPressRemoveImageUpTmp();

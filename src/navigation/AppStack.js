@@ -239,7 +239,7 @@ const StackGroups = () => {
 const MenuDrawer = () => {
   return (
     <Drawer.Navigator 
-      initialRouteName="UsersManagement" 
+      initialRouteName="Reports" 
       drawerContent={props =><DrawerContent/>}
       screenOptions={{
         headerShown: false,

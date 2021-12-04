@@ -121,6 +121,33 @@ const DetailGroup = ({route}) => {
         ToastAndroid.show('Lỗi', ToastAndroid.SHORT);
       });
   };
+  const  handleClickButtonReportGroup = () => {
+      Alert.alert(
+            'Báo cáo nhóm',
+            'Bạn có chắc chắn muốn báo cáo nhóm?',
+            [
+                {
+                    text: 'Hủy',
+                    onPress: () => {setModalVisible(false)},
+                    style: 'cancel',
+                },
+                {text: 'OK', onPress: () => handleOnRePortGroup()},
+            ],
+            {cancelable: false},
+        );
+  }
+  const handleOnRePortGroup = () => {
+        firestore()
+            .collection('groups')
+            .doc(dataGroup.id)
+            .update({
+                report: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
+            })
+            .then(() => {
+                ToastAndroid.show('Bạn đã báo cáo nhóm', ToastAndroid.SHORT);
+                setModalVisible(false);
+            });
+  }
   return (
     <>
       <View style={styles.container}>
@@ -229,7 +256,9 @@ const DetailGroup = ({route}) => {
             <Icon name="arrow-redo-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Chia sẻ nhóm</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalItem} onPress={() => {}}>
+          <TouchableOpacity style={styles.modalItem} onPress={() => {
+              handleClickButtonReportGroup()
+          }}>
             <Icon name="information-circle-outline" size={24} color="black" />
             <Text style={{fontSize: 16, marginLeft: 10}}>Báo cáo nhóm</Text>
           </TouchableOpacity>

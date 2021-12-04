@@ -31,7 +31,7 @@ const ItemUser = ({item}) => {
     } else {
       Alert.alert(
         'Thông báo',
-        !item?.isBlock
+        !item?.isBlocked
           ? 'Bạn có chắc chắn muốn Khoá Người dùng này'
           : 'Bạn muốn mở khoá Người dùng này',
         [
@@ -49,7 +49,7 @@ const ItemUser = ({item}) => {
       .collection('users')
       .doc(item.id)
       .update({
-        isBlock: !item.isBlock,
+        isBlocked: !item.isBlocked,
       })
       .then(() => {
         ToastAndroid.show('Thành công', ToastAndroid.SHORT);
@@ -70,13 +70,13 @@ const ItemUser = ({item}) => {
         <TouchableOpacity
           style={[
             styles.btnChoice,
-            item?.isBlock == true && styles.btnChoiceBlock,
+            item?.isBlocked == true && styles.btnChoiceBlock,
           ]}
           onPress={() => {
             handleOnClickBtnBlock();
           }}>
           <Text style={styles.textChoice}>
-            {item?.isBlock == false ? 'Khoá TK' : 'Mở khoá'}
+            {item?.isBlocked == false ? 'Khoá TK' : 'Mở khoá'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -99,7 +99,7 @@ const ItemUser = ({item}) => {
         <View style={styles.detailsInfo}>
           <Text style={styles.textDetails}>
             Trạng thái tài khoản:{' '}
-            {item?.isBlock == false ? 'Hoạt động' : 'Đã Bị Khoá'}
+            {item?.isBlocked == false ? 'Hoạt động' : 'Đã Bị Khoá'}
           </Text>
           <Text style={styles.textDetails}>
             Quyền: {item?.role || 'Người dùng'}

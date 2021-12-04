@@ -119,7 +119,7 @@ const ProfileUser = ({route}) => {
   }
   return (
     <View style={styles.container}>
-      <Header title={userProfile.displayName} />
+      <Header title={userProfile.displayName} uidUser={uidUser}/>
       <ScrollView>
         <View style={styles.profile}>
           <Image

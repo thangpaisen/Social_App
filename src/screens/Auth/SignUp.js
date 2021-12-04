@@ -71,6 +71,8 @@ export default function SignUp({navigation}) {
                         follow:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
                         follower:[],
                         role:'User',
+                        isBlocked:false,
+                        report: [],
                 })
                 .then(() => {
                     console.log('User added!');
