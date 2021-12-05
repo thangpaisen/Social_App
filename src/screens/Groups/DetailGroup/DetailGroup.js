@@ -21,6 +21,7 @@ import {Avatar} from 'react-native-elements';
 import ItemPost from './ItemPost';
 import {useNavigation} from '@react-navigation/native';
 import Loading from './../../../components/Loading';
+
 const DetailGroup = ({route}) => {
   const {id} = route.params;
   const navigation = useNavigation();
@@ -156,7 +157,8 @@ const DetailGroup = ({route}) => {
           isAdmin={isAdmin}
           setModalVisible={setModalVisible}
         />
-        {!loading ? (
+        {!loading ? 
+        (
           <ScrollView style={styles.content}>
             <Image
               source={{
@@ -182,7 +184,11 @@ const DetailGroup = ({route}) => {
                 {dataGroup?.members?.length} ➼ thành viên
               </Text>
             </TouchableOpacity>
-            {checkUserJoined ? (
+            {dataGroup?.isBlocked?<GroupIsBlocker/>
+            :
+            <>
+            {checkUserJoined ? 
+            (
               <>
                 <View style={styles.members}>
                   {dataGroup?.members?.map((item, index) => {
@@ -242,6 +248,7 @@ const DetailGroup = ({route}) => {
             {postsGroup.map(item => (
               <ItemPost item={item} key={item.id} id={id} />
             ))}
+            </>}
           </ScrollView>
         ) : (
           <Loading />
@@ -275,6 +282,18 @@ const DetailGroup = ({route}) => {
     </>
   );
 };
+
+const GroupIsBlocker = () => {
+    return (
+        <View style={{
+                    marginTop:20,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    }}>
+                <Text style={{fontSize:30,fontWeight: 'bold',color:'red'}}>Nhóm này đã bị Khoá</Text>
+            </View>
+    )
+}
 
 export default DetailGroup;
 

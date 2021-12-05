@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Alert} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Alert,Linking} from 'react-native';
 import Colors from './../../../../assets/themes/Colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -51,21 +51,31 @@ const SettingsGroup = ({route}) => {
         <Text style={styles.textHeader}>Cài đặt nhóm</Text>
       </View>
       <View style={styles.body}>
+        {group?.isBlocked?
+        <View style={{flex:1,alignItems: 'center',justifyContent:'center'}}>
+            <Text style={{fontSize: 30, fontWeight: 'bold',alignItems: 'center',color:'red'}}>Nhóm bị khóa</Text>
+            <TouchableOpacity
+                style={styles.btnMailSupport}
+                onPress={() => Linking.openURL('mailto:thangpaisen@gmail.com')}>
+                <Icon name="mail-outline" size={24} color={'black'} />
+                <Text style={{marginLeft:10}}>Liện Hệ Admin</Text>
+            </TouchableOpacity>
+        </View>:
         <View style={styles.itemBody}>
             <Text style={styles.textItemBody}>Cài đặt</Text>
             <View style={styles.settingsContent}>
                 <TouchableOpacity style={styles.itemSettings}
                 onPress={() =>navigation.navigate('UpdateDescGroup',{group:group})}>
-                    <Icon name="ios-settings" size={28} color={'black'} />
+                    <Icon name="ios-settings" size={20} color={'black'} />
                     <Text style={styles.textItemSettings}>Chỉnh sửa thông tin nhóm</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.itemSettings}
                 onPress={() =>navigation.navigate('MembersGroup',{dataGroup:group})}>
-                    <Icon name="people-outline" size={28} color={'black'} />
+                    <Icon name="people-outline" size={20} color={'black'} />
                     <Text style={styles.textItemSettings}>Quản lý thành viên</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </View>}
         <View style={styles.itemBody}>
           <Text style={styles.textItemBody}>Hỗ trợ</Text>
           <View style={styles.supportContent}>
@@ -123,7 +133,7 @@ const styles = StyleSheet.create({
         padding: 10,
   },
   textItemBody: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -139,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   textItemSettings:{
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
     marginLeft: 10,
@@ -163,9 +173,18 @@ const styles = StyleSheet.create({
   },
   textSupportItem: {
     marginTop: 10,
-    fontSize: 20,
+    fontSize: 16,
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  btnMailSupport:{
+      marginTop: 10,
+        flexDirection: 'row',
+        padding: 10,
+        paddingVertical:4,
+        borderRadius: 5,
+        alignItems: 'center',
+        backgroundColor: '#fff',
+  }
 });

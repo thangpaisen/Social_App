@@ -26,9 +26,6 @@ const Home = () => {
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const refPosts = firestore().collection('postsUser')
-  useEffect(() => {
-    //   dispatch(getUser());
-  }, [])
     // const userRedux = useSelector(state => state.user);
   useEffect(() => {
     const sub = refPosts
@@ -57,7 +54,7 @@ const Home = () => {
       .collection('users')
       .doc(auth().currentUser.uid)
       .onSnapshot(doc => {
-        setUser(doc.data());
+        setUser({...doc?.data(),id: doc?.id});
       });
     return () => {
       sub2();

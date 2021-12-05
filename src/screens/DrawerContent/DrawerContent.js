@@ -21,7 +21,7 @@ const DrawerContent = () => {
   useEffect(() => {
     const sub = firestore()
       .collection('users')
-      .doc(auth().currentUser.uid)
+      .doc(auth()?.currentUser.uid)
       .onSnapshot(doc => {
         setUser(doc?.data());
       });

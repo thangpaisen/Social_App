@@ -56,8 +56,8 @@ const ItemPostGroups = ({item}) => {
         setUser(doc.data());
       });
     const sub4 = ref.onSnapshot(doc => {
-      if (doc.exists) {
-        setDataPost(doc.data());
+      if (doc?.exists) {
+        setDataPost({...doc.data(), id: doc?.id});
       } else {
         setDataPost(null);
       }
