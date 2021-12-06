@@ -2,15 +2,15 @@ const initialData= {
     loading:false,
     data:{},
 }
-const user =(state = initialData,action)=>{
+const userById =(state = initialData,action)=>{
     switch(action.type)
     {
-        case 'USER_LOADING':
+        case 'USER_BY_ID_LOADING':
             return {
                 ...state,
                 loading:action.payload,
             }
-        case 'SET_USER':
+        case 'SET_USER_BY_ID':
             return {
                 ...state,
                 data:action.payload,
@@ -19,4 +19,4 @@ const user =(state = initialData,action)=>{
             return state;
     }
 }
-export default user;
+export default userById;

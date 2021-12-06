@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux'
 import user from './user';
-import listPostUser from './listPostUser';
+import userById from './userById';
+import listPostByUser from './listPostByUser';
 
 const rootReducer  = combineReducers({
     user,
-    listPostUser
+    userById,
+    listPostByUser
 })
 
 export default rootReducer;

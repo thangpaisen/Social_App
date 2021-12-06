@@ -1,16 +1,16 @@
 const initialData= {
     loading:false,
-    data:{},
+    data:[],
 }
-const user =(state = initialData,action)=>{
+const listPostByUser =(state = initialData,action)=>{
     switch(action.type)
     {
-        case 'USER_LOADING':
+        case 'LIST_POST_BY_USER_LOADING':
             return {
                 ...state,
                 loading:action.payload,
             }
-        case 'SET_USER':
+        case 'SET_LIST_POST_BY_USER':
             return {
                 ...state,
                 data:action.payload,
@@ -19,4 +19,4 @@ const user =(state = initialData,action)=>{
             return state;
     }
 }
-export default user;
+export default listPostByUser;

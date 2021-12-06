@@ -14,9 +14,9 @@ const  validateEmail =(email)=> {
     return re.test(String(email).toLowerCase());
 }
 export default function SignIn({navigation}) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('mot@mot.mot');
+  const [password, setPassword] = useState('123456');
   const [errorMessageEmail, setErrorMessageEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [errorMessagePassword, setErrorMessagePassword] = useState('');
 //   const dispatch = useDispatch()
   const [secureTextEntry, setSecureTextEntry] = useState(true)
@@ -72,6 +72,7 @@ export default function SignIn({navigation}) {
         </View>
         <View style={styles.action}>
           <Input
+            value={email}
             label="Email"
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập Email vào...."
@@ -90,6 +91,7 @@ export default function SignIn({navigation}) {
             }}
           />
           <Input
+            value={password}
             label="Password"
             secureTextEntry={secureTextEntry}
             labelStyle={{fontWeight: '500', fontSize: 16}}

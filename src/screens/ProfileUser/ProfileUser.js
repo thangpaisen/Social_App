@@ -18,106 +18,52 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {useSelector, useDispatch} from 'react-redux';
 import {getListPostUser} from './../../redux/actions/listPostUser';
+import { getUser } from "./../../redux/actions/user";
+import { getUserById } from "./../../redux/actions/userById";
+import { getListPostByUser } from "./../../redux/actions/listPostByUser";
+import Loading from "./../../components/Loading";
 
 const ProfileUser = ({route}) => {
   const {uidUser} = route.params;
   const navigation = useNavigation();
-  const [listPostUser, setListPostUser] = useState([]);
-  const [userProfile, setUserProfile] = useState({});
-  const [checkUserFl, setCheckUserFl] = useState(false)
-  const [me, setMe] = useState({})
+    const dispatch = useDispatch();
+    const me = useSelector(state => state.user.data);
+    const userProfile = useSelector(state => state.userById.data);
+    const listPostUser = useSelector(state => state.listPostByUser.data);
+    const ld1 = useSelector(state => state.user.loading);
+    const ld2 = useSelector(state => state.userById.loading);
+    const ld3 = useSelector(state => state.listPostByUser.loading);
   useEffect(() => {
-    const sub = firestore()
-      .collection('users')
-      .doc(uidUser)
-      .onSnapshot(doc => {
-        setUserProfile({
-            id: doc.id,
-            ...doc.data()});
-      });
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setMe({
-            id: doc.id,
-            ...doc.data()});
-      });
-    const sub1 = firestore()
-      .collection('postsUser')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(querySnapshot => {
-        const listPostUser = [];
-        querySnapshot.forEach(doc => {
-          if (doc.data().uidUser === uidUser)
-            listPostUser.push({
-              id: doc.id,
-              ...doc.data(),
-            });
-        });
-        setListPostUser(listPostUser);
-      });
-    
+    const unsubscribe = dispatch(getUser())
+    const unsubscribe2 = dispatch(getUserById(uidUser))
+    const unsubscribe3 = dispatch(getListPostByUser(uidUser))
     return () => {
-      sub();
-      sub1();
-      sub2()
+      unsubscribe();
+      unsubscribe2();
+      unsubscribe3();
     };
   }, []);
-  useEffect(() => {
-      const checkFl = me?.follow?.indexOf(userProfile.uid);
-      if (checkFl > -1)
-        setCheckUserFl(true)
-    else{
-        setCheckUserFl(false)
-    }
-  }, [me])
   const handleOnFollow =() =>{
-    const checkFollower = userProfile?.follower.indexOf(auth().currentUser.uid);
-    const checkFl = me.follow.indexOf(userProfile.uid);
-    if (checkFl > -1)
+    if (!me?.follow?.includes(uidUser))
         {
-            var newArr = [...userProfile.follower];
-            var newArr2 = [...me.follow];
-            newArr.splice(checkFollower, 1);
-            newArr2.splice(checkFl, 1);
-            firestore()
-                .collection('users')
-                .doc(userProfile.id)
-                .update(
-                {
-                    follower: [...newArr],
-                }
-                );
-            firestore()
-                .collection('users')
-                .doc(me.id)
-                .update(
-                {
-                    follow: [...newArr2],
-                }
-                );
+            firestore().collection('users').doc(me.uid).update({
+                follow: firestore.FieldValue.arrayUnion(uidUser)
+            })
+            firestore().collection('users').doc(uidUser).update({
+                follower: firestore.FieldValue.arrayUnion(me.uid)
+            })
         }
     else{
-            firestore()
-                .collection('users')
-                .doc(userProfile.id)
-                .update(
-                {
-                    follower: [...userProfile.follower,auth().currentUser.uid],
-                }
-                );
-            firestore()
-                .collection('users')
-                .doc(me.id)
-                .update(
-                {
-                    follow: [...me.follow,userProfile.uid],
-                }
-                );
+        firestore().collection('users').doc(me.uid).update({
+            follow: firestore.FieldValue.arrayRemove(uidUser)
+        })
+        firestore().collection('users').doc(uidUser).update({
+            follower: firestore.FieldValue.arrayRemove(me.uid)
+        })
     }
   }
   return (
+      (ld1 || ld2 || ld3) ? <Loading /> :
     <View style={styles.container}>
       <Header title={userProfile.displayName} uidUser={uidUser}/>
       <ScrollView>
@@ -154,13 +100,13 @@ const ProfileUser = ({route}) => {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={[styles.editProfile, !checkUserFl && {backgroundColor: 'black'}]}
+                style={[styles.editProfile, !me?.follow?.includes(uidUser) && {backgroundColor: 'black'}]}
                 onPress={() => {
                     handleOnFollow();
                 }}>
                 <Text
-                  style={[styles.textEditProfile, !checkUserFl && {color: 'white'}]}>
-                  {!checkUserFl ? 'Theo dõi' : 'Đang theo dõi'}
+                  style={[styles.textEditProfile, !me?.follow?.includes(uidUser) && {color: 'white'}]}>
+                  {!me?.follow?.includes(uidUser) ? 'Theo dõi' : 'Đang theo dõi'}
                 </Text>
               </TouchableOpacity>
             )}

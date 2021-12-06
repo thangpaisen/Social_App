@@ -87,7 +87,6 @@ const UpdateProfileUser = ({route}) => {
             text1: 'Hồ sơ đã được Cập nhật',
             visibilityTime: 100,
           });
-          dispatch(getUser())
           navigation.goBack();
         });
     }

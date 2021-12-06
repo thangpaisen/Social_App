@@ -16,7 +16,6 @@ const Routes = () => {
   // Handle user state changes
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(user => {
-      console.log('user', user);
       if (!user) setUser(false);
       else
         firestore()
