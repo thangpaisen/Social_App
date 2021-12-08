@@ -24,7 +24,7 @@ import {useSelector} from 'react-redux';
 import { timeSince } from "./../../../utils/fomattime";
 const ItemPost = ({item,id}) => {
   const navigation = useNavigation();
-  const [userNow, setUser] = useState({});
+  const userNow = useSelector(state => state.user.data);
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -35,12 +35,6 @@ const ItemPost = ({item,id}) => {
       .onSnapshot(querySnapshot => {
         setTotalComment(querySnapshot.size);
       });
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
       const sub3 = firestore()
       .collection('users')
       .doc(item.uidUser)
@@ -49,7 +43,6 @@ const ItemPost = ({item,id}) => {
       });
     return () => {
       sub();
-      sub2();
       sub3();
     };
   }, []);

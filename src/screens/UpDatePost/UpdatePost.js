@@ -18,33 +18,21 @@ import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
-import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import {LogBox} from 'react-native';
+import { useSelector } from "react-redux";
+
 const UpDatePost = ({route}) => {
-  LogBox.ignoreLogs([
-    'Non-serializable values were found in the navigation state',
-  ]);
   const {dataPost, ref} = route.params;
   const navigation = useNavigation();
-  const [user, setUser] = useState({});
+    const user = useSelector(state => state.user.data);
   const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState(dataPost.message.text);
   const [imageUpImp, setImageUpImp] = useState({
     uri: dataPost.message.image,
     fileName: '',
   });
-  useEffect(() => {
-    const subscriber = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
-    return () => subscriber();
-  }, []);
   const handleOnPressRemoveImageUpTmp = () => {
     if (imageUpImp.uri.length > 0 && !imageUpImp.uri.includes('firebase'))
         ImagePicker.clean()

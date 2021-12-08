@@ -25,7 +25,7 @@ import {useSelector} from 'react-redux';
 import { timeSince } from "./../../utils/fomattime";
 const ItemPostGroups = ({item}) => {
   const navigation = useNavigation();
-  const [userNow, setUser] = useState({});
+  const userNow = useSelector(state => state.user.data)
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -37,6 +37,9 @@ const ItemPostGroups = ({item}) => {
     .collection('posts')
     .doc(item.id);
   useEffect(() => {
+      const sub5 = ref.collection('comments').onSnapshot(querySnapshot => {
+        setTotalComment(querySnapshot.size);
+      });
     const sub = firestore()
       .collection('groups')
       .doc(item.idGroup)
@@ -49,12 +52,6 @@ const ItemPostGroups = ({item}) => {
       .onSnapshot(doc => {
         setUserItemPost(doc.data());
       });
-    const sub3 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
     const sub4 = ref.onSnapshot(doc => {
       if (doc?.exists) {
         setDataPost({...doc.data(), id: doc?.id});
@@ -62,15 +59,11 @@ const ItemPostGroups = ({item}) => {
         setDataPost(null);
       }
     });
-    const sub5 = ref.collection('comments').onSnapshot(querySnapshot => {
-        setTotalComment(querySnapshot.size);
-      });
     return () => {
+    sub5();
       sub();
       sub2();
-      sub3();
       sub4();
-      sub5();
     };
   }, []);
   const handleOnLove = () => {

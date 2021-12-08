@@ -25,21 +25,8 @@ import Colors from "./../../../../assets/themes/Colors";
 import { timeSince } from "./../../../../utils/fomattime";
 const ContentPost = ({item}) => {
   const navigation = useNavigation();
-  const [userNow, setUser] = useState({});
   const [userItemPost, setUserItemPost] = useState({});
   const ref = firestore().collection('postsUser').doc(item.id);
-  useEffect(() => {
-
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
-    return () => {
-      sub2();
-    };
-  }, []);
   useEffect(() => {
     const sub = firestore()
       .collection('users')

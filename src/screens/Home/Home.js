@@ -8,7 +8,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import {Avatar} from 'react-native-elements';
-
 import ItemPost from './ItemPost';
 import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
@@ -18,16 +17,19 @@ import auth from '@react-native-firebase/auth';
 import Loading from './../../components/Loading';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUser} from './../../redux/actions/user';
+import {getListPostFollow} from './../../redux/actions/listPostFollow';
 
 const Home = () => {
   const navigation = useNavigation();
+  const user = useSelector(state => state.user.data);
   const [postsUser, setPostsUser] = useState([]);
-  const [user, setUser] = useState({});
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const refPosts = firestore().collection('postsUser')
-    // const userRedux = useSelector(state => state.user);
   useEffect(() => {
+    setLoading(true);
+    setRefreshing(false);
     const sub = refPosts
       .orderBy('createdAt', 'desc')
       .onSnapshot(querySnapshot => {
@@ -43,23 +45,12 @@ const Home = () => {
             });
         });
         setPostsUser(listPostUser);
-        setRefreshing(false);
+        setLoading(false);
       });
     return () => {
       sub();
     };
   }, [refreshing,user]);
-  useEffect(() => {
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser({...doc?.data(),id: doc?.id});
-      });
-    return () => {
-      sub2();
-    };
-  }, []);
   return (
     <View style={styles.container}>
       <Header user={user} />
@@ -90,7 +81,7 @@ const Home = () => {
             <Text style={styles.inputText}>Bạn đang nghĩ gì....</Text>
           </View>
         </Pressable>
-        {!refreshing ? (
+        {!loading ? (
           <>
             {postsUser.map(item => (
               <ItemPost item={item} key={item.id} />
@@ -111,8 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-
-  content: {},
   upPost: {
     marginTop: 10,
     marginLeft: 10,

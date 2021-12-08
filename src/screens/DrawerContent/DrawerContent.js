@@ -15,24 +15,20 @@ import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import {useSelector, useDispatch} from 'react-redux';
+import {getUser} from '../../redux/actions/user';
 const DrawerContent = () => {
   const navigation = useNavigation();
-  const [user, setUser] = useState({});
+const dispatch = useDispatch();
+  const user = useSelector(state => state.user.data);
   useEffect(() => {
-    const sub = firestore()
-      .collection('users')
-      .doc(auth()?.currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc?.data());
-      });
+    const sub = dispatch(getUser());
     return () => sub();
   }, []);
   const handleOnLogout = async () => {
-    try {
-      await auth().signOut();
-    } catch (e) {
-      console.error(e);
-    }
+    auth()
+    .signOut()
+    .then(() => console.log('User signed out!'));
   };
   return (
     <View style={styles.container}>

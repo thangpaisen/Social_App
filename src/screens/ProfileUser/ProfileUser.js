@@ -34,11 +34,9 @@ const ProfileUser = ({route}) => {
     const ld2 = useSelector(state => state.userById.loading);
     const ld3 = useSelector(state => state.listPostByUser.loading);
   useEffect(() => {
-    const unsubscribe = dispatch(getUser())
     const unsubscribe2 = dispatch(getUserById(uidUser))
     const unsubscribe3 = dispatch(getListPostByUser(uidUser))
     return () => {
-      unsubscribe();
       unsubscribe2();
       unsubscribe3();
     };

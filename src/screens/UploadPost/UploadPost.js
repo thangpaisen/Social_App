@@ -21,20 +21,11 @@ import ImagePicker from 'react-native-image-crop-picker';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-
+import { useSelector } from "react-redux";
 const UploadPost = ({route}) => {
   const {ref} = route.params;
   const navigation = useNavigation();
-  const [user, setUser] = useState({});
-  useEffect(() => {
-    const subscriber = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
-    return () => subscriber();
-  }, []);
+  const user = useSelector(state => state.user.data);
   const [lockUpPosts, setLockUpPosts] = useState(false);
   const [text, onChangeText] = useState('');
   const [imageUpImp, setImageUpImp] = useState({

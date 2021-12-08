@@ -27,12 +27,12 @@ export default function SignUp({navigation}) {
   const handleOnPressLogin =() =>{
         if(name.trim().length<6)
           setErrorMessageName('Name is a required field')
-        if(!validateEmail(email))
+        if(!validateEmail(email.trim()))
           setErrorMessageEmail('Email must be a valid email')
         if(password.trim().length<6)
           setErrorMessagePassword('Password must be at least 6 characters')
-        if(validateEmail(email) && password.trim().length>=6 && name.trim().length>=6)
-            registerUser(name.trim(),email,password.trim());
+        if(validateEmail(email.trim()) && password.trim().length>=6 && name.trim().length>=6)
+            registerUser(name.trim(),email.trim(),password.trim());
   }
   const registerUser = async (name,email, password)=> {
           await auth().createUserWithEmailAndPassword(email, password)
@@ -90,6 +90,7 @@ export default function SignUp({navigation}) {
         </View>
         <View style={styles.action}>
         <Input
+            value={name}
             label="Name"
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập tên vào...."
@@ -108,6 +109,7 @@ export default function SignUp({navigation}) {
             }}
           />
           <Input
+            value={email}
             label="Email"
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập Email vào...."
@@ -126,6 +128,7 @@ export default function SignUp({navigation}) {
             }}
           />
           <Input
+            value={password}
             label="Password"
             secureTextEntry={secureTextEntry}
             labelStyle={{fontWeight: '500', fontSize: 16}}

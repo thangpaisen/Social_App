@@ -21,7 +21,7 @@ import {Avatar} from 'react-native-elements';
 import ItemPost from './ItemPost';
 import {useNavigation} from '@react-navigation/native';
 import Loading from './../../../components/Loading';
-
+import {useSelector} from 'react-redux';
 const DetailGroup = ({route}) => {
   const {id} = route.params;
   const navigation = useNavigation();
@@ -29,7 +29,7 @@ const DetailGroup = ({route}) => {
   const [loading, setLoading] = useState(false);
   const [dataGroup, setDataGroup] = useState({});
   const [postsGroup, setPostsGroup] = useState([]);
-  const [user, setUser] = useState({});
+  const user = useSelector(state => state.user.data);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkUserJoined, setCheckUserJoined] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,12 +40,6 @@ const DetailGroup = ({route}) => {
       setCheckUserJoined(doc.data().members.includes(auth().currentUser.uid));
       setIsAdmin(doc.data().managers.includes(auth().currentUser.uid));
     });
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
     const sub3 = groupRef
       .collection('posts')
       .orderBy('createdAt', 'desc')
@@ -62,7 +56,6 @@ const DetailGroup = ({route}) => {
       });
     return () => {
       sub();
-      sub2();
       sub3();
     };
   }, []);

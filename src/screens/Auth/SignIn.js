@@ -14,8 +14,8 @@ const  validateEmail =(email)=> {
     return re.test(String(email).toLowerCase());
 }
 export default function SignIn({navigation}) {
-  const [email, setEmail] = useState('mot@mot.mot');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessageEmail, setErrorMessageEmail] = useState('');
   const [errorMessagePassword, setErrorMessagePassword] = useState('');
 //   const dispatch = useDispatch()

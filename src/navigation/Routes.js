@@ -11,36 +11,31 @@ LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 const Routes = () => {
-  // const [initializing, setInitializing] = useState(true);
+    // Set an initializing state whilst Firebase connects
+  const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+  const [isBlocked, setIsBlocked] = useState(false);
   // Handle user state changes
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(user => {
-      if (!user) setUser(false);
-      else
-        firestore()
+  function onAuthStateChanged(user) {
+     setUser(user);
+     firestore()
           .collection('users')
           .doc(user?.uid)
           .onSnapshot(doc => {
-            setUser(doc?.data());
+            setIsBlocked(doc?.data().isBlocked);
           });
-        // if (initializing) setInitializing(false);
-    });
+     if (initializing) setInitializing(false)
+  }
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
-  
-  //   if (initializing) return null;
+    if (initializing) {
+        return null
+    }
   return (
     <NavigationContainer>
-      {user ? (
-        user?.isBlocked ? (
-          <UserIsBlocked />
-        ) : (
-          <AppStack />
-        )
-      ) : (
-        <AuthStack />
-      )}
+      {user?(user?.isBlocked ?<UserIsBlocked />:<AppStack />):<AuthStack />}
     </NavigationContainer>
   );
 };

@@ -27,7 +27,7 @@ import Colors from './../../assets/themes/Colors';
 import { timeSince } from "./../../utils/fomattime";
 const ItemPost = ({item}) => {
   const navigation = useNavigation();
-  const [userNow, setUser] = useState({});
+  const userNow = useSelector(state => state.user.data);
   const [userItemPost, setUserItemPost] = useState({});
   const [totalComment, setTotalComment] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,15 +38,8 @@ const ItemPost = ({item}) => {
       .onSnapshot(querySnapshot => {
         setTotalComment(querySnapshot.size);
       });
-    const sub2 = firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .onSnapshot(doc => {
-        setUser(doc.data());
-      });
     return () => {
       sub();
-      sub2();
     };
   }, []);
   useEffect(() => {

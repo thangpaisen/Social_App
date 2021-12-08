@@ -35,7 +35,6 @@ const CreateGroup = () => {
         managers: [auth().currentUser.uid],
         report: [],
         isBlocked: false,
-
     }).then((res)=>{
         firestore().collection('groups').doc(res._documentPath._parts[1]).collection('member').doc(auth().currentUser.uid).set({
             uid: auth().currentUser.uid,
