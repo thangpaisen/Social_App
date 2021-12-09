@@ -73,6 +73,7 @@ export default function SignUp({navigation}) {
                         role:'User',
                         isBlocked:false,
                         report: [],
+                        createdAt: new Date().getTime(),
                 })
                 .then(() => {
                     console.log('User added!');

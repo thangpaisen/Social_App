@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   Linking,
   Share,
+  AppState,
+  Alert,
+  BackHandler
 } from 'react-native';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,8 +25,41 @@ const DrawerContent = () => {
 const dispatch = useDispatch();
   const user = useSelector(state => state.user.data);
   useEffect(() => {
-    const sub = dispatch(getUser());
-    return () => sub();
+    const unsubscribe = dispatch(getUser());
+    return () => {
+        unsubscribe();
+    }
+  }, []);
+  const backAction = () => {
+    Alert.alert("Thông báo", "Bạn có muốn thoát Ứng dụng", [
+      {
+        text: "Cancel",
+        onPress: () => null,
+        style: "cancel"
+      },
+      { text: "OK", onPress: () => BackHandler.exitApp() }
+    ]);
+    return true;
+  };
+  const handleAppStateChange = (nextAppState) => {
+    if (nextAppState === 'background') {
+        firestore().collection('users').doc(auth().currentUser.uid).update({
+            isOnline:false,
+        });
+    } else if (nextAppState === 'active') {
+        firestore().collection('users').doc(auth().currentUser.uid).update({
+            isOnline:true
+        });
+    }
+}
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+    AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      AppState.removeEventListener('change', handleAppStateChange);
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    }
   }, []);
   const handleOnLogout = async () => {
     auth()

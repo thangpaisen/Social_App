@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,46 +11,54 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {Avatar, Badge} from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import ItemRoomChat from "./ItemRoomChat";
-import { useNavigation } from "@react-navigation/native";
+import {getAuth, updatePassword} from 'firebase/auth';
+import ItemRoomChat from './ItemRoomChat';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import ItemUserOnline from './ItemUserOnline';
 const Chat = () => {
-    const [listUsers, setListUsers] = useState([])
-      const [messagesThreads, setMessagesThreads] = useState([]);
-      const navigation =useNavigation()
-    useEffect(() => {
-        const sub = firestore()
+  const [listUsers, setListUsers] = useState([]);
+  const [messagesThreads, setMessagesThreads] = useState([]);
+  const me = useSelector(state => state.user.data)
+  const navigation = useNavigation();
+useEffect(() => {
+    const sub = firestore()
       .collection('users')
-      .where('uid', '!=', auth().currentUser.uid)
+      .orderBy('isOnline')
       .onSnapshot(querySnapshot => {
-        var listUsers =[] ;
+        var listUsers = [];
         querySnapshot.forEach(doc => {
-         listUsers.push({
+            if(me?.follow.includes(doc.id))
+          listUsers.unshift({
             id: doc.id,
-            ...doc.data(),
+            ...doc?.data(),
           });
         });
         setListUsers(listUsers);
       });
-      const sub2 = firestore()
+    return () => {
+      sub();
+    };
+  }, [me]);
+  useEffect(() => {
+    const sub = firestore()
       .collection('users')
-      .doc(auth().currentUser.uid)
-      .collection('messages_threads')
-      .orderBy('lastMessage.createdAt', 'desc')
+      .orderBy('isOnline')
       .onSnapshot(querySnapshot => {
-        var messagesThreads =[] ;
+        var listUsers = [];
         querySnapshot.forEach(doc => {
-         messagesThreads.push({
+            if(me?.follow.includes(doc.id))
+          listUsers.unshift({
             id: doc.id,
-            ...doc.data(),
+            ...doc?.data(),
           });
         });
-        setMessagesThreads(messagesThreads);
+        setListUsers(listUsers);
       });
-    return () =>{
-        sub()
-        sub2()
+    return () => {
+      sub2();
     };
-    }, [])
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -64,29 +72,7 @@ const Chat = () => {
           horizontal
           data={listUsers}
           renderItem={({item, index}) => (
-            <TouchableOpacity style={styles.itemFriendOnLine}
-                onPress={() =>
-                    navigation.navigate('Messages',{uidUserReceiver:item.uid})
-                }
-            >
-              <View>
-                <Avatar
-                  source={{
-                    uri: item.imageAvatar||
-                    'https://image.flaticon.com/icons/png/512/149/149071.png',
-                  }}
-                  size={50}
-                  rounded
-                />
-                <Badge
-                  status="success"
-                  containerStyle={{position: 'absolute', bottom: 4, right: 4}}
-                />
-              </View>
-              <Text style={styles.nameItemFriendOnLine} numberOfLines={2}>
-                {item.displayName || 'ahihi'}
-              </Text>
-            </TouchableOpacity>
+            <ItemUserOnline item={item}/>
           )}
           keyExtractor={item => item.id}
         />
@@ -100,9 +86,7 @@ const Chat = () => {
       <View style={styles.listMessage}>
         <FlatList
           data={messagesThreads}
-          renderItem={({item, index}) => (
-            <ItemRoomChat item={item}/>
-          )}
+          renderItem={({item, index}) => <ItemRoomChat item={item} />}
           keyExtractor={item => item.id}
         />
       </View>
@@ -121,7 +105,7 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderBottomWidth:0.3,
+    borderBottomWidth: 0.3,
     borderBottomColor: '#e3e3e3',
   },
   textHeader: {
@@ -132,17 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
   },
-  itemFriendOnLine: {
-    width: width / 5,
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  nameItemFriendOnLine: {
-    marginTop: 2,
-    fontSize: 12,
-    textAlign: 'center',
-    color:'black'
-  },
+
   listMessage: {},
   itemMessage: {
     flexDirection: 'row',

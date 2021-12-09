@@ -13,9 +13,7 @@ const ItemDataMember = ({data}) => {
         .onSnapshot(doc => {
             setIsFollow(doc.data().follow.includes(data.id));
         });
-        return () => {
-            sub()
-        }
+        return () => sub()
     }, [])
     const handleOnFollow =()=>{
         if(!isFollow)

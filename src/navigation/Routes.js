@@ -35,7 +35,7 @@ const Routes = () => {
     }
   return (
     <NavigationContainer>
-      {user?(user?.isBlocked ?<UserIsBlocked />:<AppStack />):<AuthStack />}
+      {user?(isBlocked?<UserIsBlocked />:<AppStack />):<AuthStack />}
     </NavigationContainer>
   );
 };

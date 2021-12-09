@@ -1,10 +1,13 @@
-import React from 'react';
+import React,{useState, useEffect} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {TransitionPresets} from '@react-navigation/stack';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import Home from './../screens/Home';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import { Avatar, Badge, withBadge } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import Comments from './../screens/Comments';
@@ -34,6 +37,7 @@ import Reports from "./../screens/Admin/Reports/Reports";
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 const Drawer = createDrawerNavigator();
+
 
 const AppStack = () => {
   return (
@@ -104,6 +108,16 @@ const AppStack = () => {
 };
 
 function MyTabs() {
+    const [totalNotifications, setTotalNotifications] = useState(0);
+    useEffect(() => {
+        const unsubscribe = firestore().collection('users').doc(auth().currentUser.uid)
+        .collection('notifications')
+        .where('watched', '==', false)
+        .onSnapshot(querySnapshot => {
+                setTotalNotifications(querySnapshot.size);
+            });
+        return () => unsubscribe()
+    }, [])
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -135,8 +149,15 @@ function MyTabs() {
         component={Notification}
         options={{
           tabBarLabel: 'Thông báo',
-          tabBarIcon: ({color}) => (
+          tabBarIcon: ({color,focused}) => (
+              <>
             <Icon name="notifications" size={24} color={color} />
+            {(!focused&&!!totalNotifications)&&<Badge
+                    status="error"
+                    containerStyle={{ position: 'absolute', top: -6, right: -10}}
+                    value={totalNotifications}
+                />}
+            </>
           ),
         }}
       />
