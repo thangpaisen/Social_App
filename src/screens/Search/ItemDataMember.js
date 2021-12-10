@@ -66,7 +66,7 @@ const ItemDataMember = ({data}) => {
               />
               <View style={{marginLeft: 10,flex:1}} >
                 <Text style={{fontSize: 16, fontWeight: 'bold'}} numberOfLines={1}>
-                  {data.displayName || 'Người dùng ... '}
+                  {data?.displayName || 'Người dùng ... '}
                 </Text>
                 <Text style={{fontSize: 14}} numberOfLines={1}>{data.email}</Text>
               </View>

@@ -58,8 +58,7 @@ const Messages = ({route}) => {
             _id: auth().currentUser.uid,
             },
         })
-        ref.set(
-        {
+        ref.set({
             user: {
             _id: auth().currentUser.uid,
             },
@@ -69,11 +68,11 @@ const Messages = ({route}) => {
             sizeImage:{},
             createdAt: new Date().getTime(),
           },
-        },
-        {merge: true},
+        watched: true,
+          hide: false
+        }
       );
-      ref2.set(
-        {
+      ref2.set({
             user: {
             _id: auth().currentUser.uid,
             },
@@ -83,8 +82,9 @@ const Messages = ({route}) => {
             sizeImage:{},
             createdAt: new Date().getTime(),
           },
-        },
-        {merge: true},
+          watched: false,
+          hide: false
+        }
       );
   }, [])
     return (

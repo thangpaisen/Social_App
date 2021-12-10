@@ -1,11 +1,12 @@
 import React,{useState, useEffect} from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View,Modal,ToastAndroid,Pressable,TouchableOpacity} from 'react-native'
 import Header from "./Header"
 import ItemYourInvites from "./ItemYourInvites";
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Nodata from "./../../components/Nodata";
 import ItemUserFollower from "./ItemUserFollower";
+import Icon from 'react-native-vector-icons/Ionicons'
 const Notification = () => {
     const [data, setData] = useState([])
     useEffect(() => {
@@ -17,6 +18,16 @@ const Notification = () => {
             sub()
         }
     }, [])
+    const handleClickButtonDelete = (id) => {
+        firestore().collection('users').doc(auth().currentUser.uid)
+        .collection('notifications').doc(id).delete()
+        .then(() => {
+            ToastAndroid.show('Đã gỡ thông báo', ToastAndroid.SHORT)
+        })
+        .catch(() => {
+            ToastAndroid.show('Lỗi', ToastAndroid.SHORT)
+        })
+    }
     return (
         <View style={styles.container}>
             <Header/>
@@ -25,10 +36,10 @@ const Notification = () => {
                 {data.map(item => 
                     {
                         if(item.type === 'inviteGroup'){
-                            return <ItemYourInvites key={item.id} item={item}/>
+                            return <ItemYourInvites key={item.id} item={item} handleClickButtonDelete={handleClickButtonDelete}/>
                         }
                         else if(item.type === 'Follower'){
-                            return <ItemUserFollower key={item.id} item={item}/>
+                            return <ItemUserFollower key={item.id} item={item} handleClickButtonDelete={handleClickButtonDelete}/>
                         }
                     })}
             </View>
@@ -46,6 +57,6 @@ const styles = StyleSheet.create({
     },
     content:{
         marginTop: 10,
-    }
+    },
     
 })

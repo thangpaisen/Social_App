@@ -41,24 +41,11 @@ const dispatch = useDispatch();
     ]);
     return true;
   };
-  const handleAppStateChange = (nextAppState) => {
-    if (nextAppState === 'background') {
-        firestore().collection('users').doc(auth().currentUser.uid).update({
-            isOnline:false,
-        });
-    } else if (nextAppState === 'active') {
-        firestore().collection('users').doc(auth().currentUser.uid).update({
-            isOnline:true
-        });
-    }
-}
 
   useEffect(() => {
     BackHandler.addEventListener("hardwareBackPress", backAction);
-    AppState.addEventListener('change', handleAppStateChange);
     return () => {
       AppState.removeEventListener('change', handleAppStateChange);
-      BackHandler.removeEventListener("hardwareBackPress", backAction);
     }
   }, []);
   const handleOnLogout = async () => {

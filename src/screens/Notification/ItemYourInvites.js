@@ -8,6 +8,7 @@ import {
   Pressable,
   TouchableOpacity,
   ToastAndroid,
+  Modal,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -16,10 +17,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
 import { timeSince } from "./../../utils/fomattime";
-const ItemYourInvites = ({item}) => {
+const ItemYourInvites = ({item,handleClickButtonDelete}) => {
     const navigation = useNavigation();
   const [group, setGroup] = React.useState({});
   const [user, setUser] = React.useState({});
+    const [modalVisible, setModalVisible] = useState(false)
   useEffect(() => {
     firestore()
       .collection('users')
@@ -81,6 +83,7 @@ const ItemYourInvites = ({item}) => {
         })
   };
   return (
+      <>
     <TouchableOpacity style={[styles.itemYourInvites,!item.watched?styles.unread:null]}
     onPress={() => {
             handleOnWatch();
@@ -129,10 +132,30 @@ const ItemYourInvites = ({item}) => {
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.btnChoice}>
+      <TouchableOpacity style={styles.btnChoice}
+        onPress={() => setModalVisible(true)}
+      >
         <Icon name="ellipsis-horizontal" size={24} color={'black'} />
       </TouchableOpacity>
     </TouchableOpacity>
+    <Modal
+        transparent={true}
+        visible={modalVisible}>
+        <Pressable
+          onPress={() => setModalVisible(false)}
+          style={{flex: 1, backgroundColor: 'black', opacity: 0.2}}></Pressable>
+        <View style={styles.morePostContent}>
+          <TouchableOpacity
+            style={styles.morePostItem}
+            onPress={() => handleClickButtonDelete(item.id)}>
+            <Icon name="trash-outline" size={24} color="black" />
+            <Text style={{fontSize: 16, marginLeft: 10}}>
+              Gỡ thông báo này
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -186,5 +209,22 @@ const styles = StyleSheet.create({
   },
   time:{
     color: 'gray'
-  }
+  },
+  morePostContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    elevation: 5,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 10,
+    paddingVertical: 20,
+  },
+  morePostItem: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

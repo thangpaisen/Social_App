@@ -8,6 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 import Nodata from "./../../components/Nodata";
 import ItemDataMember from "./ItemDataMember";
 import ItemDataGroup from "./ItemDataGroup";
+import ItemUserMessage from "./ItemUserMessage";
 
 const Search = ({route}) => {
     const type = route?.params?.type|| 'group';
@@ -74,6 +75,8 @@ const Search = ({route}) => {
                     return <ItemDataMember key={data.id} data={data}/>
                 else if(type =='group')
                     return <ItemDataGroup key={data.id} data={data}/>
+                else if(type =='userMessage')
+                    return <ItemUserMessage key={data.id} data={data}/>
             }      
           )
         )

@@ -8,6 +8,7 @@ import {
   Pressable,
   TouchableOpacity,
   ToastAndroid,
+  Modal,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -16,10 +17,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
 import { timeSince } from "./../../utils/fomattime";
-const ItemUserFollower = ({item}) => {
+const ItemUserFollower = ({item,handleClickButtonDelete}) => {
   const [user, setUser] = React.useState({});
   const navigation = useNavigation();
-
+    const [modalVisible, setModalVisible] = useState(false)
   useEffect(() => {
     firestore()
       .collection('users')
@@ -39,6 +40,7 @@ const ItemUserFollower = ({item}) => {
         })
   }
   return (
+      <>
     <TouchableOpacity style={[styles.itemUserFollow,!item.watched?styles.unread:null]}
         onPress={() => {
             handleOnWatch();
@@ -69,10 +71,29 @@ const ItemUserFollower = ({item}) => {
         </View>
       </View>
       <TouchableOpacity style={styles.btnChoice}
+      onPress={() => setModalVisible(true)}
         >
         <Icon name="ellipsis-horizontal" size={24} color={'black'} />
       </TouchableOpacity>
     </TouchableOpacity>
+    <Modal
+        transparent={true}
+        visible={modalVisible}>
+        <Pressable
+          onPress={() => setModalVisible(false)}
+          style={{flex: 1, backgroundColor: 'black', opacity: 0.2}}></Pressable>
+        <View style={styles.morePostContent}>
+          <TouchableOpacity
+            style={styles.morePostItem}
+            onPress={() => handleClickButtonDelete(item.id)}>
+            <Icon name="trash-outline" size={24} color="black" />
+            <Text style={{fontSize: 16, marginLeft: 10}}>
+              Gỡ thông báo này
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -80,7 +101,6 @@ export default ItemUserFollower;
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   itemUserFollow: {
-    // marginTop: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     flexDirection: 'row',
@@ -97,13 +117,11 @@ const styles = StyleSheet.create({
   body: {
       flex: 1,
     flexDirection: 'row',
-    // alignItems: 'center',
   },
   content: {
     flex: 1,
     marginLeft:10,
     justifyContent: 'center',
-    // backgroundColor: 'red'
   },
   title: {
     fontSize: 16,
@@ -113,5 +131,22 @@ const styles = StyleSheet.create({
   },
   time:{
     color: 'gray'
-  }
+  },
+  morePostContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    elevation: 5,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 10,
+    paddingVertical: 20,
+  },
+  morePostItem: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

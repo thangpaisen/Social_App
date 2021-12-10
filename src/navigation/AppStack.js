@@ -109,6 +109,7 @@ const AppStack = () => {
 
 function MyTabs() {
     const [totalNotifications, setTotalNotifications] = useState(0);
+    const [totalMessageUnread, setTotalMessageUnread] = useState(0);
     useEffect(() => {
         const unsubscribe = firestore().collection('users').doc(auth().currentUser.uid)
         .collection('notifications')
@@ -116,7 +117,16 @@ function MyTabs() {
         .onSnapshot(querySnapshot => {
                 setTotalNotifications(querySnapshot.size);
             });
-        return () => unsubscribe()
+        const unsubscribe2 = firestore().collection('users').doc(auth().currentUser.uid)
+        .collection('messages_threads')
+        .where('watched', '==', false)
+        .onSnapshot(querySnapshot => {
+                setTotalMessageUnread(querySnapshot.size);
+            });
+        return () => {
+            unsubscribe()
+            unsubscribe2()
+        }
     }, [])
   return (
     <Tab.Navigator
@@ -166,8 +176,15 @@ function MyTabs() {
         component={Chat}
         options={{
           tabBarLabel: 'Tin nhắn',
-          tabBarIcon: ({color}) => (
+          tabBarIcon: ({color,focused}) => (
+              <>
             <Icon name="chatbox" size={24} color={color} />
+            {(!focused&&!!totalMessageUnread)&&<Badge
+                    status="error"
+                    containerStyle={{ position: 'absolute', top: -6, right: -10}}
+                    value={totalMessageUnread}
+                />}
+            </>
           ),
         }}
       />

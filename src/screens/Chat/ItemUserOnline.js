@@ -22,8 +22,8 @@ const ItemUserOnline = ({item}) => {
                   rounded
                 />
                 <Badge
-                   status="success"
-                  badgeStyle={{backgroundColor: item?.isOnline?"green":'gray',width:10,height:10,borderWidth:0}}
+                    status="success"
+                  badgeStyle={{backgroundColor: 'green',width:10,height:10,borderWidth:0}}
                   containerStyle={{position: 'absolute', bottom: 4, right: 0}}
                 />
               </View>

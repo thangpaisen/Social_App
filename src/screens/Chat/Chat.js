@@ -19,20 +19,19 @@ import ItemUserOnline from './ItemUserOnline';
 const Chat = () => {
   const [listUsers, setListUsers] = useState([]);
   const [messagesThreads, setMessagesThreads] = useState([]);
-  const me = useSelector(state => state.user.data)
+  const me = useSelector(state => state.user.data);
   const navigation = useNavigation();
-useEffect(() => {
+  useEffect(() => {
     const sub = firestore()
       .collection('users')
-      .orderBy('isOnline')
       .onSnapshot(querySnapshot => {
         var listUsers = [];
         querySnapshot.forEach(doc => {
-            if(me?.follow.includes(doc.id))
-          listUsers.unshift({
-            id: doc.id,
-            ...doc?.data(),
-          });
+          if (me?.follow.includes(doc.id))
+            listUsers.unshift({
+              id: doc.id,
+              ...doc?.data(),
+            });
         });
         setListUsers(listUsers);
       });
@@ -41,29 +40,34 @@ useEffect(() => {
     };
   }, [me]);
   useEffect(() => {
-    const sub = firestore()
+    const sub2 = firestore()
       .collection('users')
-      .orderBy('isOnline')
+      .doc(auth().currentUser.uid)
+      .collection('messages_threads')
+      .orderBy('lastMessage.createdAt')
       .onSnapshot(querySnapshot => {
-        var listUsers = [];
+        var messagesThreads = [];
         querySnapshot.forEach(doc => {
-            if(me?.follow.includes(doc.id))
-          listUsers.unshift({
+          if(!doc?.data().hide)
+          messagesThreads.unshift({
             id: doc.id,
             ...doc?.data(),
           });
         });
-        setListUsers(listUsers);
+        setMessagesThreads(messagesThreads);
       });
     return () => {
       sub2();
     };
   }, []);
+  console.log('messagesThreads', messagesThreads);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.textHeader}>Tin nhắn</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+            onPress={() => navigation.navigate('Search',{type: 'userMessage'})}
+          >
           <Icon name="search" size={30} color={'black'} />
         </TouchableOpacity>
       </View>
@@ -71,9 +75,7 @@ useEffect(() => {
         <FlatList
           horizontal
           data={listUsers}
-          renderItem={({item, index}) => (
-            <ItemUserOnline item={item}/>
-          )}
+          renderItem={({item, index}) => <ItemUserOnline item={item} />}
           keyExtractor={item => item.id}
         />
       </View>
