@@ -27,6 +27,8 @@ import { getUser } from "./../../redux/actions/user";
 const UpdateProfileUser = ({route}) => {
     const {user} = route.params;
   const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [text, setTextName] = useState('');
   const dispatch = useDispatch()
   const [typeImage, setTypeImage] = useState('');
@@ -157,8 +159,7 @@ const UpdateProfileUser = ({route}) => {
       },
     );
   };
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+
   return (
     <>
       <View style={styles.container}>

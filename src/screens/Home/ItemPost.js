@@ -55,23 +55,30 @@ const ItemPost = ({item}) => {
     return () => sub();
   }, []);
   const handleOnLove = () => {
-    const checkLove = item.love.indexOf(userNow.uid);
-    if (checkLove > -1) {
-      var newArr = [...item.love];
-      newArr.splice(checkLove, 1);
+    if (item.love.indexOf(userNow.uid) > -1) {
       ref.set(
         {
-          love: [...newArr],
+          love: firestore.FieldValue.arrayRemove(userNow.uid),
         },
         {merge: true},
       );
     } else {
       ref.set(
         {
-          love: [userNow.uid, ...item.love],
+          love: firestore.FieldValue.arrayUnion(userNow.uid),
         },
         {merge: true},
       );
+      if(auth().currentUser.uid!==item.uidUser)
+        firestore().collection('users').doc(item.uidUser).collection('notifications').doc(`Love${item.id}`).set({
+            createdAt: new Date().getTime(),
+            listUsers: firestore.FieldValue.arrayUnion(userNow.uid),
+            type: 'Love',
+            idPost: item.id,
+            watched: false,
+            },
+                {merge: true},
+            );
     }
   };
   const handleOpenComments = () => {

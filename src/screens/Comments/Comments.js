@@ -57,7 +57,19 @@ const Comments = ({route}) => {
         uidUserComment: auth().currentUser.uid,
         createdAt: new Date().getTime(),
         idPost: dataPost.id,
-      });
+      }).then(() => {
+          if(auth().currentUser.uid !== dataPost.uidUser)
+            firestore().collection('users').doc(dataPost.uidUser)
+            .collection('notifications').doc(`Comment${dataPost.id}`).set({
+                createdAt: new Date().getTime(),
+                type: 'Comment',
+                    idPost: dataPost.id,
+                listUsers: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
+                watched: false,
+                },
+                    {merge: true},
+                );
+      })
       setTextComment('');
       handleOnPressRemoveImageComment();
       setLockUpComment(false);
@@ -80,10 +92,6 @@ const Comments = ({route}) => {
     });
     ImagePicker.clean();
   };
-//   const handleSendReComment = (text, refFb) => {};
-//   const handleOnClickReComment = (nameUserReply, text, refFb) => {
-//     setReply(nameUserReply);
-//   };
   return (
       <>
     <View style={styles.commentsContainer}>

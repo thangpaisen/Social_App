@@ -7,6 +7,8 @@ import auth from '@react-native-firebase/auth';
 import Nodata from "./../../components/Nodata";
 import ItemUserFollower from "./ItemUserFollower";
 import Icon from 'react-native-vector-icons/Ionicons'
+import ItemUserLovePost from "./ItemUserLovePost";
+import ItemUserCommentPost from "./ItemUserCommentPost";
 const Notification = () => {
     const [data, setData] = useState([])
     useEffect(() => {
@@ -40,6 +42,12 @@ const Notification = () => {
                         }
                         else if(item.type === 'Follower'){
                             return <ItemUserFollower key={item.id} item={item} handleClickButtonDelete={handleClickButtonDelete}/>
+                        }
+                        else if(item.type === 'Love'){
+                            return <ItemUserLovePost key={item.id} item={item} handleClickButtonDelete={handleClickButtonDelete}/>
+                        }
+                        else if(item.type === 'Comment'){
+                            return <ItemUserCommentPost key={item.id} item={item} handleClickButtonDelete={handleClickButtonDelete}/>
                         }
                     })}
             </View>
