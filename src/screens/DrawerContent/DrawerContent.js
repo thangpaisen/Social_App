@@ -9,7 +9,6 @@ import {
   Share,
   AppState,
   Alert,
-  BackHandler
 } from 'react-native';
 import {DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -28,24 +27,6 @@ const dispatch = useDispatch();
     const unsubscribe = dispatch(getUser());
     return () => {
         unsubscribe();
-    }
-  }, []);
-  const backAction = () => {
-    Alert.alert("Thông báo", "Bạn có muốn thoát Ứng dụng", [
-      {
-        text: "Cancel",
-        onPress: () => null,
-        style: "cancel"
-      },
-      { text: "OK", onPress: () => BackHandler.exitApp() }
-    ]);
-    return true;
-  };
-
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", backAction);
-    return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
     }
   }, []);
   const handleOnLogout = async () => {

@@ -84,7 +84,7 @@ const UpDatePost = ({route}) => {
     <>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Pressable onPress={() => navigation.navigate('Home')}>
+          <Pressable onPress={() => navigation.goBack()}>
             <Icon name="close" size={36} color={'black'} />
           </Pressable>
           <Text

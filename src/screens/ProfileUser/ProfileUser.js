@@ -125,7 +125,7 @@ const ProfileUser = ({route}) => {
         {auth().currentUser.uid === uidUser && (
           <Pressable
             style={styles.upPost}
-            onPress={() => navigation.navigate('UploadPost')}>
+            onPress={() => navigation.navigate('UploadPost',{ref:firestore().collection('postsUser')})}>
             <View style={styles.avatar}>
               <Avatar
                 size={36}

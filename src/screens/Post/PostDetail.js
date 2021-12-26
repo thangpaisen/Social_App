@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,25 +21,32 @@ import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import ImagePicker from 'react-native-image-crop-picker';
 import { timeSince } from "./../../utils/fomattime";
-const Comments = ({route}) => {
-  const {dataPost, userItemPost,ref} = route.params;
+import ItemPost from "./ItemPost";
+const PostDetail = ({route}) => {
+  const {data} = route.params;
   const navigation = useNavigation();
   const [textComment, setTextComment] = useState('');
+  const [dataPost, setDataPost] = useState({});
   const [imageComment, setImageComment] = useState({
     uri: '',
     fileName: '',
   });
   const [lockUpComment, setLockUpComment] = useState(false);
   const [listComments, setListComments] = useState([]);
-  const [reply, setReply] = useState('');
+    const lastInputRef = useRef();
+  const ref = firestore().collection('postsUser').doc(data.idPost).collection('comments');
   useEffect(() => {
     const sub = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
       setListComments(
         querySnapshot.docs.map(doc => ({...doc.data(), id: doc.id})),
       );
     });
+    const sub2 = firestore().collection('postsUser').doc(data.idPost).onSnapshot(doc => {
+      setDataPost({...doc.data(), id: doc.id});
+    });
     return () => {
       sub();
+      sub2();
     };
   }, []);
   const handleSendComment = async () => {
@@ -100,29 +107,10 @@ const Comments = ({route}) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="chevron-back-outline" size={30} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Comments</Text>
+        <Text style={styles.headerTitle}>Bài viết</Text>
       </View>
       <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-        {dataPost?.message.text.length > 0 && (
-        <View style={styles.textPostUser}>
-          <Avatar
-            size={34}
-            rounded
-            source={{
-              uri:
-                userItemPost?.imageAvatar ||
-                'https://image.flaticon.com/icons/png/512/149/149071.png',
-            }}
-          />
-          <View style={styles.title}>
-            <Text style={styles.name}>{userItemPost?.displayName || 'Người dùng '}</Text>
-            <Text style={styles.lastTime}>
-              {timeSince(dataPost?.createdAt)}
-            </Text>
-            <Text style={styles.textContent}>{dataPost?.message.text}</Text>
-          </View>
-        </View>
-      )}
+      <ItemPost item={dataPost} lastInputRef={lastInputRef}/>
       {listComments.length > 0 && (
         <>
           {listComments.map((item, index) => (
@@ -159,6 +147,7 @@ const Comments = ({route}) => {
             </View>
           ) : null}
         <TextInput
+            ref={lastNameRef}
           style={styles.inputText}
           value={textComment}
           multiline
@@ -188,7 +177,7 @@ const Comments = ({route}) => {
   );
 };
 
-export default Comments;
+export default PostDetail;
 const {width, height} = Dimensions.get('window');
 const styles = StyleSheet.create({
   commentsContainer: {

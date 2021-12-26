@@ -33,6 +33,7 @@ import UpdateDescGroup from './../screens/Groups/DetailGroup/SettingsGroup/Updat
 import DrawerContent from "./../screens/DrawerContent/DrawerContent";
 import UsersManagement from "./../screens/Admin/UsersManagement/UsersManagement";
 import Reports from "./../screens/Admin/Reports/Reports";
+import PostDetail from "./../screens/Post/PostDetail";
 
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -66,6 +67,13 @@ const AppStack = () => {
         component={Comments}
         options={{
           ...TransitionPresets.ModalPresentationIOS,
+        }}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetail}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       <Stack.Screen

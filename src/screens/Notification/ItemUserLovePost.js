@@ -31,9 +31,9 @@ const ItemUserLovePost = ({item,handleClickButtonDelete}) => {
       });
   }, [item]);
   const handleOnWatch =()=>{  
-    //   navigation.navigate('ProfileUser', {
-    //                 uidUser: item?.idUserFollow,
-    //               });
+      navigation.navigate('PostDetail', {
+                    data: item,
+                  });
     firestore().collection('users').doc(auth().currentUser.uid).collection('notifications')
         .doc(item.id).update({
             watched: true

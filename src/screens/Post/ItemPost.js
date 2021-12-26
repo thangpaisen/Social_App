@@ -25,7 +25,7 @@ import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
 import Colors from './../../assets/themes/Colors';
 import { timeSince } from "./../../utils/fomattime";
-const ItemPost = ({item}) => {
+const ItemPost = ({item,lastInputRef}) => {
   const navigation = useNavigation();
   const userNow = useSelector(state => state.user.data);
   const [userItemPost, setUserItemPost] = useState({});
@@ -53,9 +53,10 @@ const ItemPost = ({item}) => {
         });
       });
     return () => sub();
-  }, []);
+  }, [item?.uidUser]);
+  console.log('userItemPost', userItemPost);
   const handleOnLove = () => {
-    if (item.love.indexOf(userNow.uid) > -1) {
+    if (item?.love.indexOf(userNow.uid) > -1) {
       ref.set(
         {
           love: firestore.FieldValue.arrayRemove(userNow.uid),
@@ -82,11 +83,8 @@ const ItemPost = ({item}) => {
     }
   };
   const handleOpenComments = () => {
-    navigation.navigate('Comments', {
-      dataPost: item,
-      userItemPost: userItemPost,
-      ref: ref.collection('comments'),
-    });
+      console.log('a')
+    lastInputRef.current.focus();
   };
   const handleClickButtonDeletePost = () => {
     Alert.alert('Thông báo', 'Bạn muốn xóa bài viết', [
@@ -167,8 +165,9 @@ const ItemPost = ({item}) => {
             <Text
               style={[
                 styles.textContent,
+                !(item?.message?.image) && {fontSize: 20},
               ]}>
-              {item?.message?.text}
+              {item.message.text}
             </Text>
           )}
           {item?.message?.image ? (
@@ -182,7 +181,7 @@ const ItemPost = ({item}) => {
                   resizeMode: 'contain',
                 },
               }}>
-              <Image source={{uri: item?.message?.image}} style={styles.image} />
+              <Image source={{uri: item?.message.image}} style={styles.image} />
             </Lightbox>
           ) : null}
         </View>
@@ -192,13 +191,13 @@ const ItemPost = ({item}) => {
             onPress={() => handleOnLove()}>
             <Icon
               name={
-                item.love.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
+                item?.love?.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
               }
               size={22}
-              color={item.love.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
+              color={item?.love?.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
             />
-            {item.love.length > 0 && (
-              <Text style={styles.textItemReact}>{item.love.length}</Text>
+            {item?.love?.length > 0 && (
+              <Text style={styles.textItemReact}>{item?.love?.length}</Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
