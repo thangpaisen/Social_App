@@ -16,11 +16,13 @@ import Colors from './../../assets/themes/Colors';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
-import { timeSince } from "./../../utils/fomattime";
-const ItemUserLovePost = ({item,handleClickButtonDelete}) => {
+import {timeSince} from './../../utils/fomattime';
+import Loading from "./../../components/Loading";
+const ItemUserLovePost = ({item, handleClickButtonDelete}) => {
   const [user, setUser] = React.useState({});
+  const [initializing, setInitializing] = useState(true);
   const navigation = useNavigation();
-    const [modalVisible, setModalVisible] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false);
   useEffect(() => {
     firestore()
       .collection('users')
@@ -28,57 +30,64 @@ const ItemUserLovePost = ({item,handleClickButtonDelete}) => {
       .get()
       .then(doc => {
         setUser(doc.data());
+        if(initializing) setInitializing(false)
       });
   }, [item]);
-  const handleOnWatch =()=>{  
-      navigation.navigate('PostDetail', {
-                    data: item,
-                  });
-    firestore().collection('users').doc(auth().currentUser.uid).collection('notifications')
-        .doc(item.id).update({
-            watched: true
-        })
-  }
+  const handleOnWatch = () => {
+    navigation.navigate('PostDetail', {
+      data: item,
+    });
+    firestore()
+      .collection('users')
+      .doc(auth().currentUser.uid)
+      .collection('notifications')
+      .doc(item.id)
+      .update({
+        watched: true,
+      });
+  };
+  if(initializing) return <Loading />;
   return (
-      <>
-    <TouchableOpacity style={[styles.itemUserFollow,!item.watched?styles.unread:null]}
+    <>
+      <TouchableOpacity
+        style={[styles.itemUserFollow, !item.watched ? styles.unread : null]}
         onPress={() => {
-            handleOnWatch();
-        }}
-    >
-      <View style={styles.body}>
-        <View style={{alignSelf: 'flex-start'}}>
-          <Image
-            source={{
-              uri:
-                user?.imageAvatar ||
-                'https://image.flaticon.com/icons/png/512/149/149071.png',
-            }}
-            style={styles.imageAvatar}
-          />
-          <View style={{position: 'absolute', bottom: 0, right: -4}}>
-            <Icon2 name="user" size={24} color={'gray'} />
+          handleOnWatch();
+        }}>
+        <View style={styles.body}>
+          <View style={{alignSelf: 'flex-start'}}>
+            <Image
+              source={{
+                uri:
+                  user?.imageAvatar ||
+                  'https://image.flaticon.com/icons/png/512/149/149071.png',
+              }}
+              style={styles.imageAvatar}
+            />
+            <View style={{position: 'absolute', bottom: 0, right: -4}}>
+              <Icon2 name="user" size={24} color={'gray'} />
+            </View>
           </View>
-        </View>
-        <View style={styles.content}>
+          <View style={styles.content}>
             <Text style={styles.title}>
-                {user?.displayName || 'Ai đó '} {item?.listUsers.length > 1 && `và ${item?.listUsers.length - 1} người khác`}
-                <Text style={{fontWeight: '600', color: 'gray'}}>
-                    {' '}đã Yêu thích bài viết của bạn{' '}
-                </Text>
+              {user?.displayName || 'Ai đó '}{' '}
+              {item?.listUsers.length > 1 &&
+                `và ${item?.listUsers.length - 1} người khác`}
+              <Text style={{fontWeight: '600', color: 'gray'}}>
+                {' '}
+                đã Yêu thích bài viết của bạn{' '}
+              </Text>
             </Text>
             <Text style={styles.time}>{timeSince(item?.createdAt)}</Text>
+          </View>
         </View>
-      </View>
-      <TouchableOpacity style={styles.btnChoice}
-      onPress={() => setModalVisible(true)}
-        >
-        <Icon name="ellipsis-horizontal" size={24} color={'black'} />
+        <TouchableOpacity
+          style={styles.btnChoice}
+          onPress={() => setModalVisible(true)}>
+          <Icon name="ellipsis-horizontal" size={24} color={'black'} />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-    <Modal
-        transparent={true}
-        visible={modalVisible}>
+      <Modal transparent={true} visible={modalVisible}>
         <Pressable
           onPress={() => setModalVisible(false)}
           style={{flex: 1, backgroundColor: 'black', opacity: 0.2}}></Pressable>
@@ -87,9 +96,7 @@ const ItemUserLovePost = ({item,handleClickButtonDelete}) => {
             style={styles.morePostItem}
             onPress={() => handleClickButtonDelete(item.id)}>
             <Icon name="trash-outline" size={24} color="black" />
-            <Text style={{fontSize: 16, marginLeft: 10}}>
-              Gỡ thông báo này
-            </Text>
+            <Text style={{fontSize: 16, marginLeft: 10}}>Gỡ thông báo này</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -115,12 +122,12 @@ const styles = StyleSheet.create({
     borderRadius: 60,
   },
   body: {
-      flex: 1,
+    flex: 1,
     flexDirection: 'row',
   },
   content: {
     flex: 1,
-    marginLeft:10,
+    marginLeft: 10,
     justifyContent: 'center',
   },
   title: {
@@ -129,8 +136,8 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     fontWeight: 'bold',
   },
-  time:{
-    color: 'gray'
+  time: {
+    color: 'gray',
   },
   morePostContent: {
     position: 'absolute',

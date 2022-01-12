@@ -5,7 +5,7 @@ const Nodata = ({title}) => {
     return (
         <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{}}>{ title || 'Không có dữ liệu'}</Text>
+            <Text style={{textAlign: 'center',padding:20,fontSize: 16}}>{ title || 'Không có dữ liệu'}</Text>
           </View>
     )
 }

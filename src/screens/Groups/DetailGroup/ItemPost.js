@@ -85,15 +85,15 @@ const ItemPost = ({item,id}) => {
   };
   
   const deletePost = () => {
-    ref
-      .delete()
-      .then(() => {
-        setModalVisible(false);
-        Toast.show({
-          text1: 'Đã xóa bài viết',
-          visibilityTime: 100,
-        });
-      });
+    ref.collection('comments').get().then(querySnapshot => {
+      Promise.all(querySnapshot.docs.map((item) => item.ref.delete()))
+        .then(() => {
+          ref.delete().then(() => {
+            setModalVisible(false);
+            ToastAndroid.show('Xóa bài viết thành công', ToastAndroid.SHORT);
+          });
+        })
+    });
   };
   const handleClickButtonUpDatePost = () => {
     setModalVisible(false);

@@ -51,7 +51,6 @@ const ItemComment = ({item, refItem}) => {
     return () => sub();
   }, []);
   const handleOnLove = () => {
-    console.log('love');
     const checkLove = item.love.indexOf(auth().currentUser.uid);
     if (checkLove > -1) {
       var newArr = [...item.love];

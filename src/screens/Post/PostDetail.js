@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useRef} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,7 +8,8 @@ import {
   Pressable,
   Image,
   Dimensions,
-  Modal,ActivityIndicator,
+  Modal,
+  ActivityIndicator,
   ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,69 +21,95 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import ImagePicker from 'react-native-image-crop-picker';
-import { timeSince } from "./../../utils/fomattime";
-import ItemPost from "./ItemPost";
+import {timeSince} from './../../utils/fomattime';
+import ItemPost from './ItemPost';
+import Loading from "./../../components/Loading";
+import Nodata from "./../../components/Nodata";
 const PostDetail = ({route}) => {
   const {data} = route.params;
   const navigation = useNavigation();
   const [textComment, setTextComment] = useState('');
   const [dataPost, setDataPost] = useState({});
+  const [loading, setLoading] = useState(true);
   const [imageComment, setImageComment] = useState({
     uri: '',
     fileName: '',
   });
   const [lockUpComment, setLockUpComment] = useState(false);
   const [listComments, setListComments] = useState([]);
-    const lastInputRef = useRef();
-  const ref = firestore().collection('postsUser').doc(data.idPost).collection('comments');
+  const lastInputRef = useRef();
+  const ref = firestore()
+    .collection('postsUser')
+    .doc(data.idPost)
+    .collection('comments');
   useEffect(() => {
+    setLoading(true);
     const sub = ref.orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
       setListComments(
         querySnapshot.docs.map(doc => ({...doc.data(), id: doc.id})),
       );
     });
-    const sub2 = firestore().collection('postsUser').doc(data.idPost).onSnapshot(doc => {
-      setDataPost({...doc.data(), id: doc.id});
-    });
+    const sub2 = firestore()
+      .collection('postsUser')
+      .doc(data.idPost)
+      .onSnapshot(doc => {
+        if(doc.exists){
+        setDataPost({...doc.data(), id: doc.id});
+        setLoading(false);
+        }
+        else{
+          setDataPost(null);
+          setLoading(false);
+        }
+      });
     return () => {
       sub();
       sub2();
     };
   }, []);
   const handleSendComment = async () => {
-    console.log('send comment');
     setLockUpComment(true);
     let uriImageComment = '';
     if (imageComment.uri) {
-        const reference = storage().ref(imageComment.fileName);
-        await reference.putFile(imageComment?.uri);
-        uriImageComment = await storage().ref(imageComment.fileName).getDownloadURL();
+      const reference = storage().ref(imageComment.fileName);
+      await reference.putFile(imageComment?.uri);
+      uriImageComment = await storage()
+        .ref(imageComment.fileName)
+        .getDownloadURL();
     }
-    ref.add({
+    ref
+      .add({
         love: [],
         textComment,
         imageComment: uriImageComment,
         uidUserComment: auth().currentUser.uid,
         createdAt: new Date().getTime(),
         idPost: dataPost.id,
-      }).then(() => {
-          if(auth().currentUser.uid !== dataPost.uidUser)
-            firestore().collection('users').doc(dataPost.uidUser)
-            .collection('notifications').doc(`Comment${dataPost.id}`).set({
+      })
+      .then(() => {
+        if (auth().currentUser.uid !== dataPost.uidUser)
+          firestore()
+            .collection('users')
+            .doc(dataPost.uidUser)
+            .collection('notifications')
+            .doc(`Comment${dataPost.id}`)
+            .set(
+              {
                 createdAt: new Date().getTime(),
                 type: 'Comment',
-                    idPost: dataPost.id,
-                listUsers: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
+                idPost: dataPost.id,
+                listUsers: firestore.FieldValue.arrayUnion(
+                  auth().currentUser.uid,
+                ),
                 watched: false,
-                },
-                    {merge: true},
-                );
-      })
-      setTextComment('');
-      handleOnPressRemoveImageComment();
-      setLockUpComment(false);
+              },
+              {merge: true},
+            );
+      });
+    setTextComment('');
+    handleOnPressRemoveImageComment();
+    setLockUpComment(false);
   };
-  
   const openLibrary = () => {
     ImagePicker.openPicker({}).then(image => {
       setImageComment({uri: image.path, fileName: image.modificationDate});
@@ -101,79 +128,80 @@ const PostDetail = ({route}) => {
     ImagePicker.clean();
   };
   return (
-      <>
-    <View style={styles.commentsContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="chevron-back-outline" size={30} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bài viết</Text>
-      </View>
-      <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-      <ItemPost item={dataPost} lastInputRef={lastInputRef}/>
-      {listComments.length > 0 && (
-        <>
-          {listComments.map((item, index) => (
-            <ItemComment item={item} key={item.id} refItem={ref}/>
-          ))}
-        </>
-      )}
-      </ScrollView>
-      <View style={styles.inputTextComment}>
-        {!imageComment?.uri&&
-        <View style={styles.choiceImage}>
-          <TouchableOpacity
-            style={styles.itemChoice}
-            onPress={() => openCamera()}>
-            <Icon name="camera-outline" size={24} color={'black'} />
+    <>
+      <View style={styles.commentsContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="chevron-back-outline" size={30} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.itemChoice}
-            onPress={() => openLibrary()}>
-            <Icon name="image-outline" size={24} color={'black'} />
-          </TouchableOpacity>
-        </View>}
-        <View style={{flex: 1}}>
-            {imageComment?.uri?.length ? (
-            <View style={styles.imageComment}>
-              <Image source={{uri: imageComment?.uri}} style={styles.image} />
-              <Pressable
-                style={styles.removeImageComment}
-                onPress={() => {
-                  handleOnPressRemoveImageComment();
-                }}>
-                <Icon name="close" size={20} color={'white'} />
-              </Pressable>
-            </View>
-          ) : null}
-        <TextInput
-            ref={lastNameRef}
-          style={styles.inputText}
-          value={textComment}
-          multiline
-          onChangeText={setTextComment}
-          placeholder={'Viết bình luận'}
-        />
+          <Text style={styles.headerTitle}>Bài viết</Text>
         </View>
-        {!textComment.trim().length && !imageComment?.uri?.length ?null
-          :<TouchableOpacity
-          onPress={() => handleSendComment()}
-          style={styles.send}>
-            <Text
-                style={[
-                styles.textSend
-                ]}>
-                Send
-            </Text>
-        </TouchableOpacity>}
+        {(!!dataPost) ?
+        (loading ? <Loading/>:
+        <>
+        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
+          <ItemPost item={dataPost} lastInputRef={lastInputRef} />
+          {listComments.length > 0 && (
+            <>
+              {listComments.map((item, index) => (
+                <ItemComment item={item} key={item.id} refItem={ref} />
+              ))}
+            </>
+          )}
+        </ScrollView>
+        <View style={styles.inputTextComment}>
+          {!imageComment?.uri && (
+            <View style={styles.choiceImage}>
+              <TouchableOpacity
+                style={styles.itemChoice}
+                onPress={() => openCamera()}>
+                <Icon name="camera-outline" size={24} color={'black'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.itemChoice}
+                onPress={() => openLibrary()}>
+                <Icon name="image-outline" size={24} color={'black'} />
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={{flex: 1}}>
+            {imageComment?.uri?.length ? (
+              <View style={styles.imageComment}>
+                <Image source={{uri: imageComment?.uri}} style={styles.image} />
+                <Pressable
+                  style={styles.removeImageComment}
+                  onPress={() => {
+                    handleOnPressRemoveImageComment();
+                  }}>
+                  <Icon name="close" size={20} color={'white'} />
+                </Pressable>
+              </View>
+            ) : null}
+            <TextInput
+              ref={lastInputRef}
+              style={styles.inputText}
+              value={textComment}
+              multiline
+              onChangeText={setTextComment}
+              placeholder={'Viết bình luận'}
+            />
+          </View>
+          {!textComment.trim().length && !imageComment?.uri?.length ? null : (
+            <TouchableOpacity
+              onPress={() => handleSendComment()}
+              style={styles.send}>
+              <Text style={[styles.textSend]}>Send</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        </>):<Nodata title={'Bài viết không tồn tại'}/>}
       </View>
-    </View>
-    <Modal transparent={true} visible={lockUpComment}>
+      <Modal transparent={true} visible={lockUpComment}>
         <View style={styles.model}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       </Modal>
-      </>
+    </>
   );
 };
 
@@ -197,8 +225,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  body:{
-      marginBottom: 20,
+  body: {
+    marginBottom: 20,
   },
   textPostUser: {
     flexDirection: 'row',
@@ -259,7 +287,7 @@ const styles = StyleSheet.create({
   },
   imageComment: {
     marginLeft: 10,
-    marginTop:10,
+    marginTop: 10,
   },
   image: {
     borderRadius: 5,

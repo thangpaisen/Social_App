@@ -16,6 +16,7 @@ import ItemRoomChat from './ItemRoomChat';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import ItemUserOnline from './ItemUserOnline';
+import Nodata from "./../../components/Nodata";
 const Chat = () => {
   const [listUsers, setListUsers] = useState([]);
   const [messagesThreads, setMessagesThreads] = useState([]);
@@ -60,7 +61,6 @@ const Chat = () => {
       sub2();
     };
   }, []);
-  console.log('messagesThreads', messagesThreads);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -85,13 +85,13 @@ const Chat = () => {
           backgroundColor: '#ededed',
           marginVertical: 10,
         }}></View>
-      <View style={styles.listMessage}>
+      {messagesThreads.length>0?<View style={styles.listMessage}>
         <FlatList
           data={messagesThreads}
           renderItem={({item, index}) => <ItemRoomChat item={item} />}
           keyExtractor={item => item.id}
         />
-      </View>
+      </View>:<Nodata title = "Không có tin nhắn nào, bạn có thể tìm kiếm người để bắt đầu cuộc trò chuyện của mình" />}
     </View>
   );
 };

@@ -33,7 +33,6 @@ const ItemRoomChat = ({item}) => {
     };
   }, []);
   const handleOnOpenMessage = () => {
-    console.log('item.id', item.id);
     navigation.navigate('Messages', {uidUserReceiver: item.id});
     if (!item.watched)
       ref
@@ -42,7 +41,6 @@ const ItemRoomChat = ({item}) => {
         });
   };
   const handleClickButtonStorage = () => {
-      console.log('aaaa')
       ref
         .update({
           hide: true,

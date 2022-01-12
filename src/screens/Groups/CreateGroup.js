@@ -28,7 +28,7 @@ const CreateGroup = () => {
     firestore().collection('groups').add({
         name: dataGroup.name,
         description: dataGroup.description,
-        imageCover:'https://2.pik.vn/2021e887e2af-5499-49b8-9bfa-ba980086e4bd.png',
+        imageCover:'https://i.ibb.co/2qCk8fX/gr.png',
         members: [auth().currentUser.uid],
         createdAt: new Date().getTime(),
         author: auth().currentUser.uid,

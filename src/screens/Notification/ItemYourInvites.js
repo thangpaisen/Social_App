@@ -17,26 +17,32 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
 import { timeSince } from "./../../utils/fomattime";
+import Loading from "./../../components/Loading";
 const ItemYourInvites = ({item,handleClickButtonDelete}) => {
     const navigation = useNavigation();
-  const [group, setGroup] = React.useState({});
-  const [user, setUser] = React.useState({});
+    const [group, setGroup] = React.useState({});
+    const [user, setUser] = React.useState({});
+    const [initializing, setInitializing] = useState(true);
     const [modalVisible, setModalVisible] = useState(false)
   useEffect(() => {
-    firestore()
+    Promise.all([
+      firestore()
       .collection('users')
       .doc(item?.idUserInvite)
       .get()
       .then(doc => {
         setUser(doc.data());
-      });
-    firestore()
+      }),
+      firestore()
       .collection('groups')
       .doc(item?.idGroup)
       .get()
       .then(doc => {
         setGroup(doc.data());
-      });
+      })
+    ]).then(() => {
+      if(initializing) setInitializing(false)
+    })
   }, []);
   const handleOnJoin = () => {
     if (!group?.members.includes(auth().currentUser.uid)) {
@@ -82,6 +88,7 @@ const ItemYourInvites = ({item,handleClickButtonDelete}) => {
             watched: true
         })
   };
+  if(initializing) return <Loading/>;
   return (
       <>
     <TouchableOpacity style={[styles.itemYourInvites,!item.watched?styles.unread:null]}

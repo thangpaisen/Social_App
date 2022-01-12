@@ -18,7 +18,6 @@ const ItemDataGroup = ({data}) => {
         }
     }, [])
     const handleOnJoinGroup = () => {
-        console.log('join')
     firestore()
       .collection('groups')
       .doc(data.id)

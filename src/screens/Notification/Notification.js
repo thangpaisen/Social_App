@@ -9,12 +9,16 @@ import ItemUserFollower from "./ItemUserFollower";
 import Icon from 'react-native-vector-icons/Ionicons'
 import ItemUserLovePost from "./ItemUserLovePost";
 import ItemUserCommentPost from "./ItemUserCommentPost";
+import Loading from "./../../components/Loading";
 const Notification = () => {
     const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true)
     useEffect(() => {
+        setLoading(true);
         const sub = firestore().collection('users').doc(auth().currentUser.uid).collection('notifications')
         .orderBy('createdAt', 'desc').onSnapshot(querySnapshot => {
             setData(querySnapshot.docs.map(doc => ({id: doc.id,...doc.data()})))
+            setLoading(false);
             })
         return () => {
             sub()
@@ -33,7 +37,8 @@ const Notification = () => {
     return (
         <View style={styles.container}>
             <Header/>
-            {data.length > 0 ?
+            {loading?<Loading/>:
+            (data.length > 0 ?
             <View style={styles.content}>
                 {data.map(item => 
                     {
@@ -51,7 +56,7 @@ const Notification = () => {
                         }
                     })}
             </View>
-            :<Nodata title={'Không có thông báo nào'}/>}
+            :<Nodata title={'Không có thông báo nào'}/>)}
         </View>
     )
 }

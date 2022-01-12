@@ -38,7 +38,6 @@ const ItemUserInvite = ({idUser, idGroup}) => {
         watched: false
       })
       .then(() => {
-        console.log('notifications added!');
       });
     firestore()
       .collection('users')
@@ -51,7 +50,6 @@ const ItemUserInvite = ({idUser, idGroup}) => {
         createdAt: new Date().getTime(),
       })
       .then(() => {
-        console.log('inviteGroup added!');
       });
   };
   return (

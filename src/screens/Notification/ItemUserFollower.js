@@ -17,10 +17,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from '@react-navigation/native';
 import { timeSince } from "./../../utils/fomattime";
+import Loading from "./../../components/Loading";
 const ItemUserFollower = ({item,handleClickButtonDelete}) => {
   const [user, setUser] = React.useState({});
+  const [initializing, setInitializing] = useState(true);
   const navigation = useNavigation();
-    const [modalVisible, setModalVisible] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false)
   useEffect(() => {
     firestore()
       .collection('users')
@@ -28,6 +30,7 @@ const ItemUserFollower = ({item,handleClickButtonDelete}) => {
       .get()
       .then(doc => {
         setUser(doc.data());
+        if(initializing) setInitializing(false);
       });
   }, []);
   const handleOnWatch =()=>{  
@@ -39,6 +42,7 @@ const ItemUserFollower = ({item,handleClickButtonDelete}) => {
             watched: true
         })
   }
+  if(initializing) return <Loading />;
   return (
       <>
     <TouchableOpacity style={[styles.itemUserFollow,!item.watched?styles.unread:null]}

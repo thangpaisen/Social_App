@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {Avatar} from 'react-native-elements';
 import ItemPost from './ItemPost';
-import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
 import Header from './Header';
 import firestore from '@react-native-firebase/firestore';
@@ -20,6 +19,7 @@ import Loading from './../../components/Loading';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUser} from './../../redux/actions/user';
 import {getListPostFollow} from './../../redux/actions/listPostFollow';
+import Nodata from "./../../components/Nodata";
 
 const Home = () => {
   const navigation = useNavigation();

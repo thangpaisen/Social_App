@@ -16,7 +16,6 @@ import {Avatar} from 'react-native-elements';
 import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
 import Icon from 'react-native-vector-icons/Ionicons';
-import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
@@ -103,12 +102,15 @@ const ItemPost = ({item}) => {
     navigation.navigate('UpDatePost', {dataPost: item, ref: ref});
   };
   const deletePost = () => {
-    ref.delete().then(() => {
-      setModalVisible(false);
-      Toast.show({
-        text1: 'Đã xóa bài viết',
-        visibilityTime: 100,
-      });
+    ref.collection('comments').get().then(querySnapshot => {
+      Promise.all(querySnapshot.docs.map((item) => item.ref.delete()))
+        .then(() => {
+          ref.delete().then(() => {
+            setModalVisible(false);
+            navigation.goBack();
+            ToastAndroid.show('Xóa bài viết thành công', ToastAndroid.SHORT);
+          });
+        })
     });
   };
   const handleClickButtonReport = () => {

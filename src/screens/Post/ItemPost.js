@@ -9,14 +9,13 @@ import {
   Pressable,
   Modal,
   Alert,
-  ToastAndroid
+  ToastAndroid,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {Avatar} from 'react-native-elements';
 import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
 import Icon from 'react-native-vector-icons/Ionicons';
-import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
@@ -24,8 +23,8 @@ import firestore from '@react-native-firebase/firestore';
 import * as Animatable from 'react-native-animatable';
 import {useSelector} from 'react-redux';
 import Colors from './../../assets/themes/Colors';
-import { timeSince } from "./../../utils/fomattime";
-const ItemPost = ({item,lastInputRef}) => {
+import {timeSince} from './../../utils/fomattime';
+const ItemPost = ({item, lastInputRef}) => {
   const navigation = useNavigation();
   const userNow = useSelector(state => state.user.data);
   const [userItemPost, setUserItemPost] = useState({});
@@ -33,11 +32,9 @@ const ItemPost = ({item,lastInputRef}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const ref = firestore().collection('postsUser').doc(item.id);
   useEffect(() => {
-    const sub = ref
-      .collection('comments')
-      .onSnapshot(querySnapshot => {
-        setTotalComment(querySnapshot.size);
-      });
+    const sub = ref.collection('comments').onSnapshot(querySnapshot => {
+      setTotalComment(querySnapshot.size);
+    });
     return () => {
       sub();
     };
@@ -54,7 +51,6 @@ const ItemPost = ({item,lastInputRef}) => {
       });
     return () => sub();
   }, [item?.uidUser]);
-  console.log('userItemPost', userItemPost);
   const handleOnLove = () => {
     if (item?.love.indexOf(userNow.uid) > -1) {
       ref.set(
@@ -70,20 +66,25 @@ const ItemPost = ({item,lastInputRef}) => {
         },
         {merge: true},
       );
-      if(auth().currentUser.uid!==item.uidUser)
-        firestore().collection('users').doc(item.uidUser).collection('notifications').doc(`Love${item.id}`).set({
-            createdAt: new Date().getTime(),
-            listUsers: firestore.FieldValue.arrayUnion(userNow.uid),
-            type: 'Love',
-            idPost: item.id,
-            watched: false,
+      if (auth().currentUser.uid !== item.uidUser)
+        firestore()
+          .collection('users')
+          .doc(item.uidUser)
+          .collection('notifications')
+          .doc(`Love${item.id}`)
+          .set(
+            {
+              createdAt: new Date().getTime(),
+              listUsers: firestore.FieldValue.arrayUnion(userNow.uid),
+              type: 'Love',
+              idPost: item.id,
+              watched: false,
             },
-                {merge: true},
-            );
+            {merge: true},
+          );
     }
   };
   const handleOpenComments = () => {
-      console.log('a')
     lastInputRef.current.focus();
   };
   const handleClickButtonDeletePost = () => {
@@ -101,16 +102,19 @@ const ItemPost = ({item,lastInputRef}) => {
     navigation.navigate('UpDatePost', {dataPost: item, ref: ref});
   };
   const deletePost = () => {
-    ref.delete().then(() => {
-      setModalVisible(false);
-      Toast.show({
-        text1: 'Đã xóa bài viết',
-        visibilityTime: 100,
-      });
+    ref.collection('comments').get().then(querySnapshot => {
+      Promise.all(querySnapshot.docs.map((item) => item.ref.delete()))
+        .then(() => {
+          ref.delete().then(() => {
+            setModalVisible(false);
+            navigation.goBack();
+            ToastAndroid.show('Xóa bài viết thành công', ToastAndroid.SHORT);
+          });
+        })
     });
   };
   const handleClickButtonReport = () => {
-      Alert.alert('Thông báo', 'Bạn muốn báo cáo bài viết', [
+    Alert.alert('Thông báo', 'Bạn muốn báo cáo bài viết', [
       {
         text: 'Cancel',
         onPress: () => setModalVisible(false),
@@ -118,18 +122,23 @@ const ItemPost = ({item,lastInputRef}) => {
       },
       {text: 'OK', onPress: () => reportPost()},
     ]);
-  }
-  const  reportPost = () => {
-        ref.set(
+  };
+  const reportPost = () => {
+    ref
+      .set(
         {
-            report: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
+          report: firestore.FieldValue.arrayUnion(auth().currentUser.uid),
         },
         {merge: true},
-        ).then(() => {
+      )
+      .then(() => {
         setModalVisible(false);
-        ToastAndroid.show('Bạn đã báo cáo bài viết thành công', ToastAndroid.SHORT);
-        });
-  }
+        ToastAndroid.show(
+          'Bạn đã báo cáo bài viết thành công',
+          ToastAndroid.SHORT,
+        );
+      });
+  };
   return (
     <>
       <View style={styles.itemPost}>
@@ -150,22 +159,20 @@ const ItemPost = ({item,lastInputRef}) => {
               }}>
               <Text style={styles.name}>{userItemPost.displayName}</Text>
             </TouchableOpacity>
-            <Text style={styles.lastTime}>
-              {timeSince(item?.createdAt)}
-            </Text>
+            <Text style={styles.lastTime}>{timeSince(item?.createdAt)}</Text>
           </View>
           <Pressable
-              style={styles.morePost}
-              onPress={() => setModalVisible(true)}>
-              <Icon name="ellipsis-horizontal" size={24} color="black" />
-            </Pressable>
+            style={styles.morePost}
+            onPress={() => setModalVisible(true)}>
+            <Icon name="ellipsis-horizontal" size={24} color="black" />
+          </Pressable>
         </View>
         <View style={styles.content}>
           {item?.message?.text.length > 0 && (
             <Text
               style={[
                 styles.textContent,
-                !(item?.message?.image) && {fontSize: 20},
+                !item?.message?.image && {fontSize: 20},
               ]}>
               {item.message.text}
             </Text>
@@ -191,7 +198,9 @@ const ItemPost = ({item,lastInputRef}) => {
             onPress={() => handleOnLove()}>
             <Icon
               name={
-                item?.love?.indexOf(userNow.uid) > -1 ? 'heart' : 'heart-outline'
+                item?.love?.indexOf(userNow.uid) > -1
+                  ? 'heart'
+                  : 'heart-outline'
               }
               size={22}
               color={item?.love?.indexOf(userNow.uid) > -1 ? 'red' : '#666'}
@@ -213,36 +222,38 @@ const ItemPost = ({item,lastInputRef}) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Modal
-        transparent={true}
-        visible={modalVisible}>
+      <Modal transparent={true} visible={modalVisible}>
         <Pressable
           onPress={() => setModalVisible(false)}
           style={{flex: 1, backgroundColor: 'black', opacity: 0.2}}></Pressable>
         <View style={styles.morePostContent}>
-            {item?.uidUser === auth().currentUser.uid ?
-          <>
+          {item?.uidUser === auth().currentUser.uid ? (
+            <>
+              <TouchableOpacity
+                style={styles.morePostItem}
+                onPress={() => handleClickButtonUpDatePost()}>
+                <Icon name="eyedrop-outline" size={24} color="black" />
+                <Text style={{fontSize: 16, marginLeft: 10}}>
+                  Chỉnh sửa bài viết
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.morePostItem}
+                onPress={() => handleClickButtonDeletePost()}>
+                <Icon name="trash-outline" size={24} color="black" />
+                <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
             <TouchableOpacity
-            style={styles.morePostItem}
-            onPress={() => handleClickButtonUpDatePost()}>
-            <Icon name="eyedrop-outline" size={24} color="black" />
-            <Text style={{fontSize: 16, marginLeft: 10}}>
-              Chỉnh sửa bài viết
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.morePostItem}
-            onPress={() => handleClickButtonDeletePost()}>
-            <Icon name="trash-outline" size={24} color="black" />
-            <Text style={{fontSize: 16, marginLeft: 10}}>Xóa</Text>
-          </TouchableOpacity>
-          </>:
-          <TouchableOpacity
-            style={styles.morePostItem}
-            onPress={() => handleClickButtonReport()}>
-            <Icon name="information-circle-outline" size={24} color="black" />
-            <Text style={{fontSize: 16, marginLeft: 10}}>Báo cáo bài viết</Text>
-          </TouchableOpacity>}
+              style={styles.morePostItem}
+              onPress={() => handleClickButtonReport()}>
+              <Icon name="information-circle-outline" size={24} color="black" />
+              <Text style={{fontSize: 16, marginLeft: 10}}>
+                Báo cáo bài viết
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </Modal>
     </>

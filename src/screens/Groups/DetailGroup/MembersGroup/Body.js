@@ -4,7 +4,6 @@ import ItemUser from "./ItemUser";
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 const Body = ({idGroup,isAdmin,handleOnDeleteUser}) => {
-    console.log('isAdmin1',isAdmin)
     const [listMember, setListMember] = useState([]);
     const [listManager, setListManager] = useState([]);
     const ref =firestore().collection('groups').doc(idGroup).collection('member')

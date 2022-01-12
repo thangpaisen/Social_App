@@ -1,110 +1,121 @@
-import React,{useEffect,useState} from 'react';
-import {StyleSheet, Text, View, Image, TouchableOpacity,ImageBackground,StatusBar,Pressable,ToastAndroid} from 'react-native';
-import {Input, Button, SocialIcon} from 'react-native-elements';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ImageBackground,
+  StatusBar,
+  Pressable,
+  ToastAndroid,
+  ActivityIndicator,
+} from 'react-native';
+import {Input, Button} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
-import imgBr from '../../assets/images/br.png';
+import imgBr from '../../assets/images/bgr.jpg';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-// import {useDispatch} from 'react-redux';
-import {registerUser} from '../redux/actions/user'
+const validateEmail = email => {
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+};
 
-const  validateEmail =(email)=> {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-export default function SignUp({navigation}) {
-//   const dispatch = useDispatch()
+const SignUp = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [errorMessageEmail, setErrorMessageEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessagePassword, setErrorMessagePassword] = useState('');
   const [name, setName] = useState('');
   const [errorMessageName, setErrorMessageName] = useState('');
-
-  const [secureTextEntry, setSecureTextEntry] = useState(true)
-  const handleOnPressLogin =() =>{
-        if(name.trim().length<6)
-          setErrorMessageName('Name is a required field')
-        if(!validateEmail(email.trim()))
-          setErrorMessageEmail('Email must be a valid email')
-        if(password.trim().length<6)
-          setErrorMessagePassword('Password must be at least 6 characters')
-        if(validateEmail(email.trim()) && password.trim().length>=6 && name.trim().length>=6)
-            registerUser(name.trim(),email.trim(),password.trim());
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [loading, setLoading] = useState(false);
+  function handleOnPressLogin() {
+    if (name.trim().length < 6) setErrorMessageName('Name is a required field');
+    if (!validateEmail(email.trim()))
+      setErrorMessageEmail('Email must be a valid email');
+    if (password.trim().length < 6)
+      setErrorMessagePassword('Password must be at least 6 characters');
+    if (
+      validateEmail(email.trim()) &&
+      password.trim().length >= 6 &&
+      name.trim().length >= 6
+    )
+      registerUser(name.trim(), email.trim(), password.trim());
   }
-  const registerUser = async (name,email, password)=> {
-          await auth().createUserWithEmailAndPassword(email, password)
-          .then((res) => {
-              ToastAndroid.show('Đăng kí thành công!',ToastAndroid.SHORT);
-            })
-            .catch(error => {
-              console.log(error.code);
-              if(error.code==='auth/email-already-in-use')
-                {
-                  ToastAndroid.show('Đăng ký thất bại! Email đã được sử dụng',ToastAndroid.SHORT);
-                  setErrorMessageEmail('Tài khoản đã tồn tại')
-                }
-              else if(error.code==='auth/network-request-failed')
-                {
-                  ToastAndroid.show('Đăng ký thất bại! Kiểm tra kết nối Internet',ToastAndroid.SHORT);
-                }
-              else
-                ToastAndroid.show('Đăng kí thất bại! lỗi gì đó thử lại sau',ToastAndroid.SHORT);
-            })
-            .finally(() => {
-                auth()
-                    .currentUser.updateProfile({
-                        displayName: name,
-                    })
-            firestore()
-                .collection('users')
-                .doc(auth().currentUser.uid)
-                .set({
-                        uid:auth().currentUser.uid,
-                        displayName:name,
-                        description:'',
-                        imageAvatar: 'https://image.flaticon.com/icons/png/512/149/149071.png',
-                        imageCover:'https://image.flaticon.com/icons/png/512/149/149071.png',
-                        email: auth().currentUser.email,
-                        follow:['vzfnd7yHIdTmRTVjNlzcg684Kxv2'],
-                        follower:[],
-                        role:'User',
-                        isBlocked:false,
-                        report: [],
-                        createdAt: new Date().getTime(),
-                })
-                .then(() => {
-                    console.log('User added!');
-                });
-            })
-    }
+  function registerUser(name, email, password) {
+    setLoading(true);
+    auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(res => {
+        ToastAndroid.show('Đăng ký thành công!', ToastAndroid.SHORT);
+        updateProfileUser(name);
+        setLoading(false);
+      })
+      .catch(error => {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            setErrorMessageEmail('Tài khoản đã tồn tại');
+            break;
+          case 'auth/network-request-failed':
+            ToastAndroid.show(
+              'Đăng nhập thất bại! Kiểm tra kết nối Internet',
+              ToastAndroid.SHORT,
+            );
+            break;
+          default:
+            ToastAndroid.show('Lỗi', ToastAndroid.SHORT);
+            break;
+        }
+        setLoading(false);
+      });
+  }
+  function updateProfileUser(name) {
+    firestore().collection('users').doc(auth().currentUser.uid)
+    .set({
+          uid:auth().currentUser.uid,
+          displayName:name,
+          description:'',
+          imageAvatar: 'https://image.flaticon.com/icons/png/512/149/149071.png',
+          imageCover:'https://image.flaticon.com/icons/png/512/149/149071.png',
+          email: auth().currentUser.email,
+          follow:['oKn3cVIKArgZbXihWUh9ZO4xWX52'],
+          follower:[],
+          role:'User',
+          isBlocked:false,
+          report: [],
+          createdAt: new Date().getTime(),
+          })
+  }
   return (
-    <ImageBackground  style={styles.loginContainer} source={imgBr} resizeMode="cover">
-      <StatusBar backgroundColor="transparent" barStyle="light-content" translucent={true} />
-      <View style={{flex:2}}></View>
-      <Animatable.View style={styles.main} animation="fadeInUp">   
+    <ImageBackground
+      style={styles.loginContainer}
+      source={imgBr}
+      resizeMode="cover">
+      <StatusBar
+        backgroundColor="transparent"
+        barStyle="light-content"
+        translucent={true}
+      />
+      <View style={{flex: 2}}></View>
+      <View style={styles.main}>
         <View style={styles.title}>
           <Text style={styles.footerTitle}>Create an account</Text>
           <Text style={styles.footerTitle2}>Đăng ký tài khoản</Text>
         </View>
         <View style={styles.action}>
-        <Input
+          <Input
             value={name}
             label="Name"
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập tên vào...."
             leftIcon={<Icon name="person" size={20} color="gray" />}
-            style={{
-              fontSize: 16,
-              borderWidth: 0,
-              borderBottomColor: 'transparent',
-            }}
+            style={styles.input}
             inputContainerStyle={{borderBottomWidth: 0.5}}
             errorStyle={{color: 'red', marginLeft: 0}}
             errorMessage={errorMessageName}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setName(text);
               setErrorMessageName('');
             }}
@@ -115,15 +126,11 @@ export default function SignUp({navigation}) {
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập Email vào...."
             leftIcon={<Icon name="mail" size={20} color="gray" />}
-            style={{
-              fontSize: 16,
-              borderWidth: 0,
-              borderBottomColor: 'transparent',
-            }}
+            style={styles.input}
             inputContainerStyle={{borderBottomWidth: 0.5}}
             errorStyle={{color: 'red', marginLeft: 0}}
             errorMessage={errorMessageEmail}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setEmail(text);
               setErrorMessageEmail('');
             }}
@@ -135,102 +142,90 @@ export default function SignUp({navigation}) {
             labelStyle={{fontWeight: '500', fontSize: 16}}
             placeholder="Nhập Password vào...."
             leftIcon={<Icon name="lock-closed" size={20} color="gray" />}
-            rightIcon={<Pressable onPress={()=>setSecureTextEntry(!secureTextEntry)}>
-                  <Icon name={secureTextEntry?"eye-off-outline":"eye-outline"} size={20} color="gray" />
-                </Pressable>
-              }
-            style={{
-              fontSize: 16,
-              borderWidth: 0,
-              borderBottomColor: 'transparent',
-            }}
+            rightIcon={
+              <Pressable onPress={() => setSecureTextEntry(!secureTextEntry)}>
+                <Icon
+                  name={secureTextEntry ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color="gray"
+                />
+              </Pressable>
+            }
+            style={styles.input}
             inputContainerStyle={{borderBottomWidth: 0.5}}
             errorStyle={{color: 'red', marginLeft: 0}}
             errorMessage={errorMessagePassword}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setPassword(text);
               setErrorMessagePassword('');
             }}
           />
-          
         </View>
         <Button
           title="Đăng ký"
-          titleStyle={{color:'#333'}}
-          containerStyle={{borderRadius: 20,marginHorizontal:10,}}
+          disabled={loading?true:false}
+          icon={loading ? <ActivityIndicator /> : null}
+          titleStyle={{color: '#333'}}
+          containerStyle={{borderRadius: 20, marginHorizontal: 10}}
           buttonStyle={{backgroundColor: '#5cfff2'}}
-          ViewComponent={LinearGradient} 
-          linearGradientProps={{
-            start:{x: 0, y: 0},
-            end:{x: 1, y: 0},
-            colors:['#5cfff2', '#09d6c6']
+          onPress={() => {
+            handleOnPressLogin();
           }}
-          onPress={()=>{
-             handleOnPressLogin();
-            }}
         />
         <View style={styles.signup}>
-            <Text style={{fontSize: 14}} >
-                Bạn đã có tài khoản?
-            </Text>
-            <TouchableOpacity 
-              onPress={()=>navigation.navigate('SignIn')}
-            >
-                <Text style={styles.signupNow}>Đăng nhập ngay</Text>
-            </TouchableOpacity>
+          <Text style={{fontSize: 14}}>Bạn đã có tài khoản?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+            <Text style={styles.signupNow}>Đăng nhập ngay</Text>
+          </TouchableOpacity>
         </View>
-      </Animatable.View>
+      </View>
     </ImageBackground>
   );
-}
-
+};
+export default SignUp;
 const styles = StyleSheet.create({
   loginContainer: {
     flex: 1,
     justifyContent: 'center',
-    
   },
   main: {
     flex: 5,
     backgroundColor: 'white',
     padding: 20,
-    borderTopLeftRadius:40,
-    borderTopRightRadius:40,
-    elevation:1,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    elevation: 1,
     justifyContent: 'space-between',
   },
-  title:{
-    marginTop:20,
+  title: {
+    marginTop: 20,
   },
   footerTitle: {
-    marginLeft:10,
+    marginLeft: 10,
     fontSize: 24,
     fontWeight: 'bold',
-    // textAlign: 'center',
   },
   footerTitle2: {
-    paddingVertical:10,
-    marginLeft:10,
+    paddingVertical: 10,
+    marginLeft: 10,
     color: 'gray',
-    // textAlign: 'center',
   },
-  action: {
-    // marginTop: 40,
+  input: {
+    fontSize: 16,
+    borderWidth: 0,
+    borderBottomColor: 'transparent',
   },
-  loginUsingMedia:{
-    //   backgroundColor: 'red',
-      flexDirection: 'row',
-      justifyContent: 'center',
+  signup: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  signup:{
-      padding:10,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
+  signupNow: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1394f0',
+    textDecorationLine: 'underline',
+    paddingHorizontal: 10,
   },
-  signupNow:{
-      fontSize: 14, fontWeight: 'bold', color:'#1394f0',
-       textDecorationLine: 'underline',
-       paddingHorizontal: 10,
-  }
 });

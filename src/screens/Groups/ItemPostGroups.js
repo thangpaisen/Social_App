@@ -15,7 +15,6 @@ import {Avatar} from 'react-native-elements';
 import Lightbox from 'react-native-lightbox-v2';
 import VideoPlayer from 'react-native-video-controls';
 import Icon from 'react-native-vector-icons/Ionicons';
-import image from '../../assets/images/br.png';
 import {useNavigation} from '@react-navigation/native';
 import dateFormat from 'dateformat';
 import auth from '@react-native-firebase/auth';
