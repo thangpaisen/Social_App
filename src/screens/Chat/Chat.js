@@ -17,9 +17,11 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import ItemUserOnline from './ItemUserOnline';
 import Nodata from "./../../components/Nodata";
+import Loading from "./../../components/Loading";
 const Chat = () => {
   const [listUsers, setListUsers] = useState([]);
   const [messagesThreads, setMessagesThreads] = useState([]);
+  const [loading, setLoading] = useState(true);
   const me = useSelector(state => state.user.data);
   const navigation = useNavigation();
   useEffect(() => {
@@ -41,6 +43,7 @@ const Chat = () => {
     };
   }, [me]);
   useEffect(() => {
+    setLoading(true);
     const sub2 = firestore()
       .collection('users')
       .doc(auth().currentUser.uid)
@@ -56,6 +59,7 @@ const Chat = () => {
           });
         });
         setMessagesThreads(messagesThreads);
+        setLoading(false);
       });
     return () => {
       sub2();
@@ -85,13 +89,15 @@ const Chat = () => {
           backgroundColor: '#ededed',
           marginVertical: 10,
         }}></View>
-      {messagesThreads.length>0?<View style={styles.listMessage}>
+      {loading?<Loading/>:(messagesThreads.length>0?
+      <View style={styles.listMessage}>
         <FlatList
           data={messagesThreads}
           renderItem={({item, index}) => <ItemRoomChat item={item} />}
           keyExtractor={item => item.id}
         />
-      </View>:<Nodata title = "Không có tin nhắn nào, bạn có thể tìm kiếm người để bắt đầu cuộc trò chuyện của mình" />}
+      </View>
+      :<Nodata title = "Không có tin nhắn nào, bạn có thể tìm kiếm người để bắt đầu cuộc trò chuyện của mình" />)}
     </View>
   );
 };

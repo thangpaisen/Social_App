@@ -53,25 +53,6 @@ const Home = () => {
       sub();
     };
   }, [refreshing,user]);
-  
-  useEffect(() => {
-      const backAction = () => {
-        Alert.alert("Thông báo", "Bạn có muốn thoát Ứng dụng", [
-        {
-            text: "Cancel",
-            onPress: () => null,
-            style: "cancel"
-        },
-        { text: "OK", onPress: () => BackHandler.exitApp() }
-        ]);
-        return true;
-    };
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
-    return () => backHandler.remove();
-  }, []);
   return (
     <View style={styles.container}>
       <Header user={user} />

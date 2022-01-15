@@ -18,13 +18,14 @@ import {useNavigation} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Loading from "./../../components/Loading";
+import Nodata from "./../../components/Nodata";
 
 const Groups = () => {
   const navigation = useNavigation();
   const [myGroups, setMyGroups] = React.useState([]);
   const [postsGroups, setPostsGroups] = React.useState([]);
   const [refreshing, setRefreshing] = useState(false);
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
     const unsubscribe = firestore()
@@ -64,7 +65,6 @@ const [loading, setLoading] = useState(true);
           style={styles.tab}
           onPress={() =>
             navigation.navigate('StackGroups', {screen: 'CreateGroup'})
-            // navigation.navigate('CreateGroup')
           }>
           <Icon name="add-circle-outline" size={22} color="#000" />
           <Text style={styles.textTab}>Tạo nhóm</Text>
@@ -73,7 +73,6 @@ const [loading, setLoading] = useState(true);
           style={styles.tab}
           onPress={() =>
                 navigation.navigate('StackGroups', {screen: 'Invites'})}
-                // navigation.navigate('Invites')}
         >
           <Icon name="mail-outline" size={22} color="#000" />
           <Text style={styles.textTab}>Lời mời</Text>
@@ -87,7 +86,7 @@ const [loading, setLoading] = useState(true);
           <Text style={styles.textTab}>Thành viên</Text>
         </TouchableOpacity>
       </View>
-      {myGroups.length?
+      {(loading || myGroups.length>0)?
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -111,7 +110,7 @@ const [loading, setLoading] = useState(true);
               <Text style={styles.textButtonMoreListGroup}>Xem thêm</Text>
             </TouchableOpacity>
           </View>
-          {!loading?
+          {loading?<Loading />:
           <FlatList
             data={myGroups}
             horizontal
@@ -138,17 +137,13 @@ const [loading, setLoading] = useState(true);
               </Pressable>
             )}
             keyExtractor={(item, index) => item.id}
-          />
-        :<Loading />}
+          />}
         </View>
-        {!loading?postsGroups.map(item => (
+        {loading?<Loading />:postsGroups.map(item => (
           <ItemPostGroups key={item.id} item={item} />
-        ))
-        :<Loading />}
+        ))}
       </ScrollView>
-      :<View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                <Text>Bạn chưa tham gia nhóm nào</Text>
-        </View>}
+      :<Nodata title="Bạn chưa tham gia nhóm nào" />}
     </View>
   );
 };

@@ -111,13 +111,15 @@ const PostDetail = ({route}) => {
     setLockUpComment(false);
   };
   const openLibrary = () => {
-    ImagePicker.openPicker({}).then(image => {
+    ImagePicker.openPicker({mediaType: 'photo'}).then(image => {
       setImageComment({uri: image.path, fileName: image.modificationDate});
+    }).catch(err => {
     });
   };
   const openCamera = () => {
-    ImagePicker.openCamera({}).then(image => {
+    ImagePicker.openCamera({mediaType: 'photo'}).then(image => {
       setImageComment({uri: image.path, fileName: image.modificationDate});
+    }).catch(err => {
     });
   };
   const handleOnPressRemoveImageComment = () => {

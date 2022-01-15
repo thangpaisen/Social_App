@@ -15,19 +15,17 @@ const Routes = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
   const [isBlocked, setIsBlocked] = useState(false);
-  // Handle user state changes
-  function onAuthStateChanged(user) {
-     setUser(user);
-     firestore()
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged((user) => {
+      setUser(user);
+      firestore()
           .collection('users')
           .doc(user?.uid)
           .onSnapshot(doc => {
-            setIsBlocked(doc?.data().isBlocked);
+            setIsBlocked(doc?.data()?.isBlocked);
           });
      if (initializing) setInitializing(false)
-  }
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    });
     return subscriber; // unsubscribe on unmount
   }, []);
     if (initializing) {

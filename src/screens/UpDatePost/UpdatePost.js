@@ -16,7 +16,6 @@ import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Avatar} from 'react-native-elements';
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
@@ -42,14 +41,16 @@ const UpDatePost = ({route}) => {
     });
   };
   const openLibrary = () => {
-    ImagePicker.openPicker({}).then(image => {
+    ImagePicker.openPicker({mediaType: 'photo'}).then(image => {
       setImageUpImp({uri: image.path, fileName: image.modificationDate});
-    });
+    }).catch(error => {
+      });
   };
   const openCamera = () => {
-    ImagePicker.openCamera({}).then(image => {
+    ImagePicker.openCamera({mediaType: 'photo'}).then(image => {
       setImageUpImp({uri: image.path, fileName: image.modificationDate});
-    });
+    }).catch(error => {
+      });
   };
   const handleOnUploadPosts = async () => {
     if (text || imageUpImp.uri) {

@@ -1,5 +1,5 @@
 package com.social_app;
-
+import android.os.Bundle;
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -11,5 +11,9 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "Social_App";
+  }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(null);
   }
 }

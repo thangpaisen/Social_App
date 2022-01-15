@@ -20,7 +20,7 @@ import {Input} from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import {useNavigation} from '@react-navigation/native';
 import { useSelector,useDispatch } from "react-redux";
 import { getUser } from "./../../redux/actions/user";
@@ -89,77 +89,59 @@ const UpdateProfileUser = ({route}) => {
             text1: 'Hồ sơ đã được Cập nhật',
             visibilityTime: 100,
           });
+          ImagePicker.clean();
           navigation.goBack();
         });
     }
   };
   const openLibrary = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      response => {
-        if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          if (typeImage === 'avatar') {
+    ImagePicker.openPicker({mediaType: 'photo'}).then(image => {
+      if (typeImage === 'avatar') {
             setProfileUser({
               ...profileUser,
               imageAvatar: {
-                fileName: fileName,
-                uri: uri,
+                fileName: image.modificationDate,
+                uri: image.path,
               },
             });
-            setModalVisible(false);
           }
-          if (typeImage === 'cover') {
+      if (typeImage === 'cover') {
             setProfileUser({
               ...profileUser,
               imageCover: {
-                fileName: fileName,
-                uri: uri,
+                fileName: image.modificationDate,
+                uri: image.path,
               },
             });
-            setModalVisible(false);
           }
-        } else console.log('exit ');
-      },
-    );
+      setModalVisible(false);  
+    }).catch(error => {
+    });
   };
   const openCamera = () => {
-    launchCamera(
-      {
-        mediaType: 'photo',
-        includeBase64: false,
-      },
-      response => {
-        if (!response.didCancel) {
-          const {uri, fileName, height, width} = response.assets[0];
-          if (typeImage === 'avatar') {
+    ImagePicker.openCamera({mediaType: 'photo'}).then(image => {
+      if (typeImage === 'avatar') {
             setProfileUser({
               ...profileUser,
               imageAvatar: {
-                fileName: fileName,
-                uri: uri,
+                fileName: image.modificationDate,
+                uri: image.path,
               },
             });
-            setModalVisible(false);
           }
-          if (typeImage === 'cover') {
+      if (typeImage === 'cover') {
             setProfileUser({
               ...profileUser,
               imageCover: {
-                fileName: fileName,
-                uri: uri,
+                fileName: image.modificationDate,
+                uri: image.path,
               },
             });
-            setModalVisible(false);
           }
-        } else console.log('exit ');
-      },
-    );
+      setModalVisible(false);  
+    }).catch(error => {
+    });
   };
-
   return (
     <>
       <View style={styles.container}>
@@ -244,8 +226,6 @@ const UpdateProfileUser = ({route}) => {
       </Modal>
       {/* model loading */}
       <Modal
-        // animationType="slide"
-        // transparent={true}
         backdropOpacity={0.3}
         isVisible={loading}>
         <View style={styles.model}>
@@ -290,8 +270,6 @@ const styles = StyleSheet.create({
   },
   model: {
     flex: 1,
-    //   backgroundColor: 'black',
-    //   opacity: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
   },

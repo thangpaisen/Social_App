@@ -40,13 +40,15 @@ const UploadPost = ({route}) => {
     ImagePicker.clean();
   };
   const openLibrary = () => {
-    ImagePicker.openPicker({}).then(image => {
+    ImagePicker.openPicker({mediaType: 'photo'}).then(image => {
       setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    }).catch(error => {
     });
   };
   const openCamera = () => {
-    ImagePicker.openCamera({}).then(image => {
+    ImagePicker.openCamera({mediaType: 'photo'}).then(image => {
       setImageUpImp({uri: image.path, fileName: image.modificationDate});
+    }).catch(error => {
     });
   };
   const handleOnUploadPosts = async () => {
